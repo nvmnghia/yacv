@@ -32,8 +32,9 @@ class MainActivity : AppCompatActivity() {
         // However, with Navigation Component, mapping from item click to fragment
         // is handled in nav graph xml, simply by:
         // menu item ID = nav item ID
-        // These 2 IDs MUST NOT be the same as the ID of the fragment itself.
-        // If the ID of the fragment itself is passed, hamburger will be broken.
+        // The menu is still/must be bound with navView by app:menu in navView's xml.
+        // These 2 IDs MUST NOT be the same as the ID of the fragment itself,
+        // or else hamburger will be broken.
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
