@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <item android:id="@+id/nav_fragment_library"
+            android:title="Library" />
+        <item android:id="@+id/nav_fragment_browse_file"
+            android:title="Browse File" />
+        <item android:id="@+id/nav_fragment_about"
+            android:title="About" />
+    </group>
+</menu>
