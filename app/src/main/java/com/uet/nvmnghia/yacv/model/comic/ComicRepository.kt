@@ -1,7 +1,7 @@
 package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.lifecycle.LiveData
-import com.uet.nvmnghia.yacv.parser.Scanner
+import com.uet.nvmnghia.yacv.parsers.ComicScanner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +15,10 @@ import javax.inject.Singleton
 // therefore that exact & only instance is provided anywhere needed.
 // Of course there're more scoping annotations
 @Singleton
-class ComicRepository @Inject constructor(
-//    private val executor: Executor,
+class ComicRepository
+// @Inject in field declaration:       inject something into this field
+// @Inject in constructor declaration: inject this class somewhere, init by this constructor
+@Inject constructor(
     private val comicDao: ComicDao
 ) {
     fun getComics(rescan: Boolean = false): LiveData<List<Comic>> {
@@ -26,11 +28,8 @@ class ComicRepository @Inject constructor(
 
     fun rescanComics() {
         // Run in background
-//        executor.execute {
-//            comicDao.save(Scanner.scan().map { comicFile -> Comic(comicFile.path.toString()) })
-//        }
         CoroutineScope(Dispatchers.IO).launch {
-            comicDao.save(Scanner.scan().map { comicFile -> Comic(comicFile.path.toString()) })
+            comicDao.save(ComicScanner.scan().map { comicFile -> Comic(comicFile.path.toString()) })
         }
     }
 }

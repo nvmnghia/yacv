@@ -22,11 +22,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
 
-    // Injected field can't be private
-    // @Inject in field declaration:       inject something into this field
-    // @Inject in constructor declaration: inject this class somewhere, init by this constructor
-//    @Inject
-//    lateinit var viewModelFactory: ViewModelProvider.Factory
     val viewModel: LibraryViewModel by viewModels()
 
     lateinit var folderAdapter: FolderAdapter

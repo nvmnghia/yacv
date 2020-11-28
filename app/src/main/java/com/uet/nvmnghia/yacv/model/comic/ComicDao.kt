@@ -23,7 +23,7 @@ interface ComicDao {
     fun save(comics: List<Comic>)
 
     // Room is smart: only queries if there's observer
-    @Query("SELECT * FROM comic WHERE id = :comicId")
+    @Query("SELECT * FROM comic WHERE rowid = :comicId")
     fun load(comicId: String) : LiveData<Comic>
 
     @Query("SELECT * FROM comic")
