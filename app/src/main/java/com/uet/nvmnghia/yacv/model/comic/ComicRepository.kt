@@ -31,7 +31,7 @@ class ComicRepository
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
             ComicScanner.scan().collect { files ->
-                comicDao.saveUnsafe(files.filterNotNull().map { file -> Comic(file) })
+                comicDao.save(files.filterNotNull().map { file -> Comic(file) })
             }
         }
     }

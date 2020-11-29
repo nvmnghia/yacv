@@ -1,11 +1,9 @@
 package com.uet.nvmnghia.yacv.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
-import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

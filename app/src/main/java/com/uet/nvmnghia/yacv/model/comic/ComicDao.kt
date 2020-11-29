@@ -17,20 +17,10 @@ interface ComicDao {
      * Save a [Comic] instance without checking duplicate path.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveUnsafe(comic: Comic)
-
-    /**
-     * Save a [Comic] instance only if path is not duplicate.
-     */
-    @Transaction
-    open suspend fun save(comic: Comic) {
-        if (getNumberOfMatch(comic.path) == 0) {
-            saveUnsafe(comic)
-        }
-    }
+    fun save(comic: Comic)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveUnsafe(comics: List<Comic>)
+    fun save(comics: List<Comic>)
 
     // Room is smart: only queries if there's observer
     @Query("SELECT rowid, * FROM comic WHERE rowid = :comicId")

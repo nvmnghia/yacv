@@ -10,6 +10,24 @@ import java.util.*
  * https://github.com/dickloraine/EmbedComicMetadata/blob/master/genericmetadata.py
  * More information about numbering convention for comic
  * https://www.reddit.com/r/comicbooks/comments/k1bqri/numbering_convention_for_comic/
+ *
+ * Fts table doesn't support UNIQUE, which is a must for storing canonical paths.
+ * Methods considered:
+ * - (Current) Split into 2 tables, exactly like:
+ *   https://stackoverflow.com/questions/29815248/full-text-search-example-in-android
+ *     + original table: store all fields
+ *     + Fts table:      store Fts fields (Fts fields seem to be stored twice, but in fact they're not)
+ *   Drawbacks: complicated linking (2 separated tables) IF not using Room, INSERT seems to be slower
+ * - Split into 2 tables, inspired by the above SO
+ *     + `comic`:    store id & path: use UNIQUE on path
+ *     + `metadata`: store the rest:  Fts4 enabled
+ *   Drawbacks: even more complicated & manual linking
+ * - Normal table + Trigger check
+ *     + Trigger on every INSERT
+ *     + Trigger doesn't work for Fts (manual index is 1 lines of Room annotation)
+ *   Drawbacks: slowish
+ * - Fts table + app-side check
+ *   Drawbacks: even more slowish
  */
 
 /**
@@ -18,8 +36,7 @@ import java.util.*
  * - Dao: collection of queries
  * - Database: collection of collections of queries
  */
-@Entity
-@Fts4(notIndexed = ["language", "bw", "manga", "date", "web"])    // Full Text Search
+@Entity(indices = [Index(value = ["path"], unique = true)])
 data class Comic(
     val path: String    // TODO: make sure path is canonical
 ) {
@@ -31,7 +48,6 @@ data class Comic(
     // - Row name: must be "rowid"
     // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "rowid")
     var id: Int = 0
 
     // Comic info
@@ -59,30 +75,8 @@ data class Comic(
     var format: String? = null
 
     // Reading habit
-//    var love: Boolean = false
-//    @ColumnInfo(name = "read_count")
-//    var readCount: Int = 0
-
-    class CalendarConverter {
-        /**
-         * Convert timestamp in millisecond [msTimestamp] to [Calendar].
-         */
-        @TypeConverter
-        fun fromTimestampToCalendar(msTimestamp: Long?): Calendar? {
-            if (msTimestamp == null) {
-                return null
-            }
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = msTimestamp
-            return calendar
-        }
-
-        /**
-         * Convert [Calendar] to timestamp in millisecond.
-         */
-        @TypeConverter
-        fun fromCalendarToTimestamp(calendar: Calendar?): Long? {
-            return calendar?.timeInMillis
-        }
-    }
+    @ColumnInfo(defaultValue = "0")
+    var love: Boolean = false
+    @ColumnInfo(name = "read_count", defaultValue = "0")
+    var readCount: Int = 0
 }

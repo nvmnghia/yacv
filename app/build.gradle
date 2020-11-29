@@ -3,6 +3,13 @@ plugins {
     id 'kotlin-android'
 }
 
+// Annotation processing, equivalent to annotationProcessor directive when config for java
+// This one must be placed before use in android {}
+apply plugin: 'kotlin-kapt'
+
+// DI
+apply plugin: 'dagger.hilt.android.plugin'
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -18,11 +25,11 @@ android {
 
         // https://stackoverflow.com/a/44424908/5959593
         // Somehow this one failed
-//        kapt {
-//            arguments {
-//                arg("room.schemaLocation", "$projectDir/schemas")
-//            }
-//        }
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas".toString())
+            }
+        }
     }
 
     buildTypes {
@@ -39,12 +46,6 @@ android {
         jvmTarget = '1.8'
     }
 }
-
-// Annotation processing, equivalent to annotationProcessor directive when config for java
-apply plugin: 'kotlin-kapt'
-
-// DI
-apply plugin: 'dagger.hilt.android.plugin'
 
 dependencies {
 
