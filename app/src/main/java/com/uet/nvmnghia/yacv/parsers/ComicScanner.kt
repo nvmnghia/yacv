@@ -1,7 +1,10 @@
 package com.uet.nvmnghia.yacv.parsers
 
 import android.os.Environment
+import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parsers.file.ComicParser
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -23,21 +26,33 @@ class ComicScanner {
          *
          * @param folderPath Folder to scan for comic
          */
-        fun scan(folderPath: String? = null): List<File> {
-            val comics: MutableList<File> = ArrayList()
-
+        fun scan(folderPath: String? = null): Flow<Array<File?>> {
             // Param is val, i.e. no reassignment
             // https://stackoverflow.com/a/42540294/5959593
             val _folderPath = folderPath ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
 
-            File(_folderPath).walkTopDown()
-                .forEach { file ->
+            return flow {
+                // Emit in chunk
+                val BUFFER_SIZE = 10
+                var buffer = arrayOfNulls<File>(BUFFER_SIZE)
+                var counter = 0
+
+                File(_folderPath).walkTopDown().forEach { file ->
                     if (isComic(file)) {
-                        comics.add(file)
+                        if (counter == BUFFER_SIZE) {
+                            emit(buffer)
+                            buffer = arrayOfNulls(BUFFER_SIZE)
+                            counter = 0
+                        }
+
+                        buffer[counter] = file
+                        counter++
                     }
                 }
 
-            return comics
+                // Emit the rest
+                emit(buffer)
+            }
         }
     }
 }

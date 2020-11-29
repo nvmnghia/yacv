@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.parsers.ComicScanner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,7 +30,9 @@ class ComicRepository
     fun rescanComics() {
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
-            comicDao.save(ComicScanner.scan().map { comicFile -> Comic(comicFile.path.toString()) })
+            ComicScanner.scan().collect { files ->
+                comicDao.saveUnsafe(files.filterNotNull().map { file -> Comic(file) })
+            }
         }
     }
 }

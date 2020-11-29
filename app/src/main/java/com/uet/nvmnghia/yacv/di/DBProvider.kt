@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
+import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,6 +27,7 @@ class DBProvider {
         appContext: Context): AppDatabase {
         return Room
             .databaseBuilder(appContext, AppDatabase::class.java, "app_db")
+            .addMigrations(AppDatabase.MIGRATION_1_2)
             .build()
     }
 

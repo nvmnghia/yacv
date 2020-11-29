@@ -1,6 +1,7 @@
 package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.room.*
+import java.io.File
 import java.util.*
 
 
@@ -18,18 +19,23 @@ import java.util.*
  * - Database: collection of collections of queries
  */
 @Entity
-//@Fts4    // Full Text Search
-data class Comic(var path: String) {
-    // TODO: Add volume,...
+@Fts4(notIndexed = ["language", "bw", "manga", "date", "web"])    // Full Text Search
+data class Comic(
+    val path: String    // TODO: make sure path is canonical
+) {
+
+    constructor(file: File) : this(file.canonicalPath)
 
     // ID could be omitted for FTS, but if present:
     // - Type: must be Int
     // - Row name: must be "rowid"
+    // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
-//    @ColumnInfo(name = "rowid")
+    @ColumnInfo(name = "rowid")
     var id: Int = 0
 
     // Comic info
+    // TODO: Add volume,...
     // @formatter:off
     var series    : String?   = null
     var writer    : String?   = null
@@ -52,6 +58,10 @@ data class Comic(var path: String) {
     var numPages: Int = 0
     var format: String? = null
 
+    // Reading habit
+//    var love: Boolean = false
+//    @ColumnInfo(name = "read_count")
+//    var readCount: Int = 0
 
     class CalendarConverter {
         /**

@@ -4,6 +4,7 @@ import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parsers.file.ComicParser
 import com.uet.nvmnghia.yacv.parsers.metadata.ComicRackParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
+import com.uet.nvmnghia.yacv.utils.NaturalOrderComparator
 import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipEntry
@@ -17,9 +18,14 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
         .toList()
         .filter {entry ->
             !entry.isDirectory && FileUtils.isImage(entry.name)}
+        .sortedWith(object : NaturalOrderComparator() {
+            fun compare(z1: ZipEntry, z2: ZipEntry): Int {
+                return compare(z1.name, z2.name)
+            }
+        })
 
     override fun getPageInputStream(pageIdx: Int): InputStream {
-        TODO()
+        return zipFile.getInputStream(entries[pageIdx])
     }
 
     override fun _getNumOfPages(): Int {
@@ -34,7 +40,7 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
         val comic = Comic(filePath)
 
         val comicInfoXml = zipFile.entries()
-            .toList()
+            .asSequence()
             .firstOrNull {entry ->
                 entry.name.toLowerCase(Locale.ROOT) == "comicinfo.xml"}
         if (comicInfoXml != null) {
@@ -45,6 +51,6 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        zipFile.close()
     }
 }
