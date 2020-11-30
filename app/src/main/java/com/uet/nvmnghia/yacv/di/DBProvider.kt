@@ -22,10 +22,10 @@ class DBProvider {
     @Provides
     fun provideAppDatabase(
         @ApplicationContext    // Hilt container is just an object. If needed, it can be injected like this. TODO: What exactly is a "container"?
-        appContext: Context): AppDatabase {
+        appContext: Context,
+    ): AppDatabase {
         return Room
             .databaseBuilder(appContext, AppDatabase::class.java, "app_db")
-            .addMigrations(AppDatabase.MIGRATION_1_2)
             .build()
     }
 

@@ -1,10 +1,9 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
+import com.uet.nvmnghia.yacv.model.folder.Folder
 import java.io.File
+import java.io.IOException
 import java.util.*
 
 
@@ -39,9 +38,19 @@ import java.util.*
  * - Dao: collection of queries
  * - Database: collection of collections of queries
  */
-@Entity(indices = [Index(value = ["path"], unique = true)])
+@Entity(
+    indices = [
+        Index(value = ["path"], unique = true),
+        Index(value = ["folder_id"]),
+    ],
+    foreignKeys = [
+        ForeignKey(entity = Folder::class,
+            parentColumns = ["id"],
+            childColumns = ["folder_id"]),    // Foreign key doesn't automagically index
+    ]
+)
 data class Comic(
-    val path: String    // TODO: make sure path is canonical
+    val path: String,    // TODO: make sure path is canonical
 ) {
 
     constructor(file: File) : this(file.canonicalPath)
@@ -51,7 +60,7 @@ data class Comic(
     // - Row name: must be "rowid"
     // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Long = 0
 
     // Comic info
     // TODO: Add volume,...
@@ -73,13 +82,27 @@ data class Comic(
     // File info
     @ColumnInfo(name = "current_page")
     var currentPage: Int = 0
+
     @ColumnInfo(name = "num_pages")
     var numPages: Int = 0
+
     var format: String? = null
+
+    @ColumnInfo(name = "folder_id")
+    var folderId: Long = 0
 
     // Reading habit
     @ColumnInfo(defaultValue = "0")
     var love: Boolean = false
+
     @ColumnInfo(name = "read_count", defaultValue = "0")
     var readCount: Int = 0
+
+    // https://stackoverflow.com/a/57762552/5959593
+    @delegate:Ignore
+    val parentFolderPath: String by lazy {
+        val parentFolder = File(path).parentFile
+            ?: throw IOException("Cannot get parent folder of $path")
+        parentFolder.canonicalPath
+    }
 }

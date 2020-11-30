@@ -20,11 +20,11 @@ class ComicRepository
 // @Inject in field declaration:       inject something into this field
 // @Inject in constructor declaration: inject this class somewhere, init by this constructor
 @Inject constructor(
-    private val comicDao: ComicDao
+    private val comicDao: ComicDao,
 ) {
     fun getComics(rescan: Boolean = false): LiveData<List<Comic>> {
         if (rescan) rescanComics()
-        return comicDao.load()
+        return comicDao.getAll()
     }
 
     fun rescanComics() {
