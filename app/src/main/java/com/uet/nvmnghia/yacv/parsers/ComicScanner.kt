@@ -1,13 +1,11 @@
 package com.uet.nvmnghia.yacv.parsers
 
 import android.os.Environment
-import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parsers.file.ComicParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class ComicScanner {

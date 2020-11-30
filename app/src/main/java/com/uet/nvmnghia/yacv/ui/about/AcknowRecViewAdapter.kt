@@ -1,12 +1,11 @@
 package com.uet.nvmnghia.yacv.ui.about
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
-
 import com.uet.nvmnghia.yacv.ui.about.dummy.DummyContent.DummyItem
 
 /**

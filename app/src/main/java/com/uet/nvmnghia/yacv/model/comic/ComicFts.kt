@@ -6,7 +6,7 @@ import java.util.*
 
 
 /**
- * Fts entity for [Comic], storing Fts fields only
+ * Fts entity for [Comic], storing Fts fields only.
  */
 @Entity
 @Fts4(contentEntity = Comic::class)

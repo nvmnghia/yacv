@@ -1,11 +1,11 @@
 package com.uet.nvmnghia.yacv.ui.browse
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.uet.nvmnghia.yacv.R
 
 class BrowseFileFragment : Fragment() {

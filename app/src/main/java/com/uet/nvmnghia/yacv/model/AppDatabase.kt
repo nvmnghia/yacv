@@ -30,6 +30,10 @@ abstract class AppDatabase : RoomDatabase() {
         // so it's reasonable to put migration shit here
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                // Reason for these shitty manual work
+                // https://stackoverflow.com/a/54045368/5959593
+                // TL;DR: no auto migration
+
                 // Create v2 table...
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS new_Comic (
@@ -55,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // ... and index it
+                // ... and index path
                 database.execSQL("""
                     CREATE UNIQUE INDEX IF NOT EXISTS index_Comic_path ON new_Comic (path)
                 """.trimIndent())

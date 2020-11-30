@@ -1,6 +1,9 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import java.io.File
 import java.util.*
 

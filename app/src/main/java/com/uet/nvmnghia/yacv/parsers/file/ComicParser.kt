@@ -1,7 +1,6 @@
 package com.uet.nvmnghia.yacv.parsers.file
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
-import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 

@@ -29,7 +29,7 @@ package com.uet.nvmnghia.yacv.utils;
  3. This notice may not be removed or altered from any source distribution.
  */
 
-import java.util.*;
+import java.util.Comparator;
 
 public class NaturalOrderComparator implements Comparator
 {

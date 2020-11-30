@@ -1,9 +1,7 @@
 package com.uet.nvmnghia.yacv.ui.library
 
-import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
