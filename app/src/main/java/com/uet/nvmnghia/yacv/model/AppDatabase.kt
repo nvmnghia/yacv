@@ -8,10 +8,14 @@ import com.uet.nvmnghia.yacv.model.character.CharacterDao
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.comic.ComicFts
-import com.uet.nvmnghia.yacv.model.join.CharacterComicJoin
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderDao
-import com.uet.nvmnghia.yacv.model.join.CharacterComicJoinDao
+import com.uet.nvmnghia.yacv.model.genre.Genre
+import com.uet.nvmnghia.yacv.model.genre.GenreDao
+import com.uet.nvmnghia.yacv.model.join.ComicCharacterJoin
+import com.uet.nvmnghia.yacv.model.join.ComicCharacterJoinDao
+import com.uet.nvmnghia.yacv.model.join.ComicGenreJoin
+import com.uet.nvmnghia.yacv.model.join.ComicGenreJoinDao
 import com.uet.nvmnghia.yacv.utils.RoomUtils
 
 
@@ -27,13 +31,18 @@ import com.uet.nvmnghia.yacv.utils.RoomUtils
 @Database(entities = [
     Comic::class, ComicFts::class,
     Folder::class,
-    Character::class, CharacterComicJoin::class,
- ], version = 1)
+    Character::class, ComicCharacterJoin::class,
+    Genre::class, ComicGenreJoin::class
+], version = 1)
 @TypeConverters(RoomUtils.CalendarConverter::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun comicDao(): ComicDao
-    abstract fun folderDao(): FolderDao
+    // @formatter:off
+    abstract fun comicDao()    : ComicDao
+    abstract fun folderDao()   : FolderDao
     abstract fun characterDao(): CharacterDao
+    abstract fun genreDao()    : GenreDao
 
-    abstract fun characterComicJoinDao(): CharacterComicJoinDao
+    abstract fun characterComicJoinDao(): ComicCharacterJoinDao
+    abstract fun genreComicJoinDao()    : ComicGenreJoinDao
+    // @formatter:on
 }

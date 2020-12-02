@@ -14,20 +14,18 @@ import java.util.*
 data class ComicFts(
     // @formatter:off
     @ColumnInfo(name = "Series")
-    var series    : String?,
+    var series   : String?,
     @ColumnInfo(name = "Writer")
-    var writer    : String?,
+    var writer   : String?,
     @ColumnInfo(name = "Title")
-    var title     : String?,
-    @ColumnInfo(name = "Genre")
-    var genre     : String?,
+    var title    : String?,
     @ColumnInfo(name = "Summary")
-    var summary   : String?,
+    var summary  : String?,
     @ColumnInfo(name = "Language")
-    var language  : String?,
+    var language : String?,
     @ColumnInfo(name = "Publisher")
-    var publisher : String?,
+    var publisher: String?,
     @ColumnInfo(name = "Web")
-    var web       : String?,
+    var web      : String?,
     // @formatter:on
 )

@@ -52,12 +52,12 @@ import java.util.*
 @Entity(
     indices = [
         Index(value = ["FilePath"], unique = true),
-        Index(value = ["FolderID"]),
+        Index(value = ["FolderID"]),    // Foreign key doesn't automagically index
     ],
     foreignKeys = [
-        ForeignKey(entity = Folder::class,
+        ForeignKey(entity = Folder::class,    // Referenced entity is parent
             parentColumns = ["FolderID"],
-            childColumns = ["FolderID"]),    // Foreign key doesn't automagically index
+            childColumns = ["FolderID"]),
     ]
 )
 data class Comic(
@@ -75,31 +75,30 @@ data class Comic(
     // TODO: Add volume,...
     // @formatter:off
     @ColumnInfo(name = "Series")
-    var series    : String?   = null
+    var series   : String?   = null
     @ColumnInfo(name = "Writer")
-    var writer    : String?   = null
+    var writer   : String?   = null
     @ColumnInfo(name = "Title")
-    var title     : String?   = null
-    @ColumnInfo(name = "Genre")
-    var genre     : String?   = null
+    var title    : String?   = null
     @ColumnInfo(name = "Summary")
-    var summary   : String?   = null
+    var summary  : String?   = null
     @ColumnInfo(name = "Language")
-    var language  : String?   = null
+    var language : String?   = null
     @ColumnInfo(name = "Publisher")
-    var publisher : String?   = null
+    var publisher: String?   = null
     @ColumnInfo(name = "BlackAndWhite")
-    var bw        : Boolean?  = null
+    var bw       : Boolean?  = null
     @ColumnInfo(name = "Manga")
-    var manga     : Boolean?  = null
+    var manga    : Boolean?  = null
     @ColumnInfo(name = "Date")
-    var date      : Calendar? = null
+    var date     : Calendar? = null
     @ColumnInfo(name = "Web")
-    var web       : String?   = null
+    var web      : String?   = null
     // @formatter:on
 
     // Temporary, as these fields will be split into tables
     @Ignore var tmpCharacters: String? = null
+    @Ignore var tmpGenre     : String? = null
 
     // File info
     @ColumnInfo(name = "CurrentPage")

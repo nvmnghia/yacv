@@ -41,10 +41,15 @@ abstract class ComicDao(private val appDatabase: AppDatabase) {
 
         val comicId = saveUnsafe(comic)
 
-        if (comic.tmpCharacters != null) {
-            val characterIds = appDatabase.characterDao()
-                .saveIfNotExisting(comic.tmpCharacters!!.split(','))
+        // New nullcheck with safe call operator & let
+        comic.tmpCharacters?.let {
+            val characterIds = appDatabase.characterDao().saveIfAbsent(it.split(','))
             appDatabase.characterComicJoinDao().save(comicId, characterIds)
+        }
+
+        comic.tmpGenre?.let {
+            val genreIds = appDatabase.genreDao().saveIfAbsent(it.split(','))
+            appDatabase.genreComicJoinDao().save(comicId, genreIds)
         }
 
         return comicId

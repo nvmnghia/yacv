@@ -66,20 +66,21 @@ class ComicRackParser {
                 // TODO: <Pages> are ignored for now
                 when (parser.name) {
                     // @formatter:off
-                    "Series"        -> comic.series     = parseText(parser)
-                    "Writer"        -> comic.writer     = parseText(parser)
-                    "Title"         -> comic.title      = parseText(parser)
-                    "Genre"         -> comic.genre      = parseText(parser)
-                    "Summary"       -> comic.summary    = parseText(parser)
+                    "Series"        -> comic.series        = parseText(parser)
+                    "Writer"        -> comic.writer        = parseText(parser)
+                    "Title"         -> comic.title         = parseText(parser)
+                    "Genre"         -> comic.tmpGenre      = parseText(parser)
+                    "Summary"       -> comic.summary       = parseText(parser)
                     "Characters"    -> comic.tmpCharacters = parseText(parser)
-                    "LanguageISO"   -> comic.language   = parseText(parser)
-                    "Publisher"     -> comic.publisher  = parseText(parser)
-                    "BlackAndWhite" -> comic.bw         = parseBool(parser)
-                    "Manga"         -> comic.manga      = parseBool(parser)
-                    "Year"          -> year             = parseInt(parser)
-                    "Month"         -> month            = parseInt(parser) ?: month
-                    "Day"           -> day              = parseInt(parser) ?: day
-                    "Web"           -> comic.web        = parseText(parser)
+                    "LanguageISO"   -> comic.language      = parseText(parser)
+                    "Publisher"     -> comic.publisher     = parseText(parser)
+                    "BlackAndWhite" -> comic.bw            = parseBool(parser)
+                    "Manga"         -> comic.manga         = parseBool(parser)
+                    "Year"          -> year                = parseInt(parser)
+                    "Month"         -> month               = parseInt(parser) ?: month
+                    "Day"           -> day                 = parseInt(parser) ?: day
+                    "Web"           -> comic.web           = parseText(parser)
+                    else            -> skip(parser)
                     // @formatter:on
                 }
             }
@@ -154,6 +155,23 @@ class ComicRackParser {
                 parseText(parser).toInt()
             } catch (nfe: NumberFormatException) {
                 null
+            }
+        }
+
+        /**
+         * Skip tags.
+         */
+        private fun skip(parser: XmlPullParser) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                throw IllegalStateException()
+            }
+            var depth = 1
+
+            while (depth != 0) {
+                when (parser.next()) {
+                    XmlPullParser.END_TAG -> depth--
+                    XmlPullParser.START_TAG -> depth++
+                }
             }
         }
     }

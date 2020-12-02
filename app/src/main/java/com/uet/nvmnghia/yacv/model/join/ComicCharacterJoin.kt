@@ -3,28 +3,28 @@ package com.uet.nvmnghia.yacv.model.join
 import androidx.room.*
 
 
-@Entity(primaryKeys = ["CharacterID", "ComicID"])
-data class CharacterComicJoin(
-    @ColumnInfo(name = "CharacterID")
-    val characterId: Long,
+@Entity(primaryKeys = ["ComicID", "CharacterID"])
+data class ComicCharacterJoin(
     @ColumnInfo(name = "ComicID")
     val comicId: Long,
+    @ColumnInfo(name = "CharacterID")
+    val characterId: Long,
 )
 
 
 @Dao
-interface CharacterComicJoinDao {
+interface ComicCharacterJoinDao {
     @Insert
-    fun save(join: CharacterComicJoin)
+    fun save(join: ComicCharacterJoin)
 
     fun save(comicId: Long, characterId: Long) {
-        save(CharacterComicJoin(characterId, comicId))
+        save(ComicCharacterJoin(comicId, characterId))
     }
 
     @Transaction
     fun save(comicId: Long, characterIds: Iterable<Long>) {
         characterIds.toSet()    // Avoid duplication. For example an erroneous <Characters>: "batMan, batman"
-            .forEach { characterId -> save(CharacterComicJoin(characterId, comicId)) }
+            .forEach { characterId -> save(ComicCharacterJoin(comicId, characterId)) }
     }
 }
 

@@ -17,7 +17,7 @@ abstract class CharacterDao {
     protected abstract fun saveUnsafe(character: Character): Long
 
     /**
-     * The same as the overloaded method.
+     * Same as the overloaded method.
      */
     @Insert
     protected abstract fun saveUnsafe(characters: List<Character>): List<Long>
@@ -26,9 +26,9 @@ abstract class CharacterDao {
      * Save with checking duplicate.
      */
     @Transaction
-    open fun saveIfNotExisting(name: String): Long {
+    open fun saveIfAbsent(name: String): Long {
         val trimmedName = name.trim()
-        val id = getExistingId(trimmedName)
+        val id = searchIdByName(trimmedName)
         return if (id.isNotEmpty()) {
             id[0]
         } else {
@@ -40,17 +40,17 @@ abstract class CharacterDao {
      * Same as the overloaded method.
      */
     @Transaction
-    open fun saveIfNotExisting(names: Iterable<String>): List<Long> {
-        return names.map { name -> saveIfNotExisting(name) }
+    open fun saveIfAbsent(names: Iterable<String>): List<Long> {
+        return names.map { name -> saveIfAbsent(name) }
     }
 
     /**
      * Deduplicate, then save.
      * Returns a [HashMap] that maps a character name to its ID.
      */
-    fun dedupThenSaveIfNotExist(names: Iterable<String>): HashMap<String, Long> {
+    fun dedupThenSaveIfAbsent(names: Iterable<String>): HashMap<String, Long> {
         val nameSet = names.toSet()
-        val characterIds = saveIfNotExisting(nameSet)
+        val characterIds = saveIfAbsent(nameSet)
 
         var counter = 0
         val mapCharacterToId = HashMap<String, Long>()
@@ -65,8 +65,8 @@ abstract class CharacterDao {
     @Query("SELECT rowid, * FROM Character")
     abstract fun getAll(): LiveData<List<Character>>
 
-    @Query("SELECT rowid FROM Character WHERE name MATCH :name")
-    abstract fun getExistingId(name: String): List<Long>
+    @Query("SELECT rowid FROM Character WHERE Name MATCH :name")
+    abstract fun searchIdByName(name: String): List<Long>
 
 //    @Transaction    // There're actually 2 queries in @Relation-related query
 //    @Query("SELECT * FROM Character WHERE rowid = :characterId")
