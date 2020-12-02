@@ -13,16 +13,15 @@ import java.util.zip.ZipFile
 
 class CBZParser(filePath: String) : ComicParser(filePath) {
 
+    companion object {
+        val COMPARATOR = NaturalOrderComparator<ZipEntry>()
+    }
+
     private val zipFile: ZipFile = ZipFile(filePath)
     private val entries: List<ZipEntry> = zipFile.entries()
         .toList()
-        .filter {entry ->
-            !entry.isDirectory && FileUtils.isImage(entry.name)}
-        .sortedWith(object : NaturalOrderComparator() {
-            fun compare(z1: ZipEntry, z2: ZipEntry): Int {
-                return compare(z1.name, z2.name)
-            }
-        })
+        .filter { entry -> !entry.isDirectory && FileUtils.isImage(entry.name) }
+        .sortedWith(COMPARATOR)
 
     override fun getPageInputStream(pageIdx: Int): InputStream {
         return zipFile.getInputStream(entries[pageIdx])
@@ -41,8 +40,9 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
 
         val comicInfoXml = zipFile.entries()
             .asSequence()
-            .firstOrNull {entry ->
-                entry.name.toLowerCase(Locale.ROOT) == "comicinfo.xml"}
+            .firstOrNull { entry ->
+                entry.name.toLowerCase(Locale.ROOT) == "comicinfo.xml"
+            }
         if (comicInfoXml != null) {
             ComicRackParser.parse(zipFile.getInputStream(comicInfoXml), comic)
         }

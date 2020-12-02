@@ -2,6 +2,7 @@ package com.uet.nvmnghia.yacv.parsers.metadata
 
 import android.util.Xml
 import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.utils.StringUtils.Companion.normalizeSpaces
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
@@ -70,7 +71,7 @@ class ComicRackParser {
                     "Title"         -> comic.title      = parseText(parser)
                     "Genre"         -> comic.genre      = parseText(parser)
                     "Summary"       -> comic.summary    = parseText(parser)
-                    "Characters"    -> comic.characters = parseText(parser)
+                    "Characters"    -> comic.tmpCharacters = parseText(parser)
                     "LanguageISO"   -> comic.language   = parseText(parser)
                     "Publisher"     -> comic.publisher  = parseText(parser)
                     "BlackAndWhite" -> comic.bw         = parseBool(parser)
@@ -114,7 +115,7 @@ class ComicRackParser {
         }
 
         /**
-         * Parse the text.
+         * Parse the text, also normalize spaces.
          *
          * @param parser [XmlPullParser] that is right before a text body
          * @return The parsed text, empty if the parser is not right before any text body
@@ -125,7 +126,7 @@ class ComicRackParser {
                 result = parser.text
                 parser.nextTag()
             }
-            return result
+            return normalizeSpaces(result)
         }
 
         private val SET_OF_BOOL_TRUE = setOf("yes", "true", "1")

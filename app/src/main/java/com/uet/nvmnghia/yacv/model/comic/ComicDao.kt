@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.uet.nvmnghia.yacv.model.AppDatabase
-import java.io.File
-import java.io.IOException
 
 
 /**
@@ -32,47 +30,68 @@ abstract class ComicDao(private val appDatabase: AppDatabase) {
     @Insert
     protected abstract fun saveUnsafe(comics: List<Comic>): List<Long>
 
+    /**
+     * Save with checking for foreign keys.
+     */
     @Transaction
     open    // By default, class methods are final (not overridable)
     fun save(comic: Comic): Long {
         comic.folderId = appDatabase.folderDao()
             .saveIfNotExisting(comic.parentFolderPath)
-        return saveUnsafe(comic)
+
+        val comicId = saveUnsafe(comic)
+
+        if (comic.tmpCharacters != null) {
+            val characterIds = appDatabase.characterDao()
+                .saveIfNotExisting(comic.tmpCharacters!!.split(','))
+            appDatabase.characterComicJoinDao().save(comicId, characterIds)
+        }
+
+        return comicId
     }
 
+    /**
+     * Do the same as the overloaded method.
+     * Internally, this method deduplicates before inserting.
+     */
     @Transaction
     open fun save(comics: List<Comic>): List<Long> {
         // Normal implementation: use existing save()
-        // Yes I'm sadistic
-//        return comics.map { comic -> save(comic) }
+        return comics.map { comic -> save(comic) }
 
-        // Map parent folder to ID
-        val parentFolders = comics.map { comic -> comic.parentFolderPath }.toSet().toList()
-        val parentFolderIds = appDatabase.folderDao().saveIfNotExisting(parentFolders)
-        val mapParentFolderId = HashMap<String, Long>()
-        for (i in parentFolders.indices) {
-            mapParentFolderId[parentFolders[i]] = parentFolderIds[i]
-        }
-
-        // Update comic instances
-        comics.map { comic -> comic.folderId = mapParentFolderId[comic.parentFolderPath]!! }
-
-        return saveUnsafe(comics)
+        // WIP: Deduplicate, if a future me think it's worth
+//        val mapParentFolderToId = appDatabase.folderDao().dedupThenSaveIfNotExist(
+//            comics.map { comic -> comic.parentFolderPath })
+//        comics.map { comic -> comic.folderId = mapParentFolderToId[comic.parentFolderPath]!! }
+//
+//        val comicIds = saveUnsafe(comics)
+//
+//        // Kotlin reduce doesn't have initial, instead use fold
+//        val characters = comics.fold(ArrayList<String>()) { characters, comic ->
+//            comic.tmpCharacters
+//                ?.trim()
+//                ?.split(',')
+//                ?.let { characters.addAll(it) }
+//            characters
+//        }
+//        val mapCharacterToId = appDatabase.characterDao().dedupThenSaveIfNotExist(characters)
+//
+//        return comicIds
     }
 
     // Room is smart: only queries if there's observer
-    @Query("SELECT * FROM comic WHERE id = :comicId")
+    @Query("SELECT * FROM Comic WHERE ComicID = :comicId")
     abstract fun get(comicId: String): LiveData<Comic>
 
-    @Query("SELECT * FROM comic")
+    @Query("SELECT * FROM Comic")
     abstract fun getAll(): LiveData<List<Comic>>
 
-    @Query("SELECT * FROM Comic WHERE folder_id = :folderId")
+    @Query("SELECT * FROM Comic WHERE FolderID = :folderId")
     abstract fun getComicsInFolder(folderId: Int): LiveData<List<Comic>>
 
-    @Query("SELECT * FROM Comic WHERE folder_id = :folderId LIMIT 1")
+    @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
     abstract fun getFirstComicInFolder(folderId: Int): LiveData<Comic>
 
-    @Query("SELECT COUNT(*) FROM comic WHERE path = :filePath")
+    @Query("SELECT COUNT(*) FROM Comic WHERE FilePath = :filePath")
     abstract fun getNumberOfMatch(filePath: String): Int
 }

@@ -11,7 +11,7 @@ import java.util.*
 class ComicScanner {
     companion object {
         private val COMPRESSION_FORMATS = enumValues<ComicParser.ComicFileType>()
-                .map { type -> type.extension }.toSet()
+            .map { type -> type.extension }.toSet()
 
         private fun isComic(file: File): Boolean {
             if (!file.isFile) return false
@@ -27,7 +27,8 @@ class ComicScanner {
         fun scan(folderPath: String? = null): Flow<Array<File?>> {
             // Param is val, i.e. no reassignment
             // https://stackoverflow.com/a/42540294/5959593
-            val _folderPath = folderPath ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
+            val _folderPath =
+                folderPath ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
 
             return flow {
                 // Emit in chunk

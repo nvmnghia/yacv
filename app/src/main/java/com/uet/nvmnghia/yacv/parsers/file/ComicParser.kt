@@ -6,8 +6,8 @@ import java.io.InputStream
 
 
 /**
- * A pull parser interface for comic file, inspired by bubble
- * The parser should be created by [ComicParserFactory]
+ * A pull parser interface for comic file, inspired by bubble.
+ * The parser should be created by [ComicParserFactory].
  *
  * Note that this is a pull parser, as described below:
  * https://stackoverflow.com/a/15895283/5959593
@@ -19,8 +19,6 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
     val numOfPages: Int
         get() = this._getNumOfPages()
 
-    // Mark if info is already parsed
-    private var alreadyParsedInfo = false
     val info: Comic by lazy {
         parseInfo()
     }
@@ -84,6 +82,6 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
 
     enum class ComicFileType(val extension: String) {
         CBZ("cbz"),
-        CBR("cbr")
+//        CBR("cbr")
     }
 }

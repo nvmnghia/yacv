@@ -2,99 +2,93 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "773b5b0200b62eb967168707a7faedd6",
+    "identityHash": "7dfd88562eee3d35375045a2801d2480",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `series` TEXT, `writer` TEXT, `title` TEXT, `genre` TEXT, `summary` TEXT, `characters` TEXT, `language` TEXT, `publisher` TEXT, `bw` INTEGER, `manga` INTEGER, `date` INTEGER, `web` TEXT, `current_page` INTEGER NOT NULL, `num_pages` INTEGER NOT NULL, `format` TEXT, `folder_id` INTEGER NOT NULL, `love` INTEGER NOT NULL DEFAULT 0, `read_count` INTEGER NOT NULL DEFAULT 0, `path` TEXT NOT NULL, FOREIGN KEY(`folder_id`) REFERENCES `Folder`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Series` TEXT, `Writer` TEXT, `Title` TEXT, `Genre` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Manga` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `format` TEXT, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "ComicID",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "series",
-            "columnName": "series",
+            "columnName": "Series",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "writer",
-            "columnName": "writer",
+            "columnName": "Writer",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "title",
-            "columnName": "title",
+            "columnName": "Title",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "genre",
-            "columnName": "genre",
+            "columnName": "Genre",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "summary",
-            "columnName": "summary",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "characters",
-            "columnName": "characters",
+            "columnName": "Summary",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "language",
-            "columnName": "language",
+            "columnName": "Language",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "publisher",
-            "columnName": "publisher",
+            "columnName": "Publisher",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "bw",
-            "columnName": "bw",
+            "columnName": "BlackAndWhite",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "manga",
-            "columnName": "manga",
+            "columnName": "Manga",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "date",
-            "columnName": "date",
+            "columnName": "Date",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "web",
-            "columnName": "web",
+            "columnName": "Web",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "currentPage",
-            "columnName": "current_page",
+            "columnName": "CurrentPage",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "numPages",
-            "columnName": "num_pages",
+            "columnName": "NumOfPages",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -106,53 +100,53 @@
           },
           {
             "fieldPath": "folderId",
-            "columnName": "folder_id",
+            "columnName": "FolderID",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "love",
-            "columnName": "love",
+            "columnName": "Love",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
           },
           {
             "fieldPath": "readCount",
-            "columnName": "read_count",
+            "columnName": "ReadCount",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
           },
           {
             "fieldPath": "path",
-            "columnName": "path",
+            "columnName": "FilePath",
             "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "ComicID"
           ],
           "autoGenerate": true
         },
         "indices": [
           {
-            "name": "index_Comic_path",
+            "name": "index_Comic_FilePath",
             "unique": true,
             "columnNames": [
-              "path"
+              "FilePath"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Comic_path` ON `${TABLE_NAME}` (`path`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Comic_FilePath` ON `${TABLE_NAME}` (`FilePath`)"
           },
           {
-            "name": "index_Comic_folder_id",
+            "name": "index_Comic_FolderID",
             "unique": false,
             "columnNames": [
-              "folder_id"
+              "FolderID"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Comic_folder_id` ON `${TABLE_NAME}` (`folder_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Comic_FolderID` ON `${TABLE_NAME}` (`FolderID`)"
           }
         ],
         "foreignKeys": [
@@ -161,10 +155,10 @@
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "folder_id"
+              "FolderID"
             ],
             "referencedColumns": [
-              "id"
+              "FolderID"
             ]
           }
         ]
@@ -184,81 +178,57 @@
         "contentSyncTriggers": [
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_UPDATE BEFORE UPDATE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_DELETE BEFORE DELETE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `series`, `writer`, `title`, `genre`, `summary`, `characters`, `language`, `publisher`, `bw`, `manga`, `date`, `web`) VALUES (NEW.`rowid`, NEW.`series`, NEW.`writer`, NEW.`title`, NEW.`genre`, NEW.`summary`, NEW.`characters`, NEW.`language`, NEW.`publisher`, NEW.`bw`, NEW.`manga`, NEW.`date`, NEW.`web`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `series`, `writer`, `title`, `genre`, `summary`, `characters`, `language`, `publisher`, `bw`, `manga`, `date`, `web`) VALUES (NEW.`rowid`, NEW.`series`, NEW.`writer`, NEW.`title`, NEW.`genre`, NEW.`summary`, NEW.`characters`, NEW.`language`, NEW.`publisher`, NEW.`bw`, NEW.`manga`, NEW.`date`, NEW.`web`); END"
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Writer`, `Title`, `Genre`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Writer`, NEW.`Title`, NEW.`Genre`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Writer`, `Title`, `Genre`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Writer`, NEW.`Title`, NEW.`Genre`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
         ],
         "tableName": "ComicFts",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`series` TEXT, `writer` TEXT, `title` TEXT, `genre` TEXT, `summary` TEXT, `characters` TEXT, `language` TEXT, `publisher` TEXT, `bw` INTEGER, `manga` INTEGER, `date` INTEGER, `web` TEXT, content=`Comic`)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Series` TEXT, `Writer` TEXT, `Title` TEXT, `Genre` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
         "fields": [
           {
             "fieldPath": "series",
-            "columnName": "series",
+            "columnName": "Series",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "writer",
-            "columnName": "writer",
+            "columnName": "Writer",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "title",
-            "columnName": "title",
+            "columnName": "Title",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "genre",
-            "columnName": "genre",
+            "columnName": "Genre",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "summary",
-            "columnName": "summary",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "characters",
-            "columnName": "characters",
+            "columnName": "Summary",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "language",
-            "columnName": "language",
+            "columnName": "Language",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "publisher",
-            "columnName": "publisher",
+            "columnName": "Publisher",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "bw",
-            "columnName": "bw",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "manga",
-            "columnName": "manga",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "date",
-            "columnName": "date",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
             "fieldPath": "web",
-            "columnName": "web",
+            "columnName": "Web",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -272,44 +242,109 @@
       },
       {
         "tableName": "Folder",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `path` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderPath` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "FolderID",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "path",
-            "columnName": "path",
+            "columnName": "FolderPath",
             "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "FolderID"
           ],
           "autoGenerate": true
         },
         "indices": [
           {
-            "name": "index_Folder_path",
+            "name": "index_Folder_FolderPath",
             "unique": true,
             "columnNames": [
-              "path"
+              "FolderPath"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_path` ON `${TABLE_NAME}` (`path`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderPath` ON `${TABLE_NAME}` (`FolderPath`)"
           }
         ],
+        "foreignKeys": []
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [],
+        "tableName": "Character",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "rowid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "rowid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "CharacterComicJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CharacterID` INTEGER NOT NULL, `ComicID` INTEGER NOT NULL, PRIMARY KEY(`CharacterID`, `ComicID`))",
+        "fields": [
+          {
+            "fieldPath": "characterId",
+            "columnName": "CharacterID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comicId",
+            "columnName": "ComicID",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "CharacterID",
+            "ComicID"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '773b5b0200b62eb967168707a7faedd6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7dfd88562eee3d35375045a2801d2480')"
     ]
   }
 }

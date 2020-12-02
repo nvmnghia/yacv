@@ -2,15 +2,26 @@ package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
+import org.intellij.lang.annotations.Language
 import java.io.File
 import java.io.IOException
 import java.util.*
 
 
 /**
- * This class is a selected subset of what provided in
+ * Comic info class.
+ *
+ * Note that this class should NOT be created directly
+ * - A temporary [Comic] should be created by calling [ComicParser]'s
+ *   parseInfo(). Without calling this method, no data is ever parsed.
+ *   Even then, the data is not persisted in DB, lacking all ID fields
+ *   and only suitable for DAO use.
+ * - A fully parsed & persisted [Comic] is returned by using [ComicDao]'s
+ *   various get() methods (currently returning [LiveData]).
+ *
+ * This class is a selected subset of what provided in:
  * https://github.com/dickloraine/EmbedComicMetadata/blob/master/genericmetadata.py
- * More information about numbering convention for comic
+ * More information about numbering convention for comic:
  * https://www.reddit.com/r/comicbooks/comments/k1bqri/numbering_convention_for_comic/
  *
  * Fts table doesn't support UNIQUE, which is a must for storing canonical paths.
@@ -40,62 +51,73 @@ import java.util.*
  */
 @Entity(
     indices = [
-        Index(value = ["path"], unique = true),
-        Index(value = ["folder_id"]),
+        Index(value = ["FilePath"], unique = true),
+        Index(value = ["FolderID"]),
     ],
     foreignKeys = [
         ForeignKey(entity = Folder::class,
-            parentColumns = ["id"],
-            childColumns = ["folder_id"]),    // Foreign key doesn't automagically index
+            parentColumns = ["FolderID"],
+            childColumns = ["FolderID"]),    // Foreign key doesn't automagically index
     ]
 )
 data class Comic(
+    @ColumnInfo(name = "FilePath")
     val path: String,    // TODO: make sure path is canonical
 ) {
 
     constructor(file: File) : this(file.canonicalPath)
 
-    // ID could be omitted for FTS, but if present:
-    // - Type: must be Int
-    // - Row name: must be "rowid"
-    // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "ComicID")
     var id: Long = 0
 
     // Comic info
     // TODO: Add volume,...
     // @formatter:off
+    @ColumnInfo(name = "Series")
     var series    : String?   = null
+    @ColumnInfo(name = "Writer")
     var writer    : String?   = null
+    @ColumnInfo(name = "Title")
     var title     : String?   = null
+    @ColumnInfo(name = "Genre")
     var genre     : String?   = null
+    @ColumnInfo(name = "Summary")
     var summary   : String?   = null
-    var characters: String?   = null
+    @ColumnInfo(name = "Language")
     var language  : String?   = null
+    @ColumnInfo(name = "Publisher")
     var publisher : String?   = null
+    @ColumnInfo(name = "BlackAndWhite")
     var bw        : Boolean?  = null
+    @ColumnInfo(name = "Manga")
     var manga     : Boolean?  = null
+    @ColumnInfo(name = "Date")
     var date      : Calendar? = null
+    @ColumnInfo(name = "Web")
     var web       : String?   = null
     // @formatter:on
 
+    // Temporary, as these fields will be split into tables
+    @Ignore var tmpCharacters: String? = null
+
     // File info
-    @ColumnInfo(name = "current_page")
+    @ColumnInfo(name = "CurrentPage")
     var currentPage: Int = 0
 
-    @ColumnInfo(name = "num_pages")
+    @ColumnInfo(name = "NumOfPages")
     var numPages: Int = 0
 
     var format: String? = null
 
-    @ColumnInfo(name = "folder_id")
+    @ColumnInfo(name = "FolderID")
     var folderId: Long = 0
 
     // Reading habit
-    @ColumnInfo(defaultValue = "0")
+    @ColumnInfo(name = "Love", defaultValue = "0")
     var love: Boolean = false
 
-    @ColumnInfo(name = "read_count", defaultValue = "0")
+    @ColumnInfo(name = "ReadCount", defaultValue = "0")
     var readCount: Int = 0
 
     // https://stackoverflow.com/a/57762552/5959593
