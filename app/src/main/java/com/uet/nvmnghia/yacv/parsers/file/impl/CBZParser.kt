@@ -2,7 +2,8 @@ package com.uet.nvmnghia.yacv.parsers.file.impl
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parsers.file.ComicParser
-import com.uet.nvmnghia.yacv.parsers.metadata.ComicRackParser
+import com.uet.nvmnghia.yacv.parsers.metadata.comicrack.ComicRackParser
+import com.uet.nvmnghia.yacv.parsers.metadata.generic.GenericMetadataParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.NaturalOrderComparator
 import java.io.InputStream
@@ -36,8 +37,10 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
     }
 
     override fun parseInfo(): Comic {
-        val comic = Comic(filePath)
+        // First use a generic parser
+        val comic = GenericMetadataParser.parse(filePath)
 
+        // Then the more sophisticated one
         val comicInfoXml = zipFile.entries()
             .asSequence()
             .firstOrNull { entry ->

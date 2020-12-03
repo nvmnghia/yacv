@@ -44,21 +44,6 @@ abstract class AuthorDao {
         return names.map { name -> saveIfAbsent(name) }
     }
 
-    /**
-     * Deduplicate, then save.
-     * Returns a [HashMap] that maps a author name to its ID.
-     */
-    fun dedupThenSaveIfAbsent(names: Iterable<String>): HashMap<String, Long> {
-        val nameSet = names.toSet()
-        val authorIds = saveIfAbsent(nameSet)
-
-        var counter = 0
-        val mapAuthorToId = HashMap<String, Long>()
-        nameSet.forEach { name -> mapAuthorToId[name] = authorIds[counter++] }
-
-        return mapAuthorToId
-    }
-
     @Query("SELECT * FROM Author WHERE AuthorID = :authorId")
     abstract fun get(authorId: Long): LiveData<Author>
 

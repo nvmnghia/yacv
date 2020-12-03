@@ -26,7 +26,7 @@ interface FolderDao {
      * Save with checking duplicate.
      */
     @Transaction
-    fun saveIfNotExisting(folderPath: String): Long {
+    fun saveIfAbsent(folderPath: String): Long {
         val id = getExistingId(folderPath)
         return if (id.isNotEmpty()) {
             id[0]
@@ -39,17 +39,17 @@ interface FolderDao {
      * Same as the overloaded method.
      */
     @Transaction
-    fun saveIfNotExisting(folderPaths: Iterable<String>): List<Long> {
-        return folderPaths.map { folderPath -> saveIfNotExisting(folderPath) }
+    fun saveIfAbsent(folderPaths: Iterable<String>): List<Long> {
+        return folderPaths.map { folderPath -> saveIfAbsent(folderPath) }
     }
 
     /**
      * Deduplicate, then save.
      * Returns a [HashMap] that maps a folder path to its ID.
      */
-    fun dedupThenSaveIfNotExist(folderPaths: Iterable<String>): HashMap<String, Long> {
+    fun dedupThenSaveIfAbsent(folderPaths: Iterable<String>): HashMap<String, Long> {
         val folderPathSet = folderPaths.toSet()
-        val folderIds = saveIfNotExisting(folderPathSet)
+        val folderIds = saveIfAbsent(folderPathSet)
 
         var counter = 0
         val mapFolderPathToId = HashMap<String, Long>()

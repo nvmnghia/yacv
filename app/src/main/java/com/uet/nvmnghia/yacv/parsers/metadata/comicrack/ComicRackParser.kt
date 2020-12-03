@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parsers.metadata
+package com.uet.nvmnghia.yacv.parsers.metadata.comicrack
 
 import android.util.Xml
 import com.uet.nvmnghia.yacv.model.comic.Comic
@@ -66,25 +66,28 @@ class ComicRackParser {
                 // TODO: <Pages> are ignored for now
                 when (parser.name) {
                     // @formatter:off
-                    "Series"        -> comic.series        = parseText(parser)
-                    "Writer"        -> comic.tmpWriter     = parseText(parser)
                     "Title"         -> comic.title         = parseText(parser)
-                    "Genre"         -> comic.tmpGenre      = parseText(parser)
+                    "Number"        -> comic.number        = parseInt(parser)
                     "Summary"       -> comic.summary       = parseText(parser)
-                    "Characters"    -> comic.tmpCharacters = parseText(parser)
                     "LanguageISO"   -> comic.language      = parseText(parser)
                     "Publisher"     -> comic.publisher     = parseText(parser)
                     "BlackAndWhite" -> comic.bw            = parseBool(parser)
-                    "Manga"         -> comic.manga         = parseBool(parser)
+                    "Manga"         -> comic.tmpManga      = parseBool(parser)
                     "Year"          -> year                = parseInt(parser)
                     "Month"         -> month               = parseInt(parser) ?: month
                     "Day"           -> day                 = parseInt(parser) ?: day
                     "Web"           -> comic.web           = parseText(parser)
+                    "Series"        -> comic.tmpSeries     = parseText(parser)
+                    "Volume"        -> comic.tmpVolume     = parseInt(parser)
+                    "Count"         -> comic.tmpCount      = parseInt(parser)
+                    "Characters"    -> comic.tmpCharacters = parseText(parser)
+                    "Writer"        -> comic.tmpWriter     = parseText(parser)
                     "Penciller"     -> comic.tmpPenciller  = parseText(parser)
                     "Inker"         -> comic.tmpInker      = parseText(parser)
                     "Colorist"      -> comic.tmpColorist   = parseText(parser)
                     "Letterer"      -> comic.tmpLetterer   = parseText(parser)
                     "Editor"        -> comic.tmpEditor     = parseText(parser)
+                    "Genre"         -> comic.tmpGenre      = parseText(parser)
                     else            -> skip(parser)
                     // @formatter:on
                 }

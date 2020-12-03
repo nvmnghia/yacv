@@ -37,11 +37,15 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     @Transaction
     open    // By default, class methods are final (not overridable)
     fun save(comic: Comic): Long {
-        comic.folderId = appDb.folderDao()
-            .saveIfNotExisting(comic.parentFolderPath)
+        // Insert into tables that Comic refers to
+        comic.folderId = appDb.folderDao().saveIfAbsent(comic.parentFolderPath)
 
+        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries)
+
+        // Insert into Comic
         val comicId = saveUnsafe(comic)
 
+        // Insert into tables that have join tables with Comic
         comic.tmpCharacters?.let {
             val characterIds = appDb.characterDao().saveIfAbsent(it.split(','))
             appDb.comicCharacterJoinDao().save(comicId, characterIds)
@@ -52,40 +56,17 @@ abstract class ComicDao(private val appDb: AppDatabase) {
             appDb.comicGenreJoinDao().save(comicId, genreIds)
         }
 
-        comic.tmpWriter?.let {
-            val writerIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            writerIds.forEach { writerId ->
-                appDb.comicAuthorJoinDao().save(comicId, writerId, Position.Writer.id) }
-        }
-
-        comic.tmpPenciller?.let {
-            val pencillerIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            pencillerIds.forEach { pencillerId ->
-                appDb.comicAuthorJoinDao().save(comicId, pencillerId, Position.Penciller.id) }
-        }
-
-        comic.tmpInker?.let {
-            val inkerIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            inkerIds.forEach { interId ->
-                appDb.comicAuthorJoinDao().save(comicId, interId, Position.Inker.id) }
-        }
-
-        comic.tmpColorist?.let {
-            val coloristIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            coloristIds.forEach { coloristId ->
-                appDb.comicAuthorJoinDao().save(comicId, coloristId, Position.Colorist.id) }
-        }
-
-        comic.tmpLetterer?.let {
-            val lettererIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            lettererIds.forEach { lettererId ->
-                appDb.comicAuthorJoinDao().save(comicId, lettererId, Position.Letterer.id) }
-        }
-
-        comic.tmpEditor?.let {
-            val editorIds = appDb.authorDao().saveIfAbsent(it.split(','))
-            editorIds.forEach { editorId ->
-                appDb.comicAuthorJoinDao().save(comicId, editorId, Position.Editor.id) }
+        // Note: the order of item between 2 lists must be consistent
+        val authors   = listOf(comic.tmpWriter, comic.tmpEditor, comic.tmpPenciller,
+            comic.tmpInker, comic.tmpColorist, comic.tmpLetterer, comic.tmpCoverArtist)
+        val positions = listOf(Position.Writer, Position.Editor, Position.Penciller,
+            Position.Inker, Position.Colorist, Position.Letterer, Position.CoverArtist)
+        authors.zip(positions) { authorGroup, position ->
+            authorGroup?. let {
+                val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(','))
+                authorIds.forEach { authorId ->
+                    appDb.comicAuthorJoinDao().save(comicId, authorId, position.id) }
+            }
         }
 
         return comicId

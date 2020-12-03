@@ -2,6 +2,7 @@ package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.series.Series
 import org.intellij.lang.annotations.Language
 import java.io.File
 import java.io.IOException
@@ -23,6 +24,12 @@ import java.util.*
  * https://github.com/dickloraine/EmbedComicMetadata/blob/master/genericmetadata.py
  * More information about numbering convention for comic:
  * https://www.reddit.com/r/comicbooks/comments/k1bqri/numbering_convention_for_comic/
+ * TL;DR:
+ *   Wolverine 1982(1) #1
+ *   │         │       └─ Number/no (String): issue number, ~ chapter. Note that it is a String.
+ *   │         └─ Volume (Int): Several series can have the same name, so they are distinguished by year or version.
+ *   └─Series (String): Name of the series.
+ *   Count (Int): number of issues (Not in the example).
  *
  * Fts table doesn't support UNIQUE, which is a must for storing canonical paths.
  * Methods considered:
@@ -59,11 +66,15 @@ import java.util.*
     indices = [
         Index(value = ["FilePath"], unique = true),
         Index(value = ["FolderID"]),    // Foreign key doesn't automagically index
+        Index(value = ["SeriesID"]),
     ],
     foreignKeys = [
         ForeignKey(entity = Folder::class,    // Referenced entity is parent
             parentColumns = ["FolderID"],
             childColumns = ["FolderID"]),
+        ForeignKey(entity = Series::class,
+            parentColumns = ["SeriesID"],
+            childColumns = ["SeriesID"]),
     ]
 )
 data class Comic(
@@ -73,6 +84,7 @@ data class Comic(
 
     constructor(file: File) : this(file.canonicalPath)
 
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ComicID")
     var id: Long = 0
@@ -80,8 +92,10 @@ data class Comic(
     // Comic info
     // TODO: Add volume,...
     // @formatter:off
-    @ColumnInfo(name = "Series")
-    var series   : String?   = null
+    @ColumnInfo(name = "SeriesID")
+    var seriesId : Long?     = null
+    @ColumnInfo(name = "Number")
+    var number: Int? = null
     @ColumnInfo(name = "Title")
     var title    : String?   = null
     @ColumnInfo(name = "Summary")
@@ -92,8 +106,6 @@ data class Comic(
     var publisher: String?   = null
     @ColumnInfo(name = "BlackAndWhite")
     var bw       : Boolean?  = null
-    @ColumnInfo(name = "Manga")
-    var manga    : Boolean?  = null
     @ColumnInfo(name = "Date")
     var date     : Calendar? = null
     @ColumnInfo(name = "Web")
@@ -101,14 +113,19 @@ data class Comic(
     // @formatter:on
 
     // Temporary, as these fields will be split into tables
-    @Ignore var tmpCharacters: String? = null
-    @Ignore var tmpGenre     : String? = null
-    @Ignore var tmpWriter    : String? = null
-    @Ignore var tmpPenciller : String? = null
-    @Ignore var tmpInker     : String? = null
-    @Ignore var tmpColorist  : String? = null
-    @Ignore var tmpLetterer  : String? = null
-    @Ignore var tmpEditor    : String? = null
+    @Ignore var tmpCharacters : String?  = null
+    @Ignore var tmpGenre      : String?  = null
+    @Ignore var tmpWriter     : String?  = null
+    @Ignore var tmpEditor     : String?  = null
+    @Ignore var tmpPenciller  : String?  = null
+    @Ignore var tmpInker      : String?  = null
+    @Ignore var tmpColorist   : String?  = null
+    @Ignore var tmpLetterer   : String?  = null
+    @Ignore var tmpCoverArtist: String?  = null
+    @Ignore lateinit var tmpSeries: String
+    @Ignore var tmpVolume     : Int?     = null
+    @Ignore var tmpCount      : Int?     = null
+    @Ignore var tmpManga      : Boolean? = null
 
     // File info
     @ColumnInfo(name = "CurrentPage")
@@ -117,7 +134,8 @@ data class Comic(
     @ColumnInfo(name = "NumOfPages")
     var numPages: Int = 0
 
-    var format: String? = null
+    // TODO: Check if format is necessary
+//    var format: String? = null
 
     @ColumnInfo(name = "FolderID")
     var folderId: Long = 0

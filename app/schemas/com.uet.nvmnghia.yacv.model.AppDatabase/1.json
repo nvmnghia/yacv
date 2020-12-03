@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e67ed0b09d4bedf76b33c70a993d0d9e",
+    "identityHash": "4f4eb802b086ad83d71353735e0d1970",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Series` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Manga` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `format` TEXT, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,9 +15,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "series",
-            "columnName": "Series",
-            "affinity": "TEXT",
+            "fieldPath": "seriesId",
+            "columnName": "SeriesID",
+            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -51,12 +51,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "manga",
-            "columnName": "Manga",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
             "fieldPath": "date",
             "columnName": "Date",
             "affinity": "INTEGER",
@@ -79,12 +73,6 @@
             "columnName": "NumOfPages",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "format",
-            "columnName": "format",
-            "affinity": "TEXT",
-            "notNull": false
           },
           {
             "fieldPath": "folderId",
@@ -135,6 +123,14 @@
               "FolderID"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Comic_FolderID` ON `${TABLE_NAME}` (`FolderID`)"
+          },
+          {
+            "name": "index_Comic_SeriesID",
+            "unique": false,
+            "columnNames": [
+              "SeriesID"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Comic_SeriesID` ON `${TABLE_NAME}` (`SeriesID`)"
           }
         ],
         "foreignKeys": [
@@ -147,6 +143,17 @@
             ],
             "referencedColumns": [
               "FolderID"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "SeriesID"
+            ],
+            "referencedColumns": [
+              "SeriesID"
             ]
           }
         ]
@@ -166,18 +173,12 @@
         "contentSyncTriggers": [
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_UPDATE BEFORE UPDATE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_DELETE BEFORE DELETE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
         ],
         "tableName": "ComicFts",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Series` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
         "fields": [
-          {
-            "fieldPath": "series",
-            "columnName": "Series",
-            "affinity": "TEXT",
-            "notNull": false
-          },
           {
             "fieldPath": "title",
             "columnName": "Title",
@@ -638,6 +639,85 @@
         ]
       },
       {
+        "tableName": "Series",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`SeriesID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL, `Volume` INTEGER, `Count` INTEGER, `IsManga` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "SeriesID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "Volume",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "Count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "manga",
+            "columnName": "IsManga",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "SeriesID"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "Series",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_SeriesFts_BEFORE_UPDATE BEFORE UPDATE ON `Series` BEGIN DELETE FROM `SeriesFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_SeriesFts_BEFORE_DELETE BEFORE DELETE ON `Series` BEGIN DELETE FROM `SeriesFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_SeriesFts_AFTER_UPDATE AFTER UPDATE ON `Series` BEGIN INSERT INTO `SeriesFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_SeriesFts_AFTER_INSERT AFTER INSERT ON `Series` BEGIN INSERT INTO `SeriesFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END"
+        ],
+        "tableName": "SeriesFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL, content=`Series`)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "Position",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`PositionID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`PositionID`))",
         "fields": [
@@ -667,7 +747,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e67ed0b09d4bedf76b33c70a993d0d9e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4f4eb802b086ad83d71353735e0d1970')"
     ]
   }
 }

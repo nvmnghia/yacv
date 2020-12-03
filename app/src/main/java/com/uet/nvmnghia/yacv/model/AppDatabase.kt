@@ -19,6 +19,9 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.genre.GenreDao
 import com.uet.nvmnghia.yacv.model.genre.GenreFts
 import com.uet.nvmnghia.yacv.model.join.*
+import com.uet.nvmnghia.yacv.model.series.Series
+import com.uet.nvmnghia.yacv.model.series.SeriesDao
+import com.uet.nvmnghia.yacv.model.series.SeriesFts
 import com.uet.nvmnghia.yacv.utils.RoomUtils
 
 
@@ -37,6 +40,7 @@ import com.uet.nvmnghia.yacv.utils.RoomUtils
     Character::class, CharacterFts::class, ComicCharacterJoin::class,
     Genre::class, GenreFts::class, ComicGenreJoin::class,
     Author::class, AuthorFts::class, ComicAuthorJoin::class,
+    Series::class, SeriesFts::class,
     PositionTable::class,
 ], version = 1)
 @TypeConverters(RoomUtils.CalendarConverter::class)
@@ -47,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
     abstract fun genreDao()    : GenreDao
     abstract fun authorDao()   : AuthorDao
+    abstract fun seriesDao()   : SeriesDao
 
     abstract fun comicCharacterJoinDao(): ComicCharacterJoinDao
     abstract fun comicGenreJoinDao()    : ComicGenreJoinDao

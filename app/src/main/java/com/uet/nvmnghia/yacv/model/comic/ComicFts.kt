@@ -13,8 +13,6 @@ import java.util.*
 @Fts4(contentEntity = Comic::class)
 data class ComicFts(
     // @formatter:off
-    @ColumnInfo(name = "Series")
-    var series   : String?,
     @ColumnInfo(name = "Title")
     var title    : String?,
     @ColumnInfo(name = "Summary")
