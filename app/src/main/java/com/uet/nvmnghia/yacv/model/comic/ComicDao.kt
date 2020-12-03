@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.uet.nvmnghia.yacv.model.AppDatabase
+import com.uet.nvmnghia.yacv.model.author.Position
 
 
 /**
@@ -16,7 +17,7 @@ import com.uet.nvmnghia.yacv.model.AppDatabase
  */
 
 @Dao
-abstract class ComicDao(private val appDatabase: AppDatabase) {
+abstract class ComicDao(private val appDb: AppDatabase) {
     /**
      * Save without checking for foreign keys.
      * Only suitable for internal use.
@@ -36,20 +37,55 @@ abstract class ComicDao(private val appDatabase: AppDatabase) {
     @Transaction
     open    // By default, class methods are final (not overridable)
     fun save(comic: Comic): Long {
-        comic.folderId = appDatabase.folderDao()
+        comic.folderId = appDb.folderDao()
             .saveIfNotExisting(comic.parentFolderPath)
 
         val comicId = saveUnsafe(comic)
 
-        // New nullcheck with safe call operator & let
         comic.tmpCharacters?.let {
-            val characterIds = appDatabase.characterDao().saveIfAbsent(it.split(','))
-            appDatabase.characterComicJoinDao().save(comicId, characterIds)
+            val characterIds = appDb.characterDao().saveIfAbsent(it.split(','))
+            appDb.comicCharacterJoinDao().save(comicId, characterIds)
         }
 
         comic.tmpGenre?.let {
-            val genreIds = appDatabase.genreDao().saveIfAbsent(it.split(','))
-            appDatabase.genreComicJoinDao().save(comicId, genreIds)
+            val genreIds = appDb.genreDao().saveIfAbsent(it.split(','))
+            appDb.comicGenreJoinDao().save(comicId, genreIds)
+        }
+
+        comic.tmpWriter?.let {
+            val writerIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            writerIds.forEach { writerId ->
+                appDb.comicAuthorJoinDao().save(comicId, writerId, Position.Writer.id) }
+        }
+
+        comic.tmpPenciller?.let {
+            val pencillerIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            pencillerIds.forEach { pencillerId ->
+                appDb.comicAuthorJoinDao().save(comicId, pencillerId, Position.Penciller.id) }
+        }
+
+        comic.tmpInker?.let {
+            val inkerIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            inkerIds.forEach { interId ->
+                appDb.comicAuthorJoinDao().save(comicId, interId, Position.Inker.id) }
+        }
+
+        comic.tmpColorist?.let {
+            val coloristIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            coloristIds.forEach { coloristId ->
+                appDb.comicAuthorJoinDao().save(comicId, coloristId, Position.Colorist.id) }
+        }
+
+        comic.tmpLetterer?.let {
+            val lettererIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            lettererIds.forEach { lettererId ->
+                appDb.comicAuthorJoinDao().save(comicId, lettererId, Position.Letterer.id) }
+        }
+
+        comic.tmpEditor?.let {
+            val editorIds = appDb.authorDao().saveIfAbsent(it.split(','))
+            editorIds.forEach { editorId ->
+                appDb.comicAuthorJoinDao().save(comicId, editorId, Position.Editor.id) }
         }
 
         return comicId
@@ -96,7 +132,4 @@ abstract class ComicDao(private val appDatabase: AppDatabase) {
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
     abstract fun getFirstComicInFolder(folderId: Int): LiveData<Comic>
-
-    @Query("SELECT COUNT(*) FROM Comic WHERE FilePath = :filePath")
-    abstract fun getNumberOfMatch(filePath: String): Int
 }

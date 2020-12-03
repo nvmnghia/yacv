@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "cf40385db1077401a32a2dfb80b3f937",
+    "identityHash": "e67ed0b09d4bedf76b33c70a993d0d9e",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Series` TEXT, `Writer` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Manga` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `format` TEXT, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Series` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Manga` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `format` TEXT, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,12 +17,6 @@
           {
             "fieldPath": "series",
             "columnName": "Series",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "writer",
-            "columnName": "Writer",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -172,21 +166,15 @@
         "contentSyncTriggers": [
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_UPDATE BEFORE UPDATE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_DELETE BEFORE DELETE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Writer`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Writer`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Writer`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Writer`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Series`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Series`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
         ],
         "tableName": "ComicFts",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Series` TEXT, `Writer` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Series` TEXT, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
         "fields": [
           {
             "fieldPath": "series",
             "columnName": "Series",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "writer",
-            "columnName": "Writer",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -264,24 +252,12 @@
         "foreignKeys": []
       },
       {
-        "ftsVersion": "FTS4",
-        "ftsOptions": {
-          "tokenizer": "simple",
-          "tokenizerArgs": [],
-          "contentTable": "",
-          "languageIdColumnName": "",
-          "matchInfo": "FTS4",
-          "notIndexedColumns": [],
-          "prefixSizes": [],
-          "preferredOrder": "ASC"
-        },
-        "contentSyncTriggers": [],
         "tableName": "Character",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CharacterID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "rowid",
+            "columnName": "CharacterID",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -294,7 +270,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "rowid"
+            "CharacterID"
           ],
           "autoGenerate": true
         },
@@ -302,8 +278,43 @@
         "foreignKeys": []
       },
       {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "Character",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_CharacterFts_BEFORE_UPDATE BEFORE UPDATE ON `Character` BEGIN DELETE FROM `CharacterFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_CharacterFts_BEFORE_DELETE BEFORE DELETE ON `Character` BEGIN DELETE FROM `CharacterFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_CharacterFts_AFTER_UPDATE AFTER UPDATE ON `Character` BEGIN INSERT INTO `CharacterFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_CharacterFts_AFTER_INSERT AFTER INSERT ON `Character` BEGIN INSERT INTO `CharacterFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END"
+        ],
+        "tableName": "CharacterFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL, content=`Character`)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "ComicCharacterJoin",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `CharacterID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `CharacterID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `CharacterID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `CharacterID`), FOREIGN KEY(`ComicID`) REFERENCES `Comic`(`ComicID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`CharacterID`) REFERENCES `Character`(`CharacterID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "comicId",
@@ -325,28 +336,48 @@
           ],
           "autoGenerate": false
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_ComicCharacterJoin_CharacterID",
+            "unique": false,
+            "columnNames": [
+              "CharacterID"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicCharacterJoin_CharacterID` ON `${TABLE_NAME}` (`CharacterID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Comic",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ComicID"
+            ],
+            "referencedColumns": [
+              "ComicID"
+            ]
+          },
+          {
+            "table": "Character",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CharacterID"
+            ],
+            "referencedColumns": [
+              "CharacterID"
+            ]
+          }
+        ]
       },
       {
-        "ftsVersion": "FTS4",
-        "ftsOptions": {
-          "tokenizer": "simple",
-          "tokenizerArgs": [],
-          "contentTable": "",
-          "languageIdColumnName": "",
-          "matchInfo": "FTS4",
-          "notIndexedColumns": [],
-          "prefixSizes": [],
-          "preferredOrder": "ASC"
-        },
-        "contentSyncTriggers": [],
         "tableName": "Genre",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`GenreID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "rowid",
+            "columnName": "GenreID",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -359,7 +390,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "rowid"
+            "GenreID"
           ],
           "autoGenerate": true
         },
@@ -367,8 +398,43 @@
         "foreignKeys": []
       },
       {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "Genre",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_GenreFts_BEFORE_UPDATE BEFORE UPDATE ON `Genre` BEGIN DELETE FROM `GenreFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_GenreFts_BEFORE_DELETE BEFORE DELETE ON `Genre` BEGIN DELETE FROM `GenreFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_GenreFts_AFTER_UPDATE AFTER UPDATE ON `Genre` BEGIN INSERT INTO `GenreFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_GenreFts_AFTER_INSERT AFTER INSERT ON `Genre` BEGIN INSERT INTO `GenreFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END"
+        ],
+        "tableName": "GenreFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL, content=`Genre`)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "ComicGenreJoin",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `GenreID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `GenreID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `GenreID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `GenreID`), FOREIGN KEY(`ComicID`) REFERENCES `Comic`(`ComicID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`GenreID`) REFERENCES `Genre`(`GenreID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "comicId",
@@ -390,6 +456,210 @@
           ],
           "autoGenerate": false
         },
+        "indices": [
+          {
+            "name": "index_ComicGenreJoin_GenreID",
+            "unique": false,
+            "columnNames": [
+              "GenreID"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicGenreJoin_GenreID` ON `${TABLE_NAME}` (`GenreID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Comic",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ComicID"
+            ],
+            "referencedColumns": [
+              "ComicID"
+            ]
+          },
+          {
+            "table": "Genre",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "GenreID"
+            ],
+            "referencedColumns": [
+              "GenreID"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Author",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`AuthorID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "AuthorID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "AuthorID"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "Author",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_AuthorFts_BEFORE_UPDATE BEFORE UPDATE ON `Author` BEGIN DELETE FROM `AuthorFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_AuthorFts_BEFORE_DELETE BEFORE DELETE ON `Author` BEGIN DELETE FROM `AuthorFts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_AuthorFts_AFTER_UPDATE AFTER UPDATE ON `Author` BEGIN INSERT INTO `AuthorFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_AuthorFts_AFTER_INSERT AFTER INSERT ON `Author` BEGIN INSERT INTO `AuthorFts`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END"
+        ],
+        "tableName": "AuthorFts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL, content=`Author`)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ComicAuthorJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `AuthorID` INTEGER NOT NULL, `PositionID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `AuthorID`, `PositionID`), FOREIGN KEY(`ComicID`) REFERENCES `Comic`(`ComicID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`AuthorID`) REFERENCES `Author`(`AuthorID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`PositionID`) REFERENCES `Position`(`PositionID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "comicId",
+            "columnName": "ComicID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "authorId",
+            "columnName": "AuthorID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "positionId",
+            "columnName": "PositionID",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "ComicID",
+            "AuthorID",
+            "PositionID"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ComicAuthorJoin_AuthorID",
+            "unique": false,
+            "columnNames": [
+              "AuthorID"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicAuthorJoin_AuthorID` ON `${TABLE_NAME}` (`AuthorID`)"
+          },
+          {
+            "name": "index_ComicAuthorJoin_PositionID",
+            "unique": false,
+            "columnNames": [
+              "PositionID"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicAuthorJoin_PositionID` ON `${TABLE_NAME}` (`PositionID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Comic",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ComicID"
+            ],
+            "referencedColumns": [
+              "ComicID"
+            ]
+          },
+          {
+            "table": "Author",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "AuthorID"
+            ],
+            "referencedColumns": [
+              "AuthorID"
+            ]
+          },
+          {
+            "table": "Position",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "PositionID"
+            ],
+            "referencedColumns": [
+              "PositionID"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Position",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`PositionID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`PositionID`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "PositionID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "PositionID"
+          ],
+          "autoGenerate": false
+        },
         "indices": [],
         "foreignKeys": []
       }
@@ -397,7 +667,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf40385db1077401a32a2dfb80b3f937')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e67ed0b09d4bedf76b33c70a993d0d9e')"
     ]
   }
 }

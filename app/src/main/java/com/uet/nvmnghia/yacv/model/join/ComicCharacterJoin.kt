@@ -1,9 +1,22 @@
 package com.uet.nvmnghia.yacv.model.join
 
 import androidx.room.*
+import com.uet.nvmnghia.yacv.model.character.Character
+import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
-@Entity(primaryKeys = ["ComicID", "CharacterID"])
+@Entity(
+    primaryKeys = ["ComicID", "CharacterID"],
+    indices = [Index(value = ["CharacterID"])],
+    foreignKeys = [
+        ForeignKey(entity = Comic::class,
+            parentColumns = ["ComicID"],
+            childColumns = ["ComicID"]),
+        ForeignKey(entity = Character::class,
+            parentColumns = ["CharacterID"],
+            childColumns = ["CharacterID"]),
+    ]
+)
 data class ComicCharacterJoin(
     @ColumnInfo(name = "ComicID")
     val comicId: Long,

@@ -10,7 +10,6 @@ import androidx.room.PrimaryKey
  * A comic character.
  */
 @Entity
-@Fts4
 data class Character(
     @ColumnInfo(name = "Name")
     val name: String
@@ -20,6 +19,6 @@ data class Character(
     // - Row name: must be "rowid"
     // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "rowid")
+    @ColumnInfo(name = "CharacterID")
     var id: Long = 0
 }

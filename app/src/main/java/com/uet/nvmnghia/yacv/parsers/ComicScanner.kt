@@ -11,7 +11,7 @@ import java.util.*
 class ComicScanner {
     companion object {
         private val COMPRESSION_FORMATS = enumValues<ComicParser.ComicFileType>()
-            .map { type -> type.extension }.toSet()
+            .map { format -> format.extension }.toSet()
 
         private fun isComic(file: File): Boolean {
             if (!file.isFile) return false

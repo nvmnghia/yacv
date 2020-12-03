@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.model.character
+package com.uet.nvmnghia.yacv.model.author
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -8,19 +8,19 @@ import androidx.room.Transaction
 
 
 @Dao
-abstract class CharacterDao {
+abstract class AuthorDao {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.
      */
     @Insert
-    protected abstract fun saveUnsafe(character: Character): Long
+    protected abstract fun saveUnsafe(author: Author): Long
 
     /**
      * Same as the overloaded method.
      */
     @Insert
-    protected abstract fun saveUnsafe(characters: List<Character>): List<Long>
+    protected abstract fun saveUnsafe(authors: List<Author>): List<Long>
 
     /**
      * Save with checking duplicate.
@@ -32,7 +32,7 @@ abstract class CharacterDao {
         return if (id.isNotEmpty()) {
             id[0]
         } else {
-            saveUnsafe(Character(trimmedName))
+            saveUnsafe(Author(trimmedName))
         }
     }
 
@@ -46,29 +46,25 @@ abstract class CharacterDao {
 
     /**
      * Deduplicate, then save.
-     * Returns a [HashMap] that maps a character name to its ID.
+     * Returns a [HashMap] that maps a author name to its ID.
      */
     fun dedupThenSaveIfAbsent(names: Iterable<String>): HashMap<String, Long> {
         val nameSet = names.toSet()
-        val characterIds = saveIfAbsent(nameSet)
+        val authorIds = saveIfAbsent(nameSet)
 
         var counter = 0
-        val mapCharacterToId = HashMap<String, Long>()
-        nameSet.forEach { name -> mapCharacterToId[name] = characterIds[counter++] }
+        val mapAuthorToId = HashMap<String, Long>()
+        nameSet.forEach { name -> mapAuthorToId[name] = authorIds[counter++] }
 
-        return mapCharacterToId
+        return mapAuthorToId
     }
 
-    @Query("SELECT * FROM Character WHERE rowid = :characterId")
-    abstract fun get(characterId: Long): LiveData<Character>
+    @Query("SELECT * FROM Author WHERE AuthorID = :authorId")
+    abstract fun get(authorId: Long): LiveData<Author>
 
-    @Query("SELECT * FROM Character")
-    abstract fun getAll(): LiveData<List<Character>>
+    @Query("SELECT * FROM Author")
+    abstract fun getAll(): LiveData<List<Author>>
 
-    @Query("SELECT docid FROM CharacterFts WHERE Name MATCH :name")
+    @Query("SELECT docid FROM AuthorFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
-
-//    @Transaction    // There're actually 2 queries in @Relation-related query
-//    @Query("SELECT * FROM Character WHERE rowid = :characterId")
-//    abstract fun getCharacterWithComic(characterId: Long): CharacterWithComics
 }

@@ -15,8 +15,6 @@ data class ComicFts(
     // @formatter:off
     @ColumnInfo(name = "Series")
     var series   : String?,
-    @ColumnInfo(name = "Writer")
-    var writer   : String?,
     @ColumnInfo(name = "Title")
     var title    : String?,
     @ColumnInfo(name = "Summary")

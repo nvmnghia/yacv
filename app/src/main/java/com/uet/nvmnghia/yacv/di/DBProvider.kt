@@ -2,7 +2,10 @@ package com.uet.nvmnghia.yacv.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uet.nvmnghia.yacv.model.AppDatabase
+import com.uet.nvmnghia.yacv.model.author.PositionTable
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import dagger.Module
 import dagger.Provides
@@ -18,6 +21,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DBProvider {
+
+    val rdc = object : RoomDatabase.Callback() {
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+
+            PositionTable.populate(db)
+        }
+    }
+
     @Singleton
     @Provides
     fun provideAppDatabase(
@@ -26,6 +38,7 @@ class DBProvider {
     ): AppDatabase {
         return Room
             .databaseBuilder(appContext, AppDatabase::class.java, "app_db")
+            .addCallback(rdc)
             .build()
     }
 

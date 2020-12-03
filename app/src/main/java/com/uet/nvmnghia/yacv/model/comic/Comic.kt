@@ -41,6 +41,12 @@ import java.util.*
  *   Drawbacks: slowish
  * - Fts table + app-side check
  *   Drawbacks: even more slowish
+ *
+ * 2 other downside of Fts:
+ * - rowid/docid cannot be used as foreign key:
+ *   https://stackoverflow.com/a/62365525/5959593
+ * - Update in content table, but search in Fts table. Predictable (since Room has
+ *   to use trigger to sync the 2 tables) but still surprising.
  */
 
 /**
@@ -76,8 +82,6 @@ data class Comic(
     // @formatter:off
     @ColumnInfo(name = "Series")
     var series   : String?   = null
-    @ColumnInfo(name = "Writer")
-    var writer   : String?   = null
     @ColumnInfo(name = "Title")
     var title    : String?   = null
     @ColumnInfo(name = "Summary")
@@ -99,6 +103,12 @@ data class Comic(
     // Temporary, as these fields will be split into tables
     @Ignore var tmpCharacters: String? = null
     @Ignore var tmpGenre     : String? = null
+    @Ignore var tmpWriter    : String? = null
+    @Ignore var tmpPenciller : String? = null
+    @Ignore var tmpInker     : String? = null
+    @Ignore var tmpColorist  : String? = null
+    @Ignore var tmpLetterer  : String? = null
+    @Ignore var tmpEditor    : String? = null
 
     // File info
     @ColumnInfo(name = "CurrentPage")

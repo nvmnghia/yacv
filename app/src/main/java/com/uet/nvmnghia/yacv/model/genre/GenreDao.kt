@@ -40,9 +40,9 @@ abstract class GenreDao {
         return names.map { name -> saveIfAbsent(name) }
     }
 
-    @Query("INSERT INTO Genre(Name) SELECT :name WHERE NOT EXISTS(SELECT 1 FROM Genre WHERE Name MATCH :name)")
+    @Query("INSERT INTO Genre(Name) SELECT :name WHERE NOT EXISTS(SELECT 1 FROM GenreFts WHERE Name MATCH :name)")
     abstract fun saveIfAbsentNative(name: String): Long
 
-    @Query("SELECT rowid FROM Genre WHERE Name MATCH :name")
+    @Query("SELECT docid FROM GenreFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
 }

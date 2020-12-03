@@ -1,9 +1,22 @@
 package com.uet.nvmnghia.yacv.model.join
 
 import androidx.room.*
+import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.model.genre.Genre
 
 
-@Entity(primaryKeys = ["ComicID", "GenreID"])
+@Entity(
+    primaryKeys = ["ComicID", "GenreID"],
+    indices = [Index(value = ["GenreID"])],
+    foreignKeys = [
+        ForeignKey(entity = Comic::class,
+            parentColumns = ["ComicID"],
+            childColumns = ["ComicID"]),
+        ForeignKey(entity = Genre::class,
+            parentColumns = ["GenreID"],
+            childColumns = ["GenreID"])
+    ]
+)
 data class ComicGenreJoin(
     @ColumnInfo(name = "ComicID")
     val comicId: Long,

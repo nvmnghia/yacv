@@ -67,7 +67,7 @@ class ComicRackParser {
                 when (parser.name) {
                     // @formatter:off
                     "Series"        -> comic.series        = parseText(parser)
-                    "Writer"        -> comic.writer        = parseText(parser)
+                    "Writer"        -> comic.tmpWriter     = parseText(parser)
                     "Title"         -> comic.title         = parseText(parser)
                     "Genre"         -> comic.tmpGenre      = parseText(parser)
                     "Summary"       -> comic.summary       = parseText(parser)
@@ -80,6 +80,11 @@ class ComicRackParser {
                     "Month"         -> month               = parseInt(parser) ?: month
                     "Day"           -> day                 = parseInt(parser) ?: day
                     "Web"           -> comic.web           = parseText(parser)
+                    "Penciller"     -> comic.tmpPenciller  = parseText(parser)
+                    "Inker"         -> comic.tmpInker      = parseText(parser)
+                    "Colorist"      -> comic.tmpColorist   = parseText(parser)
+                    "Letterer"      -> comic.tmpLetterer   = parseText(parser)
+                    "Editor"        -> comic.tmpEditor     = parseText(parser)
                     else            -> skip(parser)
                     // @formatter:on
                 }
