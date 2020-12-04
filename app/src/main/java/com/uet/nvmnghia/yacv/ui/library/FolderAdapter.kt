@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.model.folder.Folder
 
-class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
+
+class FolderAdapter : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     //================================================================================
     // Adapter functions
@@ -19,9 +20,7 @@ class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
-            .inflate(
-                R.layout.library_item_folder,
-                parent,
+            .inflate(R.layout.library_item_folder, parent,
                 false)    // not attach to parent so that parent doesn't receive touch event
 
         return ViewHolder(view)
@@ -44,12 +43,12 @@ class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK
     }
 
     companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<Comic> = object : DiffUtil.ItemCallback<Comic>() {
-            override fun areItemsTheSame(oldItem: Comic, newItem: Comic): Boolean {
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {
+            override fun areItemsTheSame(oldItem: Folder, newItem: Folder): Boolean {
                 return oldItem.path == newItem.path
             }
 
-            override fun areContentsTheSame(oldItem: Comic, newItem: Comic): Boolean {
+            override fun areContentsTheSame(oldItem: Folder, newItem: Folder): Boolean {
                 return oldItem.path == newItem.path
             }
         }

@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.author.PositionTable
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
+import com.uet.nvmnghia.yacv.model.folder.FolderDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,5 +47,11 @@ class DBProvider {
     @Provides
     fun provideComicDao(db: AppDatabase): ComicDao {
         return db.comicDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideFolderDao(db: AppDatabase): FolderDao {
+        return db.folderDao()
     }
 }

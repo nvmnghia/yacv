@@ -44,7 +44,7 @@ class LibraryFragment : Fragment() {
         // Therefore the above method doesn't work anymore
         // The correct way is the current implementation outside this function
 
-        viewModel.comics.observe(viewLifecycleOwner, folderAdapter::submitList)
+        viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
         askReadExternalThenRescan()
 
         val listComicFolders: RecyclerView = view.findViewById(R.id.library_list_folders)
