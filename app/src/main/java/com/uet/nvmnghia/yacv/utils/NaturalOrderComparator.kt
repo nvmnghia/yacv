@@ -27,7 +27,10 @@ import java.util.*
  2. Altered source versions must be plainly marked as such, and must not be
  misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
- */ open class NaturalOrderComparator<T> : Comparator<T> {
+ */
+
+open class NaturalOrderComparator<T> : Comparator<T> {
+
     fun compareRight(a: String, b: String): Int {
         var bias = 0
         var ia = 0
@@ -64,19 +67,17 @@ import java.util.*
         }
     }
 
-    override fun compare(o1: T, o2: T): Int {
-        val a = o1.toString()
-        val b = o2.toString()
-        var ia = 0; var ib = 0
-        var nza: Int; var nzb: Int
-        var ca: Char; var cb: Char
+    fun compareString(s1: String, s2: String): Int {
+        var ia = 0; var ib = 0        // Current index
+        var nza: Int; var nzb: Int    // Number of zero counter until current index
+        var ca: Char; var cb: Char    // Character at current index
 
         while (true) {
             // Only count the number of zeroes leading the last number compared
             nzb = 0
             nza = nzb
-            ca = charAt(a, ia)
-            cb = charAt(b, ib)
+            ca = charAt(s1, ia)
+            cb = charAt(s2, ib)
 
             // skip over leading spaces or zeros
             while (Character.isSpaceChar(ca) || ca == '0') {
@@ -86,7 +87,7 @@ import java.util.*
                     // Only count consecutive zeroes
                     nza = 0
                 }
-                ca = charAt(a, ++ia)
+                ca = charAt(s1, ++ia)
             }
             while (Character.isSpaceChar(cb) || cb == '0') {
                 if (cb == '0') {
@@ -95,12 +96,12 @@ import java.util.*
                     // Only count consecutive zeroes
                     nzb = 0
                 }
-                cb = charAt(b, ++ib)
+                cb = charAt(s2, ++ib)
             }
 
             // Process run of digits
             if (Character.isDigit(ca) && Character.isDigit(cb)) {
-                val bias = compareRight(a.substring(ia), b.substring(ib))
+                val bias = compareRight(s1.substring(ia), s2.substring(ib))
                 if (bias != 0) {
                     return bias
                 }
@@ -108,7 +109,7 @@ import java.util.*
             if (ca.toInt() == 0 && cb.toInt() == 0) {
                 // The strings compare the same. Perhaps the caller
                 // will want to call strcmp to break the tie.
-                return compareEqual(a, b, nza, nzb)
+                return compareEqual(s1, s2, nza, nzb)
             }
             if (ca < cb) {
                 return -1
@@ -121,13 +122,20 @@ import java.util.*
         }
     }
 
+    override fun compare(o1: T, o2: T): Int {
+        return compareString(o1.toString(), o2.toString())
+    }
+
     companion object {
+        val STRING_COMPARATOR = NaturalOrderComparator<String>()
+
         fun isDigit(c: Char): Boolean {
             return Character.isDigit(c) || c == '.' || c == ','
         }
 
         fun charAt(s: String, i: Int): Char {
             return if (i >= s.length) 0.toChar() else s[i]
+//            return if (i >= s.length) '0' else s[i]
         }
 
         fun compareEqual(a: String, b: String, nza: Int, nzb: Int): Int {

@@ -34,7 +34,7 @@ class ComicRepository
             ComicScanner.scan().collect { files ->
                 comicDao.save(files
                     .filterNotNull()
-                    .map { file -> ComicParserFactory.create(file)!!.info })
+                    .map { file -> ComicParserFactory.create(file).info })
             }
         }
     }
