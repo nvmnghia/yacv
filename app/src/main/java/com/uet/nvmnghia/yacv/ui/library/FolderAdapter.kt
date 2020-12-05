@@ -48,9 +48,9 @@ class FolderAdapter(
             val parser = ComicParserFactory.create(firstComic.path)
 
             withContext(Dispatchers.Main) {
-                glide.load(parser?.readPage(0))
+                glide.load(parser.requestPage(0))
                     .into(holder.folderCover)
-                parser?.close()
+                parser.close()
             }
         }
     }
