@@ -1,9 +1,9 @@
-package com.uet.nvmnghia.yacv.parsers.file.impl
+package com.uet.nvmnghia.yacv.parser.file.impl
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
-import com.uet.nvmnghia.yacv.parsers.file.ComicParser
-import com.uet.nvmnghia.yacv.parsers.metadata.comicrack.ComicRackParser
-import com.uet.nvmnghia.yacv.parsers.metadata.generic.GenericMetadataParser
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.metadata.comicrack.ComicRackParser
+import com.uet.nvmnghia.yacv.parser.metadata.generic.GenericMetadataParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.NaturalOrderComparator
 import java.io.InputStream

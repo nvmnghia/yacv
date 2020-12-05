@@ -112,5 +112,5 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     abstract fun getComicsInFolder(folderId: Int): LiveData<List<Comic>>
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
-    abstract fun getFirstComicInFolder(folderId: Int): LiveData<Comic>
+    abstract fun getFirstComicInFolder(folderId: Long): Comic
 }

@@ -1,6 +1,6 @@
-package com.uet.nvmnghia.yacv.parsers.file
+package com.uet.nvmnghia.yacv.parser.file
 
-import com.uet.nvmnghia.yacv.parsers.file.impl.CBZParser
+import com.uet.nvmnghia.yacv.parser.file.impl.CBZParser
 import java.io.File
 
 

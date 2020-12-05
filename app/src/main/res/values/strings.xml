@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">yacv</string>
+    <string name="cover_image_placeholder">Cover Image</string>
 </resources>

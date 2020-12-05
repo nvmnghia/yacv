@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parsers.file
+package com.uet.nvmnghia.yacv.parser.file
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import java.io.File

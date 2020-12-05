@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parsers.metadata.generic
+package com.uet.nvmnghia.yacv.parser.metadata.generic
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import java.io.File

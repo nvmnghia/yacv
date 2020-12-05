@@ -13,16 +13,25 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
 
+    @Inject
+    lateinit var comicDao: ComicDao
+
     val viewModel: LibraryViewModel by viewModels()
 
     lateinit var folderAdapter: FolderAdapter
+
+    lateinit var glide: RequestManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,7 +43,10 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        folderAdapter = FolderAdapter()
+        // TODO: Inject this shit
+        glide = Glide.with(this)
+
+        folderAdapter = FolderAdapter(glide, comicDao)
 
         // Use ViewModelProvider to create ViewModel
         // https://developer.android.com/codelabs/kotlin-android-training-view-model#4
@@ -51,7 +63,6 @@ class LibraryFragment : Fragment() {
         listComicFolders.adapter = folderAdapter
         listComicFolders.layoutManager = LinearLayoutManager(activity)
         listComicFolders.setHasFixedSize(true)
-        requireActivity()
     }
 
     private fun askReadExternalThenRescan() {
