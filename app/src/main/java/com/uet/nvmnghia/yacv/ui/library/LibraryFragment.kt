@@ -70,6 +70,11 @@ class LibraryFragment : Fragment() {
         return view
     }
 
+    // Menu seems to be handled by NavigationUI now, so there's no point to override this.
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        inflater.inflate(R.menu.library_toolbar, menu)
+//    }
+
     /**
      * Setup [RecyclerView] for list comic folders
      */
