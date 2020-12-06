@@ -5,9 +5,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -62,6 +60,8 @@ class LibraryFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
+        setHasOptionsMenu(true)
+
         setupListComicFolders(view)
 
         viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
@@ -70,10 +70,11 @@ class LibraryFragment : Fragment() {
         return view
     }
 
-    // Menu seems to be handled by NavigationUI now, so there's no point to override this.
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater.inflate(R.menu.library_toolbar, menu)
-//    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // Remember to include in onCreateView
+        // setHasOptionsMenu(true)
+        inflater.inflate(R.menu.library_toolbar, menu)
+    }
 
     /**
      * Setup [RecyclerView] for list comic folders
