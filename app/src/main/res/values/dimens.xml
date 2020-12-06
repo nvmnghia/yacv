@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="library_item_folder_column_width">250dp</dimen>
+    <dimen name="library_item_folder_spacing">10dp</dimen>
 </resources>

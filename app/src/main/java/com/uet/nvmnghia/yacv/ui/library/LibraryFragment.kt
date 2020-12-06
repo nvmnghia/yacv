@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.ui.library
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +13,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
+import com.uet.nvmnghia.yacv.utils.DeviceUtil
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -38,9 +39,10 @@ class LibraryFragment : Fragment() {
     // The correct way is the below line
     val viewModel: LibraryViewModel by viewModels()
 
-    lateinit var folderAdapter: FolderAdapter
-
     lateinit var glide: RequestManager
+
+    lateinit var folderAdapter: FolderAdapter
+    var NUM_COL: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,18 +51,16 @@ class LibraryFragment : Fragment() {
         glide = Glide.with(this)
 
         folderAdapter = FolderAdapter(glide, comicDao)
+        NUM_COL = calculateNumberOfColumns()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
-        val listComicFolders: RecyclerView = view.findViewById(R.id.library_list_folders)
-        listComicFolders.adapter = folderAdapter
-        listComicFolders.layoutManager = LinearLayoutManager(activity)
-        listComicFolders.setHasFixedSize(true)
+        setupListComicFolders(view)
 
         viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
         askReadExternalThenRescan()
@@ -68,6 +68,39 @@ class LibraryFragment : Fragment() {
         return view
     }
 
+    private fun setupListComicFolders(view: View) {
+        val listComicFolders: RecyclerView = view.findViewById(R.id.library_list_folders)
+        listComicFolders.adapter = folderAdapter
+        listComicFolders.layoutManager = GridLayoutManager(activity, NUM_COL!!)
+        listComicFolders.setHasFixedSize(true)
+
+        val SPACING = resources.getDimension(R.dimen.library_item_folder_spacing).toInt()
+        val spacer = object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View,
+                parent: RecyclerView, state: RecyclerView.State
+            ) {
+                // Trick:
+                // - in library_list_folders, pad left and top only
+                // - in this spacing code, add right and bottom spacing only
+                outRect.right  = SPACING
+                outRect.bottom = SPACING
+            }
+        }
+        listComicFolders.addItemDecoration(spacer)
+    }
+
+    /**
+     * Calculate number of column in the [RecyclerView].
+     */
+    private fun calculateNumberOfColumns(): Int {
+        val screenWidth: Int = DeviceUtil.getScreenWidthInPx(requireContext())
+        val columnWidth = resources.getDimension(R.dimen.library_item_folder_column_width).toInt()    // In pixel, already scaled.
+        return screenWidth / columnWidth
+    }
+
+    /**
+     * Ask for READ_EXTERNAL_STORAGE. If granted, scan the folder.
+     */
     private fun askReadExternalThenRescan() {
         when {
             ContextCompat.checkSelfPermission(
