@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -19,6 +20,7 @@ import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.utils.DeviceUtil
+import com.uet.nvmnghia.yacv.utils.RecyclerItemClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -68,12 +70,17 @@ class LibraryFragment : Fragment() {
         return view
     }
 
+    /**
+     * Setup [RecyclerView] for list comic folders
+     */
     private fun setupListComicFolders(view: View) {
+        // General setup
         val listComicFolders: RecyclerView = view.findViewById(R.id.library_list_folders)
         listComicFolders.adapter = folderAdapter
         listComicFolders.layoutManager = GridLayoutManager(activity, NUM_COL!!)
         listComicFolders.setHasFixedSize(true)
 
+        // Spacing
         val SPACING = resources.getDimension(R.dimen.library_item_folder_spacing).toInt()
         val spacer = object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View,
@@ -87,6 +94,21 @@ class LibraryFragment : Fragment() {
             }
         }
         listComicFolders.addItemDecoration(spacer)
+
+        // Click listener
+        val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                Toast.makeText(requireContext(),
+                    "Clicked at ${folderAdapter.currentList[position].path}",
+                    Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onLongItemClick(view: View?, position: Int) {
+                TODO("Not yet implemented")
+            }
+        }
+        listComicFolders.addOnItemTouchListener(
+            RecyclerItemClickListener(requireContext(), listComicFolders, clickListener))
     }
 
     /**

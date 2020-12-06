@@ -1,7 +1,6 @@
 package com.uet.nvmnghia.yacv.utils
 
 import android.content.Context
-import kotlin.math.roundToInt
 
 
 class DeviceUtil {
