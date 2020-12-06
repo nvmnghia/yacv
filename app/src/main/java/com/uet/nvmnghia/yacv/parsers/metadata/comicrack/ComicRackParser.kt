@@ -38,6 +38,8 @@ class ComicRackParser {
                     parseComicTag(parser, comic)
                 }
 
+                comic.nonGenericallyParsed = true
+
                 return true
             }
             catch (xppe: XmlPullParserException) {}

@@ -84,6 +84,8 @@ data class Comic(
 
     constructor(file: File) : this(file.canonicalPath)
 
+    @Ignore
+    var nonGenericallyParsed = false
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ComicID")
