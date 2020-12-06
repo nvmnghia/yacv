@@ -36,6 +36,10 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
         }
     }
 
+    fun requestCover(): PageRequest {
+        return PageRequest(filePath, 0)
+    }
+
     /**
      * Given a 0-based page number, return a [PageRequest] object
      * wrapping the file path and the index. Glide will then load

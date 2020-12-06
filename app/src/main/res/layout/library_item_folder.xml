@@ -27,15 +27,13 @@
         <!-- No constraint for bottom, as it overrides layout_constraintDimensionRatio -->
         <ImageView
             android:id="@+id/library_item_folder_cover"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginTop="0dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/library_item_folder_cover"
             android:contentDescription="@string/cover_image_placeholder" />
 
         <TextView
@@ -43,7 +41,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:singleLine="true"
+            android:textSize="18sp"
+            android:padding="10dp"
             android:text="shitty placeholder"
-            cardview:layout_constraintTop_toBottomOf="@+id/library_item_folder_cover"/>
+            app:layout_constraintTop_toBottomOf="@+id/library_item_folder_cover"/>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
