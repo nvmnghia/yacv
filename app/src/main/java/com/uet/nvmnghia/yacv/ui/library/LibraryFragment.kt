@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -27,42 +28,44 @@ class LibraryFragment : Fragment() {
     @Inject
     lateinit var comicDao: ComicDao
 
+    // Use ViewModelProvider to create ViewModel
+    // https://developer.android.com/codelabs/kotlin-android-training-view-model#4
+//        viewModel = ViewModelProvider(this).get(LibraryViewModel::class.java)
+    // ViewModel must be accessed in attached mode, therefore the above line
+    // must be inside onViewCreated
+    // However, we want to use Hilt for DI
+    // Therefore the above method doesn't work anymore
+    // The correct way is the below line
     val viewModel: LibraryViewModel by viewModels()
 
     lateinit var folderAdapter: FolderAdapter
 
     lateinit var glide: RequestManager
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_library, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         // TODO: Inject this shit
         glide = Glide.with(this)
 
         folderAdapter = FolderAdapter(glide, comicDao)
+    }
 
-        // Use ViewModelProvider to create ViewModel
-        // https://developer.android.com/codelabs/kotlin-android-training-view-model#4
-        // ViewModel must be accessed in attached mode
-//        viewModel = ViewModelProvider(this).get(LibraryViewModel::class.java)
-        // However, we want to use Hilt for DI
-        // Therefore the above method doesn't work anymore
-        // The correct way is the current implementation outside this function
-
-        viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
-        askReadExternalThenRescan()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_library, container, false)
 
         val listComicFolders: RecyclerView = view.findViewById(R.id.library_list_folders)
         listComicFolders.adapter = folderAdapter
         listComicFolders.layoutManager = LinearLayoutManager(activity)
         listComicFolders.setHasFixedSize(true)
+
+        viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
+        askReadExternalThenRescan()
+
+        return view
     }
 
     private fun askReadExternalThenRescan() {

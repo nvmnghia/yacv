@@ -135,7 +135,6 @@ open class NaturalOrderComparator<T> : Comparator<T> {
 
         fun charAt(s: String, i: Int): Char {
             return if (i >= s.length) 0.toChar() else s[i]
-//            return if (i >= s.length) '0' else s[i]
         }
 
         fun compareEqual(a: String, b: String, nza: Int, nzb: Int): Int {
