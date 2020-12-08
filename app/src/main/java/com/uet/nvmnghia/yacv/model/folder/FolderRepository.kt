@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.model.folder
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import javax.inject.Inject
@@ -16,7 +17,11 @@ class FolderRepository @Inject constructor(
         return folderDao.getAll()
     }
 
-    fun rescanComics() {
-        comicRepository.rescanComics()
+    /**
+     * Given a non-null folder uri, scan its files.
+     * If [newRoot] is true, delete data from all tables.
+     */
+    fun rescanComics(rootUri: Uri, newRoot: Boolean? = false) {
+        comicRepository.rescanComics(rootUri, newRoot)
     }
 }

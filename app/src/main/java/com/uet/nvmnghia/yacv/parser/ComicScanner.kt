@@ -1,7 +1,9 @@
 package com.uet.nvmnghia.yacv.parser
 
+import android.net.Uri
 import android.os.Environment
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.utils.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -19,16 +21,17 @@ class ComicScanner {
         }
 
         /**
-         * Scan the given folder.
+         * Scan the given folder for comics.
          * If nothing is given, use the depreciated way :).
+         * TODO: remove this function.
          *
-         * @param folderPath Folder to scan for comic
+         * @param rootFolder Folder to scan for comic
          */
-        fun scan(folderPath: String? = null): Flow<Array<File?>> {
+        fun scan(rootFolder: String? = Constants.DEFAULT_ROOT_FOLDER): Flow<Array<File?>> {
             // Param is val, i.e. no reassignment
             // https://stackoverflow.com/a/42540294/5959593
             val _folderPath =
-                folderPath ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
+                rootFolder ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
 
             return flow {
                 // Emit in chunk
@@ -52,6 +55,13 @@ class ComicScanner {
                 // Emit the rest
                 emit(buffer)
             }
+        }
+
+        /**
+         * Scan the given folder at [rootUri] for comics.
+         */
+        fun scan(rootUri: Uri): Flow<Array<File?>> {
+
         }
     }
 }

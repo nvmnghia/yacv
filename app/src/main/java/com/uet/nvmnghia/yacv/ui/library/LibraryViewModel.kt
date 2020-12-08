@@ -1,12 +1,15 @@
 package com.uet.nvmnghia.yacv.ui.library
 
+import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import com.uet.nvmnghia.yacv.model.comic.Comic
-import com.uet.nvmnghia.yacv.model.comic.ComicRepository
+import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
+import com.uet.nvmnghia.yacv.utils.Constants
 
 
 /**
@@ -24,10 +27,15 @@ import com.uet.nvmnghia.yacv.model.folder.FolderRepository
  * Currently used to test compression reading code
  */
 class LibraryViewModel @ViewModelInject constructor(
-    private val folderRepository: FolderRepository
-) : ViewModel() {
+    private val folderRepository: FolderRepository, application: Application
+) : AndroidViewModel(application) {
 
-    private lateinit var rootScanDirectory: String
+    private val sharedPref = application.getSharedPreferences(
+        application.resources.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+    private var rootFolderUri = sharedPref
+        .getString(Constants.SHPREF_KEY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER)
+        ?.let { Uri.parse(it) }
+
     val folders: LiveData<List<Folder>> = folderRepository.getFolders()
 
     /**
@@ -35,7 +43,6 @@ class LibraryViewModel @ViewModelInject constructor(
      * Several init block will be merged as one
      */
     init {
-
     }
 
     override fun onCleared() {
@@ -43,11 +50,24 @@ class LibraryViewModel @ViewModelInject constructor(
         // Destroy shit here
     }
 
-    fun setDirectory(dir: String) {
-        rootScanDirectory = dir
+    /**
+     * Set [rootFolderUri] and persist it in SharedPreference.
+     */
+    private fun setDirectory(uri: Uri) {
+        rootFolderUri = uri
+
+        with (sharedPref.edit()) {
+            putString(Constants.SHPREF_KEY_ROOT_FOLDER, rootFolderUri.toString())
+            apply()
+        }
     }
 
-    fun rescanComics() {
-        folderRepository.rescanComics()
+    /**
+     * Given a non-null uri, make it the [rootFolderUri] and scan its files.
+     * If the uri is null, quickly rescan the current one.
+     */
+    fun rescanComics(uri: Uri? = null) {
+        uri?.let { setDirectory(it) }
+        rootFolderUri?.let { folderRepository.rescanComics(it, uri == null) }
     }
 }

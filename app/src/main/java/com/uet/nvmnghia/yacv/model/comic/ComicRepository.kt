@@ -1,8 +1,10 @@
 package com.uet.nvmnghia.yacv.model.comic
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.parser.ComicScanner
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
+import com.uet.nvmnghia.yacv.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -28,10 +30,14 @@ class ComicRepository
         return comicDao.getAll()
     }
 
-    fun rescanComics() {
+    /**
+     * Given a non-null folder uri, scan its files.
+     * If [newRoot] is true, delete data from all tables.
+     */
+    fun rescanComics(rootUri: Uri, newRoot: Boolean? = false) {
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
-            ComicScanner.scan().collect { files ->
+            ComicScanner.scan(rootUri).collect { files ->
                 comicDao.save(files
                     .filterNotNull()
                     .map { file -> ComicParserFactory.create(file).info })

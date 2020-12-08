@@ -7,4 +7,8 @@
     <string name="search">Search</string>
     <string name="select_root_folder">Select Folder</string>
     <string name="rescan">Rescan</string>
+    <string name="yacv_needs_storage">yacv needs storage</string>
+    <string name="yacv_explain_storage">yacv needs your permission to read comic in your phone.</string>
+    <string name="got_it">Got it</string>
+    <string name="preference_file_key">com.uet.nvmnghia.yacv</string>
 </resources>

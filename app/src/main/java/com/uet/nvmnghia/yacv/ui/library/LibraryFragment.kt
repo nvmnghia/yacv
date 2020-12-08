@@ -2,13 +2,17 @@ package com.uet.nvmnghia.yacv.ui.library
 
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -44,6 +48,14 @@ class LibraryFragment : Fragment() {
     lateinit var folderAdapter: FolderAdapter
     var NUM_COL: Int? = null
 
+    lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
+    lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
+
+    //================================================================================
+    // Lifecycle hooks
+    //================================================================================
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -64,8 +76,9 @@ class LibraryFragment : Fragment() {
 
         setupListComicFolders(view)
 
+        registerActivityResultCallbacks()
+
         viewModel.folders.observe(viewLifecycleOwner, folderAdapter::submitList)
-        askReadExternalThenRescan()
 
         return view
     }
@@ -74,6 +87,15 @@ class LibraryFragment : Fragment() {
         // Remember to include in onCreateView
         // setHasOptionsMenu(true)
         inflater.inflate(R.menu.library_toolbar, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.library_toolbar_select_root_folder -> changeRootScanFolder()
+
+        }
+
+        return true
     }
 
     /**
@@ -109,9 +131,7 @@ class LibraryFragment : Fragment() {
                     Toast.LENGTH_SHORT).show()
             }
 
-            override fun onLongItemClick(view: View?, position: Int) {
-                TODO("Not yet implemented")
-            }
+            override fun onLongItemClick(view: View?, position: Int) {}
         }
         listComicFolders.addOnItemTouchListener(
             RecyclerItemClickListener(requireContext(), listComicFolders, clickListener))
@@ -123,34 +143,65 @@ class LibraryFragment : Fragment() {
     private fun calculateNumberOfColumns(): Int {
         val screenWidth: Int = DeviceUtil.getScreenWidthInPx(requireContext())
         val columnWidth = resources.getDimension(R.dimen.library_item_folder_column_width).toInt()    // In pixel, already scaled.
-        return screenWidth / columnWidth
+        val numColumn = screenWidth / columnWidth
+        return if (numColumn != 0) numColumn  else 1
+    }
+
+
+    //================================================================================
+    // Activity result callbacks
+    //================================================================================
+
+    private fun registerActivityResultCallbacks() {
+        setupFolderPickerLauncher()
+        setupRequestPermissionLauncher()
+    }
+
+    private fun setupFolderPickerLauncher() {
+        folderPickerLauncher = registerForActivityResult(
+            ActivityResultContracts.OpenDocumentTree()
+        ) { folderUri ->
+            folderUri?.path?.let { viewModel.rescanComics(it) }
+        }
+    }
+
+    private fun setupRequestPermissionLauncher() {
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                folderPickerLauncher.launch(null)
+            }
+        }
     }
 
     /**
-     * Ask for READ_EXTERNAL_STORAGE. If granted, scan the folder.
+     * Select a root folder. If not granted, ask for READ_EXTERNAL_STORAGE.
      */
-    private fun askReadExternalThenRescan() {
+    private fun changeRootScanFolder() {
         when {
-            ContextCompat.checkSelfPermission(
-                requireActivity(),
+            ContextCompat.checkSelfPermission(requireActivity(),
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED -> {
-                // You can use the API that requires the permission.
+                viewModel.rescanComics()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                // In an educational UI, explain to the user why your app requires this
-                // permission for a specific feature to behave as expected. In this UI,
-                // include a "cancel" or "no thanks" button that allows the user to
-                // continue using your app without granting the permission.
+                explainStoragePermission()
             }
             else -> {
-                val requestPermissionLauncher = registerForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) { result ->
-                    if (result) viewModel.rescanComics()
-                }
                 requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
+    }
+
+    /**
+     * Show a dialog explaining why yacv needs storage permission.
+     */
+    private fun explainStoragePermission() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle(R.string.yacv_needs_storage)
+            .setMessage(R.string.yacv_explain_storage)
+            .setPositiveButton(R.string.got_it) { _, _ -> }
+        builder.create()
     }
 }
