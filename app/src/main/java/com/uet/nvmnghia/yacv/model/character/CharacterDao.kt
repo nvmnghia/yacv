@@ -68,6 +68,9 @@ abstract class CharacterDao {
     @Query("SELECT docid FROM CharacterFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
 
+    @Query("DELETE FROM Character")
+    abstract fun truncate()
+
 //    @Transaction    // There're actually 2 queries in @Relation-related query
 //    @Query("SELECT * FROM Character WHERE rowid = :characterId")
 //    abstract fun getCharacterWithComic(characterId: Long): CharacterWithComics

@@ -38,4 +38,7 @@ interface ComicGenreJoinDao {
     fun save(comicId: Long, genreIds: Iterable<Long>) {
         genreIds.toSet().forEach { genreId -> save(ComicGenreJoin(comicId, genreId)) }
     }
+
+    @Query("DELETE FROM ComicGenreJoin")
+    fun truncate()
 }

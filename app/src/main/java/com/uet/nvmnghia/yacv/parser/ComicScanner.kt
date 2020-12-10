@@ -1,9 +1,6 @@
 package com.uet.nvmnghia.yacv.parser
 
-import android.net.Uri
-import android.os.Environment
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import com.uet.nvmnghia.yacv.utils.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -22,28 +19,24 @@ class ComicScanner {
 
         /**
          * Scan the given folder for comics.
-         * If nothing is given, use the depreciated way :).
-         * TODO: remove this function.
+         * TODO: Implement deep scan.
          *
-         * @param rootFolder Folder to scan for comic
+         * @param rootFolder Folder to scan for comics
+         * @param deep Scan deeply, slower but guarantee to scan all files
          */
-        fun scan(rootFolder: String? = Constants.DEFAULT_ROOT_FOLDER): Flow<Array<File?>> {
-            // Param is val, i.e. no reassignment
-            // https://stackoverflow.com/a/42540294/5959593
-            val _folderPath =
-                rootFolder ?: Environment.getExternalStorageDirectory().canonicalPath.toString()
-
+        fun scan(rootFolder: String, deep: Boolean): Flow<Array<File?>> {
             return flow {
                 // Emit in chunk
-                val BUFFER_SIZE = 10
-                var buffer = arrayOfNulls<File>(BUFFER_SIZE)
+                val BULK_SIZE = 10
+                var buffer = arrayOfNulls<File>(BULK_SIZE)
                 var counter = 0
 
-                File(_folderPath).walkTopDown().forEach { file ->
+                // TODO: Emit early: emit every BULK_SIZE or 0.5 second
+                File(rootFolder).walkTopDown().forEach { file ->
                     if (isComic(file)) {
-                        if (counter == BUFFER_SIZE) {
+                        if (counter == BULK_SIZE) {
                             emit(buffer)
-                            buffer = arrayOfNulls(BUFFER_SIZE)
+                            buffer = arrayOfNulls(BULK_SIZE)
                             counter = 0
                         }
 
@@ -55,13 +48,6 @@ class ComicScanner {
                 // Emit the rest
                 emit(buffer)
             }
-        }
-
-        /**
-         * Scan the given folder at [rootUri] for comics.
-         */
-        fun scan(rootUri: Uri): Flow<Array<File?>> {
-
         }
     }
 }

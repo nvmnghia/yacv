@@ -113,4 +113,7 @@ abstract class ComicDao(private val appDb: AppDatabase) {
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
     abstract fun getFirstComicInFolder(folderId: Long): Comic
+
+    @Query("DELETE FROM Comic")
+    abstract fun truncate()
 }

@@ -42,4 +42,7 @@ interface ComicAuthorJoinDao {
     fun save(comicId: Long, authorId: Long, positionId: Long) {
         save(ComicAuthorJoin(comicId, authorId, positionId))
     }
+
+    @Query("DELETE FROM ComicAuthorJoin")
+    fun truncate()
 }

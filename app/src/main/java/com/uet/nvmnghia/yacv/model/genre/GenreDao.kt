@@ -45,4 +45,7 @@ abstract class GenreDao {
 
     @Query("SELECT docid FROM GenreFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    @Query("DELETE FROM Genre")
+    abstract fun truncate()
 }

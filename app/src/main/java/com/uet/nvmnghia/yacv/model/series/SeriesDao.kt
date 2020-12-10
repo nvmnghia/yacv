@@ -44,4 +44,7 @@ abstract class SeriesDao {
 
     @Query("SELECT docid FROM SeriesFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    @Query("DELETE FROM Series")
+    abstract fun truncate()
 }

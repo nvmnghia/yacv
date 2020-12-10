@@ -9,6 +9,17 @@
     <string name="rescan">Rescan</string>
     <string name="yacv_needs_storage">yacv needs storage</string>
     <string name="yacv_explain_storage">yacv needs your permission to read comic in your phone.</string>
-    <string name="got_it">Got it</string>
+    <string name="ok_allow">OK, allow</string>
     <string name="preference_file_key">com.uet.nvmnghia.yacv</string>
+    <string name="no_root_folder_selected">No folder selected to scan for comics. Click the Folder icon to select one.</string>
+    <string name="no_root_folder_selected_spannable_part">Folder icon</string>
+    <string name="cannot_read_root_folder">Selected Folder cannot be read. Either the read permission was revoked, or the folder was deleted. Click the Folder icon to select another one.</string>
+    <string name="cannot_read_root_folder_spannable_part">Folder icon</string>
+    <string name="no_read_permission">Read permission not granted. Click here to grant yacv one.</string>
+    <string name="no_read_permission_spannable_part">Click here</string>
+    <string name="no_comic">Looks like it\'s empty here. Consider adding more comics, or click the Folder icon to choose another folder to scan for comics.</string>
+    <string name="no_comic_spannable_part">Folder icon</string>
+    <string name="deny">Deny</string>
+    <string name="no_read_permission_twice">yacv has been denied twice. yacv can not read comics. Allow yacv by open Settings and give yacv a chance!</string>
+    <string name="no_read_permission_twice_spannable_part">Settings</string>
 </resources>

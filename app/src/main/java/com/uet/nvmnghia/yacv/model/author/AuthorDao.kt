@@ -52,4 +52,7 @@ abstract class AuthorDao {
 
     @Query("SELECT docid FROM AuthorFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    @Query("DELETE FROM Author")
+    abstract fun truncate()
 }

@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
 @Dao
@@ -71,4 +70,7 @@ interface FolderDao {
      */
     @Query("SELECT FolderID FROM Folder WHERE FolderPath = :folderPath LIMIT 1")
     fun getExistingId(folderPath: String): List<Long>
+
+    @Query("DELETE FROM Folder")
+    fun truncate()
 }

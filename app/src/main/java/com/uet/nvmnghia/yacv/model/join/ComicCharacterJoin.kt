@@ -39,6 +39,9 @@ interface ComicCharacterJoinDao {
         characterIds.toSet()    // Avoid duplication. For example an erroneous <Characters>: "batMan, batman"
             .forEach { characterId -> save(ComicCharacterJoin(comicId, characterId)) }
     }
+
+    @Query("DELETE FROM ComicCharacterJoin")
+    fun truncate()
 }
 
 // Currently CrossRef is not flexible enough, so let's juts JOIN manually

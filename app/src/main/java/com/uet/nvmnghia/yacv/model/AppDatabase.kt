@@ -46,15 +46,39 @@ import com.uet.nvmnghia.yacv.utils.RoomUtils
 @TypeConverters(RoomUtils.CalendarConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     // @formatter:off
-    abstract fun comicDao()    : ComicDao
-    abstract fun folderDao()   : FolderDao
+    // File-related tables
+    abstract fun comicDao() : ComicDao
+    abstract fun folderDao(): FolderDao
+
+    // Metadata-related tables
     abstract fun characterDao(): CharacterDao
     abstract fun genreDao()    : GenreDao
     abstract fun authorDao()   : AuthorDao
     abstract fun seriesDao()   : SeriesDao
 
+    // Join tables
     abstract fun comicCharacterJoinDao(): ComicCharacterJoinDao
     abstract fun comicGenreJoinDao()    : ComicGenreJoinDao
     abstract fun comicAuthorJoinDao()   : ComicAuthorJoinDao
     // @formatter:on
+
+    /**
+     * Reset database by truncating all tables referencing and referenced by Comic.
+     * This leaves metadata-related tables intact.
+     */
+    fun resetDb() {
+        comicCharacterJoinDao().truncate()
+        comicGenreJoinDao().truncate()
+        comicAuthorJoinDao().truncate()
+
+        comicDao().truncate()
+        folderDao().truncate()
+    }
+
+    /**
+     * Remove not referenced entries metadata-related tables.
+     */
+    fun cleanDb() {
+        TODO("Implement this")
+    }
 }

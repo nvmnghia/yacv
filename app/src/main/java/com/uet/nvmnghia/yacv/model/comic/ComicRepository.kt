@@ -1,10 +1,9 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
+import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.parser.ComicScanner
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
-import com.uet.nvmnghia.yacv.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -24,23 +23,43 @@ class ComicRepository
 // @Inject in constructor declaration: inject this class somewhere, init by this constructor
 @Inject constructor(
     private val comicDao: ComicDao,
+    private val appDb: AppDatabase
 ) {
-    fun getComics(rescan: Boolean = false): LiveData<List<Comic>> {
-        if (rescan) rescanComics()
+    /**
+     * Get comics from DB.
+     * This method DOES NOT rescan.
+     */
+    fun getComics(): LiveData<List<Comic>> {
         return comicDao.getAll()
     }
 
     /**
-     * Given a non-null folder uri, scan its files.
-     * If [newRoot] is true, delete data from all tables.
+     * Scan the given folder for comics.
+     * When [truncateOld] is set, [deep] is also set.
+     *
+     * @param rootFolder Folder to scan for comics
+     * @param deep Scan deeply, slower but guarantee to scan all files
+     * @param truncateOld Truncate old data, used when a new root folder is selected
      */
-    fun rescanComics(rootUri: Uri, newRoot: Boolean? = false) {
+    fun scanComics(rootFolder: String, deep: Boolean, truncateOld: Boolean) {
+        val _deep = if (truncateOld) {
+            true
+        } else {
+            deep
+        }
+
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
-            ComicScanner.scan(rootUri).collect { files ->
-                comicDao.save(files
-                    .filterNotNull()
-                    .map { file -> ComicParserFactory.create(file).info })
+            if (truncateOld) {
+                appDb.resetDb()
+            }
+
+            ComicScanner.scan(rootFolder, _deep).collect { files ->
+                comicDao.save(
+                    files
+                        .filterNotNull()
+                        .map { file -> ComicParserFactory.create(file).info }
+                )
             }
         }
     }

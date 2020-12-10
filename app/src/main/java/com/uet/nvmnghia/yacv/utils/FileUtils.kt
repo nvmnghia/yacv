@@ -46,6 +46,9 @@ class FileUtils {
         val MATCH_RAW_SCHEME          = "^raw:".toRegex()
         val MATCH_DOCUMENT_RAW_SCHEME = "^/document/raw:".toRegex()
 
+        /**
+         * Given a URI, convert it to a canonical native path if possible.
+         */
         fun getCanonicalPath(uri: Uri, context: Context): String? {
             val path = getPath(uri, context)
             return if (path == null) {
@@ -55,6 +58,9 @@ class FileUtils {
             }
         }
 
+        /**
+         * Given a URI, convert it to a native path if possible.
+         */
         private fun getPath(uri: Uri, context: Context): String? {
             var contentUri: Uri? = null
             val selection: String?
