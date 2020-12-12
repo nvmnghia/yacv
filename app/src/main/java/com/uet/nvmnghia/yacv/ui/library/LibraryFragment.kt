@@ -15,7 +15,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -346,7 +345,7 @@ class LibraryFragment : Fragment() {
      * If a specific location needs to be opened first, pass its URI to the function.
      */
     private fun launchFolderPicker(suggestedUri: Uri? = null) {
-        folderPickerLauncher.launch(suggestedUri)
+        folderPickerLauncher.launch(null)
     }
 
     /**

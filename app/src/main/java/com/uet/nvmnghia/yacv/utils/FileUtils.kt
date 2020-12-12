@@ -39,6 +39,7 @@ class FileUtils {
         // Resolving URI
         // https://stackoverflow.com/a/60642994/5959593
         // Because fuck SAF
+        // This code is still here for further evaluation
         //================================================================================
 
         const val RAW_SCHEME = "raw:"
@@ -65,6 +66,12 @@ class FileUtils {
             var contentUri: Uri? = null
             val selection: String?
             val selectionArgs: Array<String>?
+
+            // Weird: For folders inside Download
+            // - Android 11:
+            //   content://com.android.externalstorage.documents/tree/primary:Download/...
+            // - The rest:
+            //   content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Download/...
 
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
