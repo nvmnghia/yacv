@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.uet.nvmnghia.yacv.model.AppDatabase
-import com.uet.nvmnghia.yacv.model.author.Position
+import com.uet.nvmnghia.yacv.model.author.Role
 
 
 /**
@@ -47,23 +47,23 @@ abstract class ComicDao(private val appDb: AppDatabase) {
 
         // Insert into tables that have join tables with Comic
         comic.tmpCharacters?.let {
-            val characterIds = appDb.characterDao().saveIfAbsent(it.split(','))
+            val characterIds = appDb.characterDao().saveIfAbsent(it.split(LIST_SEPARATOR))
             appDb.comicCharacterJoinDao().save(comicId, characterIds)
         }
 
         comic.tmpGenre?.let {
-            val genreIds = appDb.genreDao().saveIfAbsent(it.split(','))
+            val genreIds = appDb.genreDao().saveIfAbsent(it.split(LIST_SEPARATOR))
             appDb.comicGenreJoinDao().save(comicId, genreIds)
         }
 
         // Note: the order of item between 2 lists must be consistent
         val authors   = listOf(comic.tmpWriter, comic.tmpEditor, comic.tmpPenciller,
             comic.tmpInker, comic.tmpColorist, comic.tmpLetterer, comic.tmpCoverArtist)
-        val positions = listOf(Position.Writer, Position.Editor, Position.Penciller,
-            Position.Inker, Position.Colorist, Position.Letterer, Position.CoverArtist)
+        val positions = listOf(Role.Writer, Role.Editor, Role.Penciller,
+            Role.Inker, Role.Colorist, Role.Letterer, Role.CoverArtist)
         authors.zip(positions) { authorGroup, position ->
             authorGroup?. let {
-                val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(','))
+                val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(LIST_SEPARATOR))
                 authorIds.forEach { authorId ->
                     appDb.comicAuthorJoinDao().save(comicId, authorId, position.id) }
             }
@@ -112,5 +112,12 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     abstract fun getComicsInFolder(folderId: Int): LiveData<List<Comic>>
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
-    abstract fun getFirstComicInFolder(folderId: Int): LiveData<Comic>
+    abstract fun getFirstComicInFolder(folderId: Long): Comic
+
+    @Query("DELETE FROM Comic")
+    abstract fun truncate()
+
+    companion object {
+        const val LIST_SEPARATOR = ','
+    }
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4f4eb802b086ad83d71353735e0d1970",
+    "identityHash": "0e237bf88022af17c2b245491fca4dcb",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Number` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,6 +17,12 @@
           {
             "fieldPath": "seriesId",
             "columnName": "SeriesID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "number",
+            "columnName": "Number",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -173,11 +179,11 @@
         "contentSyncTriggers": [
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_UPDATE BEFORE UPDATE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
           "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_BEFORE_DELETE BEFORE DELETE ON `Comic` BEGIN DELETE FROM `ComicFts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Language`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Language`, NEW.`Publisher`, NEW.`Web`); END"
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_UPDATE AFTER UPDATE ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Publisher`, NEW.`Web`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ComicFts_AFTER_INSERT AFTER INSERT ON `Comic` BEGIN INSERT INTO `ComicFts`(`docid`, `Title`, `Summary`, `Publisher`, `Web`) VALUES (NEW.`rowid`, NEW.`Title`, NEW.`Summary`, NEW.`Publisher`, NEW.`Web`); END"
         ],
         "tableName": "ComicFts",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Title` TEXT, `Summary` TEXT, `Publisher` TEXT, `Web` TEXT, content=`Comic`)",
         "fields": [
           {
             "fieldPath": "title",
@@ -188,12 +194,6 @@
           {
             "fieldPath": "summary",
             "columnName": "Summary",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "language",
-            "columnName": "Language",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -228,7 +228,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "path",
+            "fieldPath": "uri",
             "columnName": "FolderPath",
             "affinity": "TEXT",
             "notNull": true
@@ -555,7 +555,7 @@
       },
       {
         "tableName": "ComicAuthorJoin",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `AuthorID` INTEGER NOT NULL, `PositionID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `AuthorID`, `PositionID`), FOREIGN KEY(`ComicID`) REFERENCES `Comic`(`ComicID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`AuthorID`) REFERENCES `Author`(`AuthorID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`PositionID`) REFERENCES `Position`(`PositionID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER NOT NULL, `AuthorID` INTEGER NOT NULL, `RoleID` INTEGER NOT NULL, PRIMARY KEY(`ComicID`, `AuthorID`, `RoleID`), FOREIGN KEY(`ComicID`) REFERENCES `Comic`(`ComicID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`AuthorID`) REFERENCES `Author`(`AuthorID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`RoleID`) REFERENCES `Role`(`RoleID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "comicId",
@@ -571,7 +571,7 @@
           },
           {
             "fieldPath": "positionId",
-            "columnName": "PositionID",
+            "columnName": "RoleID",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -580,7 +580,7 @@
           "columnNames": [
             "ComicID",
             "AuthorID",
-            "PositionID"
+            "RoleID"
           ],
           "autoGenerate": false
         },
@@ -594,12 +594,12 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicAuthorJoin_AuthorID` ON `${TABLE_NAME}` (`AuthorID`)"
           },
           {
-            "name": "index_ComicAuthorJoin_PositionID",
+            "name": "index_ComicAuthorJoin_RoleID",
             "unique": false,
             "columnNames": [
-              "PositionID"
+              "RoleID"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicAuthorJoin_PositionID` ON `${TABLE_NAME}` (`PositionID`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ComicAuthorJoin_RoleID` ON `${TABLE_NAME}` (`RoleID`)"
           }
         ],
         "foreignKeys": [
@@ -626,14 +626,14 @@
             ]
           },
           {
-            "table": "Position",
+            "table": "Role",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "PositionID"
+              "RoleID"
             ],
             "referencedColumns": [
-              "PositionID"
+              "RoleID"
             ]
           }
         ]
@@ -718,12 +718,12 @@
         "foreignKeys": []
       },
       {
-        "tableName": "Position",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`PositionID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`PositionID`))",
+        "tableName": "Role",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`RoleID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`RoleID`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "PositionID",
+            "columnName": "RoleID",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -736,7 +736,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "PositionID"
+            "RoleID"
           ],
           "autoGenerate": false
         },
@@ -747,7 +747,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4f4eb802b086ad83d71353735e0d1970')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e237bf88022af17c2b245491fca4dcb')"
     ]
   }
 }

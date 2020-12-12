@@ -2,7 +2,6 @@ package com.uet.nvmnghia.yacv.model.genre
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Fts4
 import androidx.room.PrimaryKey
 
 
@@ -12,6 +11,12 @@ data class Genre(
     val name: String
 ) {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "GenreID")
+    @ColumnInfo(name = COLUMN_GENRE_ID)
     var id: Long = 0
+
+    companion object {
+        const val COLUMN_GENRE_ID = "GenreID"
+
+        internal const val COLUMN_GENRE_NAME = "Name"
+    }
 }

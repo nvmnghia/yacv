@@ -10,15 +10,19 @@ import java.io.File
 /**
  * Folder containing comic files.
  */
-@Entity(indices = [Index(value = ["FolderPath"], unique = true)])
+@Entity(indices = [Index(value = [Folder.COLUMN_FOLDER_PATH], unique = true)])
 data class Folder(
-    @ColumnInfo(name = "FolderPath")
-    val path: String
+    @ColumnInfo(name = COLUMN_FOLDER_PATH)
+    val uri: String
 ) {
-
     constructor(folderPath: File) : this(folderPath.canonicalPath)
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "FolderID")
+    @ColumnInfo(name = COLUMN_FOLDER_ID)
     var id: Long = 0
+
+    companion object {
+        const val COLUMN_FOLDER_ID  = "FolderID"
+        const val COLUMN_FOLDER_PATH = "FolderPath"
+    }
 }

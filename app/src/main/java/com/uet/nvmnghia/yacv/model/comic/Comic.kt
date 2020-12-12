@@ -3,7 +3,6 @@ package com.uet.nvmnghia.yacv.model.comic
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
-import org.intellij.lang.annotations.Language
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -64,22 +63,22 @@ import java.util.*
  */
 @Entity(
     indices = [
-        Index(value = ["FilePath"], unique = true),
-        Index(value = ["FolderID"]),    // Foreign key doesn't automagically index
-        Index(value = ["SeriesID"]),
+        Index(value = [Comic.COLUMN_COMIC_PATH], unique = true),
+        Index(value = [Folder.COLUMN_FOLDER_ID]),    // Foreign key doesn't automagically index
+        Index(value = [Series.COLUMN_SERIES_ID]),
     ],
     foreignKeys = [
         ForeignKey(entity = Folder::class,    // Referenced entity is parent
-            parentColumns = ["FolderID"],
-            childColumns = ["FolderID"]),
+            parentColumns = [Folder.COLUMN_FOLDER_ID],
+            childColumns  = [Folder.COLUMN_FOLDER_ID]),
         ForeignKey(entity = Series::class,
-            parentColumns = ["SeriesID"],
-            childColumns = ["SeriesID"]),
+            parentColumns = [Series.COLUMN_SERIES_ID],
+            childColumns  = [Series.COLUMN_SERIES_ID]),
     ]
 )
 data class Comic(
-    @ColumnInfo(name = "FilePath")
-    val path: String,    // TODO: make sure path is canonical
+    @ColumnInfo(name = COLUMN_COMIC_PATH)
+    val path: String,
 ) {
 
     constructor(file: File) : this(file.canonicalPath)
@@ -88,23 +87,23 @@ data class Comic(
     var nonGenericallyParsed = false
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "ComicID")
+    @ColumnInfo(name = COLUMN_COMIC_ID)
     var id: Long = 0
 
     // Comic info
     // TODO: Add volume,...
     // @formatter:off
-    @ColumnInfo(name = "SeriesID")
+    @ColumnInfo(name = Series.COLUMN_SERIES_ID)
     var seriesId : Long?     = null
     @ColumnInfo(name = "Number")
-    var number: Int? = null
-    @ColumnInfo(name = "Title")
+    var number   : Int?      = null
+    @ColumnInfo(name = COLUMN_TITLE)
     var title    : String?   = null
-    @ColumnInfo(name = "Summary")
+    @ColumnInfo(name = COLUMN_SUMMARY)
     var summary  : String?   = null
     @ColumnInfo(name = "Language")
     var language : String?   = null
-    @ColumnInfo(name = "Publisher")
+    @ColumnInfo(name = COLUMN_PUBLISHER)
     var publisher: String?   = null
     @ColumnInfo(name = "BlackAndWhite")
     var bw       : Boolean?  = null
@@ -136,10 +135,7 @@ data class Comic(
     @ColumnInfo(name = "NumOfPages")
     var numPages: Int = 0
 
-    // TODO: Check if format is necessary
-//    var format: String? = null
-
-    @ColumnInfo(name = "FolderID")
+    @ColumnInfo(name = Folder.COLUMN_FOLDER_ID)
     var folderId: Long = 0
 
     // Reading habit
@@ -155,5 +151,17 @@ data class Comic(
         val parentFolder = File(path).parentFile
             ?: throw IOException("Cannot get parent folder of $path")
         parentFolder.canonicalPath
+    }
+
+    companion object {
+        // @formatter:off
+        const val COLUMN_COMIC_ID  = "ComicID"
+        const val COLUMN_COMIC_PATH = "FilePath"
+
+        internal const val COLUMN_TITLE     = "Title"
+        internal const val COLUMN_SUMMARY   = "Summary"
+        internal const val COLUMN_PUBLISHER = "Publisher"
+        internal const val COLUMN_WEB       = "Web"
+        // @formatter:on
     }
 }

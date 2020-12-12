@@ -2,34 +2,38 @@ package com.uet.nvmnghia.yacv.model.join
 
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.author.Author
-import com.uet.nvmnghia.yacv.model.author.PositionTable
+import com.uet.nvmnghia.yacv.model.author.RoleTable
 import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
 @Entity(
-    primaryKeys = ["ComicID", "AuthorID", "PositionID"],
+    primaryKeys = [
+        Comic.COLUMN_COMIC_ID,
+        Author.COLUMN_AUTHOR_ID,
+        RoleTable.COLUMN_ROLE_ID,
+    ],
     indices = [
-        Index(value = ["AuthorID"]),
-        Index(value = ["PositionID"])    // TODO: Is this index necessary?
+        Index(value = [Author.COLUMN_AUTHOR_ID]),
+        Index(value = [RoleTable.COLUMN_ROLE_ID])    // TODO: Is this index necessary?
     ],
     foreignKeys = [
         ForeignKey(entity = Comic::class,
-            parentColumns = ["ComicID"],
-            childColumns = ["ComicID"]),
+            parentColumns = [Comic.COLUMN_COMIC_ID],
+            childColumns  = [Comic.COLUMN_COMIC_ID]),
         ForeignKey(entity = Author::class,
-            parentColumns = ["AuthorID"],
-            childColumns = ["AuthorID"]),
-        ForeignKey(entity = PositionTable::class,
-            parentColumns = ["PositionID"],
-            childColumns = ["PositionID"])
+            parentColumns = [Author.COLUMN_AUTHOR_ID],
+            childColumns  = [Author.COLUMN_AUTHOR_ID]),
+        ForeignKey(entity = RoleTable::class,
+            parentColumns = [RoleTable.COLUMN_ROLE_ID],
+            childColumns  = [RoleTable.COLUMN_ROLE_ID])
     ]
 )
 data class ComicAuthorJoin(
-    @ColumnInfo(name = "ComicID")
+    @ColumnInfo(name = Comic.COLUMN_COMIC_ID)
     val comicId: Long,
-    @ColumnInfo(name = "AuthorID")
+    @ColumnInfo(name = Author.COLUMN_AUTHOR_ID)
     val authorId: Long,
-    @ColumnInfo(name = "PositionID")
+    @ColumnInfo(name = RoleTable.COLUMN_ROLE_ID)
     val positionId: Long,
 )
 
