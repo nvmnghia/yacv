@@ -66,8 +66,8 @@ class LibraryViewModel @ViewModelInject constructor(
     /**
      * State for the text if list comic folders is not displayed.
      */
-    val textState =
-        MediatorLiveData<TextState>()    // ViewModel should not observe LiveData, instead use MediatorLiveData or transformation.
+    val textState =                      // ViewModel should not observe LiveData,
+        MediatorLiveData<TextState>()    // instead use MediatorLiveData or transformation.
 
     /**
      * Primary constructor.
@@ -99,20 +99,7 @@ class LibraryViewModel @ViewModelInject constructor(
      * If the converted path is the same as [rootFolder], only do a quick rescan.
      */
     fun changeRootFolder(folderUri: Uri) {
-        when (val newRootFolder = FileUtils.getCanonicalPath(folderUri, getApplication())) {
-            null -> {
-                // Non-existence path, so that rootFolderState is CANNOT_READ_ROOT_FOLDER
-                // as null rootFolder is another case
-                rootFolder = "nowhere"
-            }
-            rootFolder -> {
-                // rootFolder doesn't change, do a quick scan then
-                scanComics(deep = false, truncateOld = false)
-            }
-            else -> {
-                rootFolder = newRootFolder
-            }
-        }
+
     }
 
     /**

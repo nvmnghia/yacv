@@ -13,13 +13,11 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
-import com.uet.nvmnghia.yacv.model.folder.FolderDao
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 
 class FolderAdapter(
@@ -42,11 +40,11 @@ class FolderAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val folder = getItem(position)
-        holder.folderName.text = folder.path.substringAfterLast('/')
+        holder.folderName.text = folder.uri.substringAfterLast('/')
 
         CoroutineScope(Dispatchers.IO).launch {
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
-            val parser = ComicParserFactory.create(firstComic.path)
+            val parser = ComicParserFactory.create(firstComic.uri)
 
             withContext(Dispatchers.Main) {
                 glide.load(parser.requestCover())
@@ -73,11 +71,11 @@ class FolderAdapter(
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {
             override fun areItemsTheSame(oldItem: Folder, newItem: Folder): Boolean {
-                return oldItem.path == newItem.path
+                return oldItem.uri == newItem.uri
             }
 
             override fun areContentsTheSame(oldItem: Folder, newItem: Folder): Boolean {
-                return oldItem.path == newItem.path
+                return oldItem.uri == newItem.uri
             }
         }
     }

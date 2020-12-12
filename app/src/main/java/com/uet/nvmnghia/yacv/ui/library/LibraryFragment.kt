@@ -15,7 +15,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -50,33 +49,34 @@ class LibraryFragment : Fragment() {
     // The correct way is the below line
     val viewModel: LibraryViewModel by viewModels()
 
-    lateinit var glide: RequestManager
+    private lateinit var glide: RequestManager
 
     /**
-     * [RecyclerView] of list comic folders & its adapter.
+     * [RecyclerView] of list comic folders & its [RecyclerView.Adapter].
      */
-    lateinit var listComicFolders: RecyclerView
-    lateinit var folderAdapter: FolderAdapter
-    lateinit var listComicFoldersObserver: Observer<List<Folder>>
+    private lateinit var listComicFolders: RecyclerView
+    private lateinit var folderAdapter: FolderAdapter
+    private lateinit var listComicFoldersObserver: Observer<List<Folder>>
+
+    /**
+     * Number of column for [listComicFolders],
+     * set to [calculateNumberOfColumns]'s returned value.
+     */
+    private var NUM_COL: Int? = null
 
     /**
      * [TextView] displayed when [listComicFolders] is empty,
      * showing the reason why there's no list.
      */
-    lateinit var noListTextView: TextView
-
-    /**
-     * Number of column, set to [calculateNumberOfColumns]'s returned value.
-     */
-    var NUM_COL: Int? = null
+    private lateinit var noListTextView: TextView
 
     /**
      * Activity launchers
      */
-    lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
-    lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    lateinit var appSettingsLauncher: ActivityResultLauncher<Intent>
-    lateinit var APP_SETTING_INTENT: Intent
+    private lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
+    private lateinit var requestReadPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var appSettingsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var APP_SETTING_INTENT: Intent
 
 
     //================================================================================
@@ -112,6 +112,22 @@ class LibraryFragment : Fragment() {
         return view
     }
 
+    private fun registerActivityResultCallbacks() {
+        folderPickerLauncher = registerForActivityResult(
+            ActivityResultContracts.OpenDocumentTree(),
+            this::handleFolderPickerResult)
+
+        requestReadPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+            this::handleRequestReadPermissionResult)
+
+        appSettingsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            isReadPermissionGranted()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         // Remember to include in onCreateView
         // setHasOptionsMenu(true)
@@ -134,7 +150,7 @@ class LibraryFragment : Fragment() {
 
     /**
      * Hide/show empty comic text.
-     * When shown, there could be 3 values:
+     * When shown, there could be several values:
      * - No folder selected
      * - Cannot read folder (possibly deleted)
      * - No read permission
@@ -155,8 +171,8 @@ class LibraryFragment : Fragment() {
                     resources, this::launchRequestReadPermission)
             }
             NO_READ_PERMISSION_FOREVER -> {
-                HandleNoListTextView.noReadPermissionTwice(resources)
-                    { appSettingsLauncher.launch(APP_SETTING_INTENT) }
+                HandleNoListTextView.noReadPermissionTwice(
+                    resources, this::launchAppSettings)
             }
             NO_COMIC -> {
                 HandleNoListTextView.noComic(
@@ -167,7 +183,6 @@ class LibraryFragment : Fragment() {
                 null
             }
         }
-        noListTextView.movementMethod = LinkMovementMethod.getInstance()
 
         when (state) {
             NO_TEXT -> {
@@ -208,7 +223,7 @@ class LibraryFragment : Fragment() {
                 // Trick:
                 // - in library_list_folders, pad left and top only
                 // - in this spacing code, add right and bottom spacing only
-                outRect.right = SPACING
+                outRect.right  = SPACING
                 outRect.bottom = SPACING
             }
         }
@@ -218,7 +233,7 @@ class LibraryFragment : Fragment() {
         val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(requireContext(),
-                    "Clicked at ${folderAdapter.currentList[position].path}",
+                    "Clicked at ${folderAdapter.currentList[position].uri}",
                     Toast.LENGTH_SHORT).show()
             }
 
@@ -229,6 +244,7 @@ class LibraryFragment : Fragment() {
 
         // Text displayed if empty list
         noListTextView = view.findViewById(R.id.library_no_list_info)
+        noListTextView.movementMethod = LinkMovementMethod.getInstance()    // TODO: For clickable span?
     }
 
     /**
@@ -239,52 +255,6 @@ class LibraryFragment : Fragment() {
         val columnWidth = resources.getDimension(R.dimen.library_item_folder_column_width).toInt()    // In pixel, already scaled.
         val numColumn = screenWidth / columnWidth
         return if (numColumn != 0) numColumn else 1
-    }
-
-
-    //================================================================================
-    // Activity result callbacks
-    //================================================================================
-
-    private fun registerActivityResultCallbacks() {
-        setupFolderPickerLauncher()
-        setupRequestPermissionLauncher()
-        setupAppSettingsLauncher()
-    }
-
-    private fun setupFolderPickerLauncher() {
-        folderPickerLauncher = registerForActivityResult(
-            ActivityResultContracts.OpenDocumentTree()
-        ) { folderUri ->
-            folderUri?.let { viewModel.changeRootFolder(it) }
-        }
-    }
-
-    private fun setupRequestPermissionLauncher() {
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
-                launchFolderPicker()
-            } else {
-                // Check if deny with Never ask again
-                if (! shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    viewModel.readPermissionNotGrantedForever()
-                }
-            }
-        }
-    }
-
-    private fun setupAppSettingsLauncher() {
-        APP_SETTING_INTENT = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        APP_SETTING_INTENT.data = Uri.fromParts(
-            "package", requireContext().packageName, null)
-
-        appSettingsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {
-            isReadPermissionGranted()
-        }
     }
 
 
@@ -341,6 +311,30 @@ class LibraryFragment : Fragment() {
         builder.create().show()
     }
 
+
+    /**
+     * Ask for READ_EXTERNAL_STORAGE permission.
+     */
+    private fun launchRequestReadPermission() {
+        requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    /**
+     * Callback to handle READ_EXTERNAL_STORAGE request result.
+     * If [granted] is set, launch a folder picker.
+     * Otherwise, check if Never ask again is tick. If so, call [viewModel].
+     */
+    private fun handleRequestReadPermissionResult(granted: Boolean) {
+        if (granted) {
+            launchFolderPicker()
+        } else {
+            // Check if deny with Never ask again
+            if (! shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                viewModel.readPermissionNotGrantedForever()
+            }
+        }
+    }
+
     /**
      * Launch folder picker.
      * If a specific location needs to be opened first, pass its URI to the function.
@@ -350,9 +344,23 @@ class LibraryFragment : Fragment() {
     }
 
     /**
-     * Ask for READ_EXTERNAL_STORAGE permission
+     * Callback to handle folder picker result.
+     * Given the [folderUri] from the picker, pass it to [viewModel].
      */
-    private fun launchRequestReadPermission() {
-        requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    private fun handleFolderPickerResult(folderUri: Uri?) {
+        folderUri?.let { viewModel.changeRootFolder(it) }
+    }
+
+    /**
+     * Launch app settings.
+     */
+    private fun launchAppSettings() {
+        if (! this::APP_SETTING_INTENT.isInitialized) {
+            APP_SETTING_INTENT = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            APP_SETTING_INTENT.data = Uri.fromParts(
+                "package", requireContext().packageName, null)
+        }
+
+        appSettingsLauncher.launch(APP_SETTING_INTENT)
     }
 }

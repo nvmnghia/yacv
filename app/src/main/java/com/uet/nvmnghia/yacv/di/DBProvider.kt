@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uet.nvmnghia.yacv.model.AppDatabase
-import com.uet.nvmnghia.yacv.model.author.PositionTable
+import com.uet.nvmnghia.yacv.model.author.RoleTable
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.FolderDao
 import dagger.Module
@@ -27,7 +27,7 @@ class DBProvider {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
 
-            PositionTable.populate(db)
+            RoleTable.populate(db)
         }
     }
 
