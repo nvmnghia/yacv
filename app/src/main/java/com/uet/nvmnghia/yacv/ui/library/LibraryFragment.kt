@@ -105,7 +105,7 @@ class LibraryFragment : Fragment() {
         val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(requireContext(),
-                    "Clicked at ${folderAdapter.currentList[position].path}",
+                    "Clicked at ${folderAdapter.currentList[position].uri}",
                     Toast.LENGTH_SHORT).show()
             }
 

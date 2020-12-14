@@ -63,7 +63,7 @@ import java.util.*
  */
 @Entity(
     indices = [
-        Index(value = [Comic.COLUMN_COMIC_PATH], unique = true),
+        Index(value = [Comic.COLUMN_COMIC_URI], unique = true),
         Index(value = [Folder.COLUMN_FOLDER_ID]),    // Foreign key doesn't automagically index
         Index(value = [Series.COLUMN_SERIES_ID]),
     ],
@@ -77,8 +77,8 @@ import java.util.*
     ]
 )
 data class Comic(
-    @ColumnInfo(name = COLUMN_COMIC_PATH)
-    val path: String,
+    @ColumnInfo(name = COLUMN_COMIC_URI)
+    val uri: String,
 ) {
 
     constructor(file: File) : this(file.canonicalPath)
@@ -148,15 +148,15 @@ data class Comic(
     // https://stackoverflow.com/a/57762552/5959593
     @delegate:Ignore
     val parentFolderPath: String by lazy {
-        val parentFolder = File(path).parentFile
-            ?: throw IOException("Cannot get parent folder of $path")
+        val parentFolder = File(uri).parentFile
+            ?: throw IOException("Cannot get parent folder of $uri")
         parentFolder.canonicalPath
     }
 
     companion object {
         // @formatter:off
         const val COLUMN_COMIC_ID  = "ComicID"
-        const val COLUMN_COMIC_PATH = "FilePath"
+        const val COLUMN_COMIC_URI = "FileUri"
 
         internal const val COLUMN_TITLE     = "Title"
         internal const val COLUMN_SUMMARY   = "Summary"
