@@ -7,11 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".ui.library.LibraryFragment">
 
+    <!-- Trick: -->
+    <!-- - in this xml, pad left and top only -->
+    <!-- - in the spacing code, add right and bottom spacing only -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/library_list_folders"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:layout_editor_absoluteX="194dp"
-        tools:layout_editor_absoluteY="81dp" />
+        android:paddingLeft="@dimen/library_item_folder_spacing"
+        android:paddingTop="@dimen/library_item_folder_spacing"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

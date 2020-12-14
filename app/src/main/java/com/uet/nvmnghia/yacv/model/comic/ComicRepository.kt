@@ -1,8 +1,8 @@
 package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.lifecycle.LiveData
-import com.uet.nvmnghia.yacv.parsers.ComicScanner
-import com.uet.nvmnghia.yacv.parsers.file.ComicParserFactory
+import com.uet.nvmnghia.yacv.parser.ComicScanner
+import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -34,7 +34,7 @@ class ComicRepository
             ComicScanner.scan().collect { files ->
                 comicDao.save(files
                     .filterNotNull()
-                    .map { file -> ComicParserFactory.create(file)!!.info })
+                    .map { file -> ComicParserFactory.create(file).info })
             }
         }
     }

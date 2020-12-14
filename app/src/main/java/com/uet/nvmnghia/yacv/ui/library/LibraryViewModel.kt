@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
+import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 
 
 /**
@@ -22,11 +24,11 @@ import com.uet.nvmnghia.yacv.model.comic.ComicRepository
  * Currently used to test compression reading code
  */
 class LibraryViewModel @ViewModelInject constructor(
-    private val comicRepository: ComicRepository
+    private val folderRepository: FolderRepository
 ) : ViewModel() {
 
-    private lateinit var directory: String
-    val comics: LiveData<List<Comic>> = comicRepository.getComics()
+    private lateinit var rootScanDirectory: String
+    val folders: LiveData<List<Folder>> = folderRepository.getFolders()
 
     /**
      * Primary constructor
@@ -42,10 +44,10 @@ class LibraryViewModel @ViewModelInject constructor(
     }
 
     fun setDirectory(dir: String) {
-        directory = dir
+        rootScanDirectory = dir
     }
 
     fun rescanComics() {
-        comicRepository.rescanComics()
+        folderRepository.rescanComics()
     }
 }

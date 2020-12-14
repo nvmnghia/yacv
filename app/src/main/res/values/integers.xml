@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="library_item_folder_spacing">10</integer>
+</resources>

@@ -45,11 +45,12 @@ class MainActivity : AppCompatActivity() {
         // Passing each menu ID as a set of IDs because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = AppBarConfiguration.Builder(
-            R.id.nav_fragment_about, R.id.nav_fragment_browse_file, R.id.nav_fragment_library
-        )
+            R.id.nav_fragment_about, R.id.nav_fragment_browse_file, R.id.nav_fragment_library)
             .setOpenableLayout(drawerLayout)
             .build()
+
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment)
+        // Move Toolbar into fragments, instead of a fixed one here
         NavigationUI.setupActionBarWithNavController(this, mNavController, mAppBarConfiguration)
         NavigationUI.setupWithNavController(navView, mNavController)
     }

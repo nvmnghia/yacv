@@ -13,7 +13,7 @@ import java.io.File
 @Entity(indices = [Index(value = [Folder.COLUMN_FOLDER_PATH], unique = true)])
 data class Folder(
     @ColumnInfo(name = COLUMN_FOLDER_PATH)
-    val uri: String
+    val path: String
 ) {
     constructor(folderPath: File) : this(folderPath.canonicalPath)
 

@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parsers.metadata.comicrack
+package com.uet.nvmnghia.yacv.parser.metadata.comicrack
 
 import android.util.Xml
 import com.uet.nvmnghia.yacv.model.comic.Comic

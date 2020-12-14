@@ -15,4 +15,8 @@ class FolderRepository @Inject constructor(
         if (rescan) comicRepository.rescanComics()
         return folderDao.getAll()
     }
+
+    fun rescanComics() {
+        comicRepository.rescanComics()
+    }
 }

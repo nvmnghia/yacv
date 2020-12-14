@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
 @Dao

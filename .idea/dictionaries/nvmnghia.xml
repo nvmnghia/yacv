@@ -2,12 +2,14 @@
   <dictionary name="nvmnghia">
     <words>
       <w>automagically</w>
+      <w>copypasta</w>
       <w>dedup</w>
       <w>deduplicates</w>
       <w>docid</w>
       <w>inker</w>
       <w>penciller</w>
       <w>rowid</w>
+      <w>yacv</w>
     </words>
   </dictionary>
 </component>

@@ -1,7 +1,7 @@
-package com.uet.nvmnghia.yacv.parsers
+package com.uet.nvmnghia.yacv.parser
 
 import android.os.Environment
-import com.uet.nvmnghia.yacv.parsers.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File

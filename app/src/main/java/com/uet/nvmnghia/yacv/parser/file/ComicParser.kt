@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parsers.file
+package com.uet.nvmnghia.yacv.parser.file
 
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import java.io.File
@@ -26,17 +26,38 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
     constructor(file: File) : this(filePath = file.canonicalPath)
 
     /**
-     * Given a 0-based page number, return an input stream to read that page
-     *
-     * @param pageIdx Page number
-     * @return [InputStream] to read that page
+     * Check if the given page index is a valid one.
      */
-    fun readPage(pageIdx: Int): InputStream {
+    private fun checkPageIdx(pageIdx: Int) {
         if (pageIdx < 0) {
             throw IndexOutOfBoundsException("Negative page index $pageIdx. Valid range is [0, $numOfPages).")
         } else if (pageIdx > numOfPages) {
             throw IndexOutOfBoundsException("Page index larger than or equal to $numOfPages. Valid range is [0, $numOfPages].")
         }
+    }
+
+    fun requestCover(): PageRequest {
+        return PageRequest(filePath, 0)
+    }
+
+    /**
+     * Given a 0-based page number, return a [PageRequest] object
+     * wrapping the file path and the index. Glide will then load
+     * the page of the comic accordingly.
+     */
+    fun requestPage(pageIdx: Int): PageRequest {
+        checkPageIdx(pageIdx)
+        return PageRequest(filePath, pageIdx)
+    }
+
+    /**
+     * Given a 0-based page number, return an input stream to read that page.
+     *
+     * @param pageIdx Page number
+     * @return [InputStream] to read that page
+     */
+    fun readPage(pageIdx: Int): InputStream {
+        checkPageIdx(pageIdx)
         return getPageInputStream(pageIdx)
     }
 
@@ -76,12 +97,27 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
     protected abstract fun parseInfo(): Comic
 
 
-    //================================================================================
-    // Comic file types enum
-    //================================================================================
-
+    /**
+     * Enum class for file types.
+     */
     enum class ComicFileType(val extension: String) {
         CBZ("cbz"),
 //        CBR("cbr")
+    }
+
+
+    /**
+     * Bundle of comic file path and index of the page to read from that file.
+     */
+    data class PageRequest(
+        val path: String,
+        val pageIdx: Int
+    ) {
+        /**
+         * Needs a proper serialization, as by default Glide use toString() as cache key.
+         */
+        override fun toString(): String {
+            return "$path::$pageIdx"
+        }
     }
 }

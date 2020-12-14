@@ -3,14 +3,29 @@ package com.uet.nvmnghia.yacv.ui.library
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.glide.TopCrop
+import com.uet.nvmnghia.yacv.model.comic.ComicDao
+import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.folder.FolderDao
+import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
+
+class FolderAdapter(
+    private val glide: RequestManager,
+    private val comicDao: ComicDao
+) : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     //================================================================================
     // Adapter functions
@@ -19,16 +34,27 @@ class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
-            .inflate(
-                R.layout.library_item_folder,
-                parent,
+            .inflate(R.layout.library_item_folder, parent,
                 false)    // not attach to parent so that parent doesn't receive touch event
 
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.textView.text = getItem(position).path
+        val folder = getItem(position)
+        holder.folderName.text = folder.path.substringAfterLast('/')
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val firstComic = comicDao.getFirstComicInFolder(folder.id)
+            val parser = ComicParserFactory.create(firstComic.path)
+
+            withContext(Dispatchers.Main) {
+                glide.load(parser.requestCover())
+                    .transform(TopCrop())
+                    .into(holder.folderCover)
+                parser.close()
+            }
+        }
     }
 
     //================================================================================
@@ -40,16 +66,17 @@ class FolderAdapter : ListAdapter<Comic, FolderAdapter.ViewHolder>(DIFF_CALLBACK
     // This line delegates the constructor to RecyclerView.ViewHolder(view)
     // i.e. a shorter syntax for super(view)
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.item_folder_text)
+        val folderName: TextView = view.findViewById(R.id.library_item_folder_name)
+        val folderCover: ImageView = view.findViewById(R.id.library_item_folder_cover)
     }
 
     companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<Comic> = object : DiffUtil.ItemCallback<Comic>() {
-            override fun areItemsTheSame(oldItem: Comic, newItem: Comic): Boolean {
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {
+            override fun areItemsTheSame(oldItem: Folder, newItem: Folder): Boolean {
                 return oldItem.path == newItem.path
             }
 
-            override fun areContentsTheSame(oldItem: Comic, newItem: Comic): Boolean {
+            override fun areContentsTheSame(oldItem: Folder, newItem: Folder): Boolean {
                 return oldItem.path == newItem.path
             }
         }

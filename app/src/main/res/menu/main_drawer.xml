@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
         <item android:id="@+id/nav_fragment_library"
-            android:title="Library" />
+            android:title="@string/library" />
         <item android:id="@+id/nav_fragment_browse_file"
-            android:title="Browse File" />
+            android:title="@string/browse_file" />
         <item android:id="@+id/nav_fragment_about"
-            android:title="About" />
+            android:title="@string/about" />
     </group>
 </menu>
