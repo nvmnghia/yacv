@@ -1,18 +1,19 @@
 package com.uet.nvmnghia.yacv.parser.file.impl
 
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.helper.NaturalOrderComparator
 import com.uet.nvmnghia.yacv.parser.metadata.comicrack.ComicRackParser
 import com.uet.nvmnghia.yacv.parser.metadata.generic.GenericMetadataParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
-import com.uet.nvmnghia.yacv.utils.NaturalOrderComparator
 import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 
-class CBZParser(filePath: String) : ComicParser(filePath) {
+class CBZParser(comicDocument: DocumentFile) : ComicParser(comicDocument) {
     companion object {
         val COMPARATOR = object : NaturalOrderComparator<ZipEntry>() {
             override fun compare(o1: ZipEntry, o2: ZipEntry): Int {
@@ -52,7 +53,7 @@ class CBZParser(filePath: String) : ComicParser(filePath) {
 
     override fun parseInfo(): Comic {
         // First use a generic parser
-        val comic = GenericMetadataParser.parse(filePath)
+        val comic = GenericMetadataParser.parse(fileUri)
 
         // Then the more sophisticated one
         val comicInfoXml = zipFile.entries()

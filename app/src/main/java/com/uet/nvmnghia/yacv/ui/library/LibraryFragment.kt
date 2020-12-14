@@ -28,7 +28,7 @@ import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.ui.library.LibraryViewModel.TextState.*
 import com.uet.nvmnghia.yacv.utils.DeviceUtil
-import com.uet.nvmnghia.yacv.utils.RecyclerItemClickListener
+import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

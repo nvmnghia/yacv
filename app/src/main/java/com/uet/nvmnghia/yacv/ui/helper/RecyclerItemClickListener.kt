@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.utils
+package com.uet.nvmnghia.yacv.ui.helper
 
 import android.content.Context
 import android.view.GestureDetector

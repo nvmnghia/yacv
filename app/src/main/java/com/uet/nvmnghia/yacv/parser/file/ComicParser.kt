@@ -1,20 +1,21 @@
 package com.uet.nvmnghia.yacv.parser.file
 
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
-import java.io.File
 import java.io.InputStream
 
 
 /**
  * A pull parser interface for comic file, inspired by bubble.
- * The parser should be created by [ComicParserFactory].
+ * A parser instance should be created by [ComicParserFactory].
  *
  * Note that this is a pull parser, as described below:
  * https://stackoverflow.com/a/15895283/5959593
  * In short, it does not return a [Comic], and all read/write
  * are operated on the parser instance returned.
  */
-abstract class ComicParser(val filePath: String) : AutoCloseable {
+abstract class ComicParser(val comicDocument: DocumentFile) : AutoCloseable {
 
     val numOfPages: Int
         get() = this._getNumOfPages()
@@ -22,8 +23,6 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
     val info: Comic by lazy {
         parseInfo()
     }
-
-    constructor(file: File) : this(filePath = file.canonicalPath)
 
     /**
      * Check if the given page index is a valid one.
@@ -37,7 +36,7 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
     }
 
     fun requestCover(): PageRequest {
-        return PageRequest(filePath, 0)
+        return PageRequest(comicDocument.uri, 0)
     }
 
     /**
@@ -47,7 +46,7 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
      */
     fun requestPage(pageIdx: Int): PageRequest {
         checkPageIdx(pageIdx)
-        return PageRequest(filePath, pageIdx)
+        return PageRequest(comicDocument.uri, pageIdx)
     }
 
     /**
@@ -110,14 +109,16 @@ abstract class ComicParser(val filePath: String) : AutoCloseable {
      * Bundle of comic file path and index of the page to read from that file.
      */
     data class PageRequest(
-        val path: String,
+        val uri: String,
         val pageIdx: Int
     ) {
+        constructor(documentUri: Uri, pageIdx: Int) : this(documentUri.toString(), pageIdx)
+
         /**
          * Needs a proper serialization, as by default Glide use toString() as cache key.
          */
         override fun toString(): String {
-            return "$path::$pageIdx"
+            return "$uri::$pageIdx"
         }
     }
 }

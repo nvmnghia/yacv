@@ -1,9 +1,9 @@
 package com.uet.nvmnghia.yacv.model.comic
 
+import android.net.Uri
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
-import org.intellij.lang.annotations.Language
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -78,11 +78,11 @@ import java.util.*
     ]
 )
 data class Comic(
-    @ColumnInfo(name = "FilePath")
-    val path: String,    // TODO: make sure path is canonical
+    @ColumnInfo(name = COLUMN_COMIC_URI)
+    val uri: String,    // TODO: make sure path is canonical
 ) {
 
-    constructor(file: File) : this(file.canonicalPath)
+    constructor(uri: Uri) : this(uri.toString())
 
 
     @PrimaryKey(autoGenerate = true)
@@ -150,8 +150,12 @@ data class Comic(
     // https://stackoverflow.com/a/57762552/5959593
     @delegate:Ignore
     val parentFolderPath: String by lazy {
-        val parentFolder = File(path).parentFile
-            ?: throw IOException("Cannot get parent folder of $path")
+        val parentFolder = File(uri).parentFile
+            ?: throw IOException("Cannot get parent folder of $uri")
         parentFolder.canonicalPath
+    }
+
+    companion object {
+        internal const val COLUMN_COMIC_URI = "FileUri"
     }
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "38354e8fb8d320ded7afcbbb9cbbb1f8",
+    "identityHash": "36e878edd012d1bb624c5d3ad5045a97",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Number` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Number` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FileUri` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -101,8 +101,8 @@
             "defaultValue": "0"
           },
           {
-            "fieldPath": "path",
-            "columnName": "FilePath",
+            "fieldPath": "uri",
+            "columnName": "FileUri",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -114,14 +114,6 @@
           "autoGenerate": true
         },
         "indices": [
-          {
-            "name": "index_Comic_FilePath",
-            "unique": true,
-            "columnNames": [
-              "FilePath"
-            ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Comic_FilePath` ON `${TABLE_NAME}` (`FilePath`)"
-          },
           {
             "name": "index_Comic_FolderID",
             "unique": false,
@@ -225,7 +217,7 @@
       },
       {
         "tableName": "Folder",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderPath` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderUri` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -234,8 +226,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "path",
-            "columnName": "FolderPath",
+            "fieldPath": "uri",
+            "columnName": "FolderUri",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -248,12 +240,12 @@
         },
         "indices": [
           {
-            "name": "index_Folder_FolderPath",
+            "name": "index_Folder_FolderUri",
             "unique": true,
             "columnNames": [
-              "FolderPath"
+              "FolderUri"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderPath` ON `${TABLE_NAME}` (`FolderPath`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderUri` ON `${TABLE_NAME}` (`FolderUri`)"
           }
         ],
         "foreignKeys": []
@@ -753,7 +745,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '38354e8fb8d320ded7afcbbb9cbbb1f8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '36e878edd012d1bb624c5d3ad5045a97')"
     ]
   }
 }

@@ -1,5 +1,7 @@
 package com.uet.nvmnghia.yacv.model.comic
 
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.parser.ComicScanner
@@ -41,7 +43,7 @@ class ComicRepository
      * @param deep Scan deeply, slower but guarantee to scan all files
      * @param truncateOld Truncate old data, used when a new root folder is selected
      */
-    fun scanComics(rootFolder: String, deep: Boolean, truncateOld: Boolean) {
+    fun scanComics(rootFolder: DocumentFile, deep: Boolean, truncateOld: Boolean) {
         val _deep = if (truncateOld) {
             true
         } else {
@@ -54,11 +56,11 @@ class ComicRepository
                 appDb.resetDb()
             }
 
-            ComicScanner.scan(rootFolder, _deep).collect { files ->
+            ComicScanner.scan(rootFolder, _deep).collect { comicDocuments ->
                 comicDao.save(
-                    files
+                    comicDocuments
                         .filterNotNull()
-                        .map { file -> ComicParserFactory.create(file).info }
+                        .map { comicDocument -> ComicParserFactory.create(comicDocument).info }
                 )
             }
         }

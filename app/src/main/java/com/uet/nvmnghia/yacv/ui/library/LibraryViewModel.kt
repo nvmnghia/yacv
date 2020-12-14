@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.ui.library
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,7 +13,6 @@ import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 import com.uet.nvmnghia.yacv.utils.Constants
 import com.uet.nvmnghia.yacv.utils.FileUtils
-import java.io.File
 
 
 /**
@@ -37,14 +37,14 @@ class LibraryViewModel @ViewModelInject constructor(
         application.resources.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
     // Initialization DOES NOT call custom setter.
-    private var rootFolder: String? = null
-        set(newRootFolder) {
-            field = newRootFolder
+    private var rootFolderUri: Uri? = null
+        set(newRootFolderUri) {
+            field = newRootFolderUri
 
             textState.value = field.let {
                 when {
-                    it == null -> TextState.NO_ROOT_FOLDER
-                    !File(it).canRead() -> TextState.CANNOT_READ_ROOT_FOLDER
+                    it == null || it.toString().isEmpty() -> TextState.NO_ROOT_FOLDER
+                    ! FileUtils.canRead(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
                     else -> {
                         scanComics(deep = true, truncateOld = true)
                         TextState.NO_TEXT
@@ -54,7 +54,7 @@ class LibraryViewModel @ViewModelInject constructor(
 
             // Upon initialization, the SharedPreference is written back unnecessarily.
             with(sharedPref.edit()) {
-                putString(Constants.SHPREF_ROOT_FOLDER, field)
+                putString(Constants.SHPREF_ROOT_FOLDER, field.toString())
                 apply()
             }
         }
@@ -74,7 +74,7 @@ class LibraryViewModel @ViewModelInject constructor(
      * All init blocks will be merged as one.
      */
     init {
-        rootFolder = sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, null)
+        rootFolderUri = Uri.parse(sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, ""))
 
         textState.addSource(folders) {
             if (it.isEmpty()) {
@@ -95,11 +95,17 @@ class LibraryViewModel @ViewModelInject constructor(
     }
 
     /**
-     * Given an URI, convert it to a native path and assign the result to [rootFolder].
-     * If the converted path is the same as [rootFolder], only do a quick rescan.
+     * Given an URI, convert it to a native path and assign the result to [rootFolderUri].
+     * If the converted path is the same as [rootFolderUri], only do a quick rescan.
      */
-    fun changeRootFolder(folderUri: Uri) {
-
+    fun changeRootFolder(newFolderUri: Uri) {
+        if (newFolderUri == rootFolderUri) {
+            // rootFolder doesn't change, do a deep rescan then
+            rescanComics(true)
+        } else {
+            // Rescan & shit is done inside setter
+            rootFolderUri = newFolderUri
+        }
     }
 
     /**
@@ -112,7 +118,7 @@ class LibraryViewModel @ViewModelInject constructor(
     }
 
     fun readPermissionGranted() {
-        if (rootFolder == null) {
+        if (rootFolderUri == null) {
             textState.value = TextState.NO_ROOT_FOLDER
         } else if (folders.value == null || folders.value!!.isEmpty()) {
             textState.value = TextState.NO_COMIC
@@ -129,7 +135,8 @@ class LibraryViewModel @ViewModelInject constructor(
      * A wrapper for ComicRepository's scanComics().
      */
     private fun scanComics(deep: Boolean, truncateOld: Boolean) {
-        rootFolder?.let { folderRepo.comicRepo.scanComics(it, deep, truncateOld) }
+        rootFolderUri?.let { folderRepo.comicRepo.scanComics(
+            DocumentFile.fromTreeUri(getApplication(), it)!!, deep, truncateOld) }
     }
 
     /**

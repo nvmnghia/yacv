@@ -1,19 +1,9 @@
 package com.uet.nvmnghia.yacv.utils
 
-import android.content.ContentUris
 import android.content.Context
-import android.database.Cursor
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.DocumentsContract
-import android.provider.MediaStore
-import android.provider.OpenableColumns
-import android.text.TextUtils
-import android.util.Log
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
+import android.webkit.MimeTypeMap
+import androidx.documentfile.provider.DocumentFile
 import java.util.*
 
 
@@ -34,7 +24,32 @@ class FileUtils {
                 fileName.substringAfterLast('.').toLowerCase(Locale.ROOT))
         }
 
+        /**
+         * Check if the given URI can be read or write.
+         */
+        fun canRead(context: Context, uri: Uri): Boolean {
+            if (! DocumentFile.isDocumentUri(context, uri)) {
+                return false
+            }
 
+            try {
+                return DocumentFile.fromTreeUri(context, uri)?.canRead() == true
+            } catch (e: Exception) {}
 
+            try {
+                return DocumentFile.fromSingleUri(context, uri)?.canRead() == true
+            } catch (e: Exception) {}
+
+            return false
+        }
+
+        /**
+         * Given a [DocumentFile] [documentFile], get its extension in lowercase.
+         */
+        fun getExtension(documentFile: DocumentFile): String? {
+            return MimeTypeMap.getSingleton()
+                .getExtensionFromMimeType(documentFile.type)
+                ?.toLowerCase(Locale.ROOT)
+        }
     }
 }

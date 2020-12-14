@@ -1,6 +1,10 @@
 package com.uet.nvmnghia.yacv.parser
 
+import android.webkit.MimeTypeMap
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.helper.walkTopDown
+import com.uet.nvmnghia.yacv.utils.FileUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -14,7 +18,11 @@ class ComicScanner {
 
         private fun isComic(file: File): Boolean {
             if (!file.isFile) return false
-            return COMPRESSION_FORMATS.contains(file.extension.toLowerCase(Locale.ROOT))
+            return file.extension.toLowerCase(Locale.ROOT) in COMPRESSION_FORMATS
+        }
+
+        private fun isComic(documentFile: DocumentFile): Boolean {
+            return FileUtils.getExtension(documentFile) in COMPRESSION_FORMATS
         }
 
         /**
@@ -24,24 +32,36 @@ class ComicScanner {
          * @param rootFolder Folder to scan for comics
          * @param deep Scan deeply, slower but guarantee to scan all files
          */
-        fun scan(rootFolder: String, deep: Boolean): Flow<Array<File?>> {
+        fun scan(rootFolder: DocumentFile, deep: Boolean): Flow<Array<DocumentFile?>> {
             return flow {
                 // Emit in chunk
                 val BULK_SIZE = 10
-                var buffer = arrayOfNulls<File>(BULK_SIZE)
+                val IMMEDIATE_LIMIT = 10
+
+                var buffer = arrayOfNulls<DocumentFile>(BULK_SIZE)
                 var counter = 0
+                var emitImmediate = true    // Emit immediately first 10 comics
 
-                // TODO: Emit early: emit every BULK_SIZE or 0.5 second
-                File(rootFolder).walkTopDown().forEach { file ->
-                    if (isComic(file)) {
-                        if (counter == BULK_SIZE) {
-                            emit(buffer)
-                            buffer = arrayOfNulls(BULK_SIZE)
-                            counter = 0
+                rootFolder.walkTopDown().forEach { document ->
+                    if (isComic(document)) {
+                        if (emitImmediate) {
+                            if (counter < IMMEDIATE_LIMIT) {
+                                emit(arrayOf(document) as Array<DocumentFile?>)    // Wtf?
+                                counter++
+                            } else {
+                                emitImmediate = false
+                                counter = 0
+                            }
+                        } else {
+                            if (counter == BULK_SIZE) {
+                                emit(buffer)
+                                buffer = arrayOfNulls(BULK_SIZE)
+                                counter = 0
+                            }
+
+                            buffer[counter] = document
+                            counter++
                         }
-
-                        buffer[counter] = file
-                        counter++
                     }
                 }
 
