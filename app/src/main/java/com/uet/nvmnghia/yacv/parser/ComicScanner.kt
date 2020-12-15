@@ -1,14 +1,17 @@
 package com.uet.nvmnghia.yacv.parser
 
+import android.content.Context
 import android.os.Environment
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 
 
-class ComicScanner {
+class ComicScanner @Inject constructor(val context: Context) {
+
     companion object {
         private val COMPRESSION_FORMATS = enumValues<ComicParser.ComicFileType>()
             .map { format -> format.extension }.toSet()

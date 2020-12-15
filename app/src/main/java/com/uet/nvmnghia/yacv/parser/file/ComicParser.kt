@@ -1,6 +1,6 @@
 package com.uet.nvmnghia.yacv.parser.file
 
-import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import java.io.InputStream
 
@@ -14,21 +14,21 @@ import java.io.InputStream
  * In short, it does not return a [Comic], and all read/write
  * are operated on the parser instance returned.
  */
-abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
+abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
 
     // Example URI
     // content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Download/...
 
     val numOfPages: Int by lazy {
-        _getNumOfPages()
+        lazyGetNumOfPages()
     }
 
-    val info: Comic by lazy {
+    val info: Comic? by lazy {
         parseInfo()
     }
 
     fun requestCover(): PageRequest {
-        return PageRequest(fileUri, PageRequest.COVER)
+        return PageRequest(document, PageRequest.COVER)
     }
 
     /**
@@ -38,7 +38,7 @@ abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
      */
     fun requestPage(pageIdx: Int): PageRequest {
         checkPageIdx(pageIdx)
-        return PageRequest(fileUri, pageIdx)
+        return PageRequest(document, pageIdx)
     }
 
     /**
@@ -82,11 +82,12 @@ abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
     protected abstract fun getCoverInputStream(): InputStream
 
     /**
-     * Get the number of page of the comic file
+     * Get the number of page of the comic file.
+     * This function is evaluated once.
      *
      * @return The number of page of the comic
      */
-    protected abstract fun _getNumOfPages(): Int
+    protected abstract fun lazyGetNumOfPages(): Int
 
     /**
      * Get the file type of the comic.
@@ -109,7 +110,7 @@ abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
      *
      * @return Comic info as a [Comic] instance
      */
-    protected abstract fun parseInfo(): Comic
+    protected abstract fun parseInfo(): Comic?
 
 
     /**
@@ -125,7 +126,7 @@ abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
      * Bundle of comic file path and index of the page to read from that file.
      */
     data class PageRequest(
-        val uri: Uri,
+        val document: DocumentFile,
         val pageIdx: Int
     ) {
 
@@ -137,7 +138,7 @@ abstract class ComicParser(val fileUri: Uri) : AutoCloseable {
          * Needs a proper serialization, as by default Glide use toString() as cache key.
          */
         override fun toString(): String {
-            return "$uri::$pageIdx"
+            return "${document.uri}::$pageIdx"
         }
     }
 }

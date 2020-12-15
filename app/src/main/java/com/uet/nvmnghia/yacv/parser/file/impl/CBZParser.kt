@@ -1,82 +1,162 @@
 package com.uet.nvmnghia.yacv.parser.file.impl
 
-import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.metadata.comicrack.ComicRackParser
 import com.uet.nvmnghia.yacv.parser.metadata.generic.GenericMetadataParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.NaturalOrderComparator
+import java.io.IOException
 import java.io.InputStream
+import java.lang.IllegalStateException
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 
-class CBZParser(fileUri: Uri) : ComicParser(fileUri) {
+/**
+ * Parser for CBZ.
+ * There're 2 modes:
+ * - Scan mode (null [filePath]): only the [InputStream] of [document]
+ *   is available. Whenever [infoIS] or [coverIS] is needed, a new
+ *   [InputStream] of the [document] is queried.
+ * - Read mode (not-null [filePath]): [document] is copied into
+ *   app-specific storage, so that [ZipFile] is backed by
+ *   a normal file, enabling random IO.
+ * Scan mode is the default mode.
+ */
+class CBZParser(document: DocumentFile) : ComicParser(document) {
+
+    /**
+     * The current mode of the parser.
+     */
+    private var MODE: Mode? = Mode.SCAN
+
+    /**
+     * Check if the content is corrupted or not.
+     */
+    var CORRUPTED = false
+        private set
+
+    //================================================================================
+    // Read mode
+    //================================================================================
 
     /**
      * Path to a copy of the archive in app-specific storage.
-     * When needed, the whole comic is copied to the app-specific storage.
+     * Only available in Read mode.
      *
      * TODO: Take advantage of Glide caching to avoid copy the whole archive
      *  as images itself are already compressed.
      */
     var filePath: String? = null
         set(value) {
-            field = value
+            if (value != null) {
+                field = value
+                MODE = Mode.READ
 
-            // TODO: make this lazy
-            zipFile = ZipFile(filePath)
+                // TODO: make this lazy
+                try {
+                    zipFile = ZipFile(filePath)
+                } catch (ioe: IOException) {
+                    CORRUPTED = true
+                }
+            }
         }
 
-    private var zipFile: ZipFile? = filePath?.let { ZipFile(filePath) }
+    /**
+     * [ZipFile] of the specified file, backed by [filePath].
+     * Only available in Read mode.
+     * TODO: copy to app-specific storage when needed.
+     */
+    private var zipFile: ZipFile? = null
         set(value) {
             field = value
 
             // TODO: make this lazy
-            entries = field?.entries()
+            pages = field?.entries()
                 ?.toList()
                 ?.filter { entry -> !entry.isDirectory && FileUtils.isImage(entry.name) }
                 ?.sortedWith(COMPARATOR)
         }
 
-    private var entries: List<ZipEntry>? = null
+    /**
+     * Pages as [ZipEntry] in [zipFile].
+     * Only available in Read mode.
+     */
+    private var pages: List<ZipEntry>? = null
 
 
-    override fun getPageInputStream(pageIdx: Int): InputStream? {
-        return zipFile?.getInputStream(entries!![pageIdx])
+    //================================================================================
+    // Scan mode
+    //================================================================================
+
+    /**
+     * [InputStream] of info file.
+     * Only available in Scan mode.
+     */
+    private var infoIS: InputStream? = null
+
+    /**
+     * [InputStream] of cover file.
+     * Only available in Scan mode.
+     */
+    private var coverIS: InputStream? = null
+
+
+    //================================================================================
+    // Functions
+    //================================================================================
+
+    override fun getPageInputStream(pageIdx: Int): InputStream {
+        return zipFile!!.getInputStream(pages!![pageIdx])
     }
 
     override fun getCoverInputStream(): InputStream {
         TODO("Not yet implemented")
     }
 
-    override fun _getNumOfPages(): Int {
-        return entries.size
+    override fun lazyGetNumOfPages(): Int {
+        return pages!!.size
     }
 
     override fun getTypeEnum(): ComicFileType {
         return ComicFileType.CBZ
     }
 
-    override fun parseInfo(): Comic {
+    override fun parseInfo(): Comic? {
         // First use a generic parser
-        val comic = GenericMetadataParser.parse(fileUri)
+        val comic = GenericMetadataParser.parse(document)
 
         // Then the more sophisticated one
-        val comicInfoXml = zipFile.entries()
-            .asSequence()
-            .firstOrNull { entry -> entry.name.toLowerCase(Locale.ROOT) == "comicinfo.xml" }
-        if (comicInfoXml != null) {
-            ComicRackParser.parse(zipFile.getInputStream(comicInfoXml), comic)
+        if (MODE == Mode.READ) {
+            if (!CORRUPTED) {    // Valid zip file
+                val comicInfoXml = zipFile!!.entries()
+                    .asSequence()
+                    .firstOrNull { entry -> entry.name.toLowerCase(Locale.ROOT) == "comicinfo.xml" }
+
+                if (comicInfoXml != null) {
+                    ComicRackParser.parse(zipFile!!.getInputStream(comicInfoXml), comic)
+                }
+            } else {
+                return null
+            }
+        } else if (MODE == Mode.SCAN) {
+//            TODO("No document ")
+        } else {
+            throw IllegalStateException("Parser Mode is not READ or SCAN")
         }
 
         return comic
     }
 
     override fun close() {
-        zipFile.close()
+        if (MODE == Mode.READ) {
+            zipFile!!.close()
+        } else {
+//            TODO("No input stream yet")
+        }
     }
 
     companion object {
@@ -96,4 +176,8 @@ class CBZParser(fileUri: Uri) : ComicParser(fileUri) {
         }
     }
 
+
+    private enum class Mode {
+        SCAN, READ
+    }
 }

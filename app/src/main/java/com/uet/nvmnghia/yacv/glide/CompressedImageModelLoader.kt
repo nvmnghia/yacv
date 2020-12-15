@@ -18,7 +18,7 @@ class CompressedImageModelLoader : ModelLoader<ComicParser.PageRequest, InputStr
      */
     override fun handles(model: ComicParser.PageRequest): Boolean {
         return try {
-            File(model.uri)
+            File(model.document)
             true
         } catch (ioe: IOException) {
             Log.w("Comic", ioe)

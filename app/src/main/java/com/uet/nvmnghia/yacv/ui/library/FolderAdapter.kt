@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.ui.library
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,8 @@ class FolderAdapter(
     private val glide: RequestManager,
     private val comicDao: ComicDao
 ) : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
+
+    private lateinit var context: Context
 
     //================================================================================
     // Adapter functions
@@ -63,7 +66,7 @@ class FolderAdapter(
     // furthermore, a constructor call
     // This line delegates the constructor to RecyclerView.ViewHolder(view)
     // i.e. a shorter syntax for super(view)
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val folderName: TextView = view.findViewById(R.id.library_item_folder_name)
         val folderCover: ImageView = view.findViewById(R.id.library_item_folder_cover)
     }

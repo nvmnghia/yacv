@@ -1,18 +1,17 @@
 package com.uet.nvmnghia.yacv.parser.metadata.generic
 
-import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
-import java.io.File
 
 
 class GenericMetadataParser {
     companion object {
         // TODO: Rewrite all metadata parsers so that when a Comic instance
         //  is created, the metadata is immediately parsed.
-        fun parse(fileUri: Uri): Comic {
-            val file = File(filePath)
-            val comic = Comic(filePath)
-            comic.tmpSeries = file.name.substringBeforeLast('.')
+        // TODO: Check parent folder. If parent name is "parsable", then it is possibly the series.
+        fun parse(document: DocumentFile): Comic {
+            val comic = Comic(document)
+            comic.tmpSeries = document.name?.substringBeforeLast('.')
 
             return comic
         }
