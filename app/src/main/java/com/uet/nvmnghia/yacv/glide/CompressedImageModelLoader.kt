@@ -18,10 +18,9 @@ class CompressedImageModelLoader : ModelLoader<ComicParser.PageRequest, InputStr
      */
     override fun handles(model: ComicParser.PageRequest): Boolean {
         return try {
-            File(model.document)
-            true
+            model.document.canRead()
         } catch (ioe: IOException) {
-            Log.w("Comic", ioe)
+            Log.w("yacv", ioe)
             false
         }
     }

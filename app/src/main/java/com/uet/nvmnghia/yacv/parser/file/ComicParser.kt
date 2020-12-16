@@ -1,7 +1,9 @@
 package com.uet.nvmnghia.yacv.parser.file
 
+import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
+import java.io.File
 import java.io.InputStream
 
 
@@ -14,7 +16,7 @@ import java.io.InputStream
  * In short, it does not return a [Comic], and all read/write
  * are operated on the parser instance returned.
  */
-abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
+abstract class ComicParser(private val context: Context, val document: DocumentFile) : AutoCloseable {
 
     // Example URI
     // content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Download/...
@@ -23,12 +25,19 @@ abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
         lazyGetNumOfPages()
     }
 
+    /**
+     * Check if the content is corrupted (invalid file, no image) or not.
+     * TODO: fully implement this.
+     */
+    var isCorrupted = false
+        protected set
+
     val info: Comic? by lazy {
         parseInfo()
     }
 
     fun requestCover(): PageRequest {
-        return PageRequest(document, PageRequest.COVER)
+        return PageRequest(context, document, PageRequest.COVER)
     }
 
     /**
@@ -38,7 +47,7 @@ abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
      */
     fun requestPage(pageIdx: Int): PageRequest {
         checkPageIdx(pageIdx)
-        return PageRequest(document, pageIdx)
+        return PageRequest(context, document, pageIdx)
     }
 
     /**
@@ -76,10 +85,10 @@ abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
     /**
      * Special handling of [readPage] for cover page.
      * Cover page is just the page with pageIdx = 0, but as it is the lowest index,
-     * it can be retrieve very fast, if the format permits.
+     * it can be retrieved very fast, if the format permits.
      * Otherwise, just fall back to [getPageInputStream] with pageIdx = 0.
      */
-    protected abstract fun getCoverInputStream(): InputStream
+    protected abstract fun getCoverInputStream(): InputStream?
 
     /**
      * Get the number of page of the comic file.
@@ -107,10 +116,26 @@ abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
 
     /**
      * Get comic info.
+     * If the file is invalid (corrupt, no image), return null.
+     * TODO: Force check invalid file (corrupt, no image), even if the check if non-exhaustive.
      *
      * @return Comic info as a [Comic] instance
      */
     protected abstract fun parseInfo(): Comic?
+
+    /**
+     * Get [InputStream] of the archive.
+     */
+    fun getInputStream(): InputStream? {
+        return context.contentResolver.openInputStream(document.uri)
+    }
+
+    /**
+     * Copy to app-specific storage.
+     */
+    private fun copyToAppSpecific(): File {
+        TODO("Not fucking implemented")
+    }
 
 
     /**
@@ -126,6 +151,7 @@ abstract class ComicParser(val document: DocumentFile) : AutoCloseable {
      * Bundle of comic file path and index of the page to read from that file.
      */
     data class PageRequest(
+        val context: Context,
         val document: DocumentFile,
         val pageIdx: Int
     ) {

@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.model.comic
 
+import android.net.Uri
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
@@ -81,7 +82,7 @@ data class Comic(
     val uri: String,
 ) {
 
-    constructor(file: File) : this(file.canonicalPath)
+    constructor(uri: Uri) : this(uri.toString())
 
     @Ignore
     var nonGenericallyParsed = false

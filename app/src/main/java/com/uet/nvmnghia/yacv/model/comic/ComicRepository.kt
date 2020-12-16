@@ -22,6 +22,7 @@ class ComicRepository
 // @Inject in constructor declaration: inject this class somewhere, init by this constructor
 @Inject constructor(
     private val comicDao: ComicDao,
+    private val comicScanner: ComicScanner,
 ) {
     fun getComics(rescan: Boolean = false): LiveData<List<Comic>> {
         if (rescan) rescanComics()
@@ -31,10 +32,12 @@ class ComicRepository
     fun rescanComics() {
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
-            ComicScanner.scan().collect { files ->
-                comicDao.save(files
+            comicScanner.scan().collect { documents ->
+                val comics = documents
                     .filterNotNull()
-                    .map { file -> ComicParserFactory.create(file).info })
+                    .mapNotNull { document ->
+                        ComicParserFactory.create(comicScanner.context, document)?.info }
+                comicDao.save(comics)
             }
         }
     }

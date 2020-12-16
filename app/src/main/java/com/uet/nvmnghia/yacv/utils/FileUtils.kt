@@ -23,10 +23,12 @@ class FileUtils {
         }
 
         /**
-         * Get [DocumentFile] extension.
+         * Get [DocumentFile] extension in lowercase.
          */
         fun getExtension(document: DocumentFile): String? {
-            return MimeTypeMap.getSingleton().getExtensionFromMimeType(document.type)
+            return MimeTypeMap.getSingleton()
+                .getExtensionFromMimeType(document.type)
+                ?.toLowerCase(Locale.ROOT)
         }
     }
 }

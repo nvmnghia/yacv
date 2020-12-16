@@ -18,7 +18,7 @@ class CompressedImageDataFetcher(
     private lateinit var parser: ComicParser
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
-        parser = ComicParserFactory.create(pageRequest.document)
+        parser = ComicParserFactory.create(pageRequest.context, pageRequest.document)!!    // TODO: Fix #6
         callback.onDataReady(parser.readPage(pageRequest.pageIdx))
     }
 

@@ -28,6 +28,7 @@ class FolderAdapter(
 
     private lateinit var context: Context
 
+
     //================================================================================
     // Adapter functions
     //================================================================================
@@ -36,7 +37,7 @@ class FolderAdapter(
         val view = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.library_item_folder, parent,
-                false)    // not attach to parent so that parent doesn't receive touch event
+                false)    // Not attach to parent so that parent doesn't receive touch events
 
         return ViewHolder(view)
     }
@@ -47,7 +48,9 @@ class FolderAdapter(
 
         CoroutineScope(Dispatchers.IO).launch {
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
-            val parser = ComicParserFactory.create(firstComic.uri)
+
+            // TODO: #6: Handle missing file!
+            val parser = ComicParserFactory.create(context, firstComic.uri)!!
 
             withContext(Dispatchers.Main) {
                 glide.load(parser.requestCover())
@@ -57,6 +60,7 @@ class FolderAdapter(
             }
         }
     }
+
 
     //================================================================================
     // ViewHolder
