@@ -24,7 +24,7 @@ class ComicScanner @Inject constructor(val context: Context) {
         }
 
         private val TEST_COMIC_URI = Uri.parse(
-            "content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Documents")
+            "content://com.android.externalstorage.documents/tree/home%3A")
     }
 
     /**
@@ -33,18 +33,14 @@ class ComicScanner @Inject constructor(val context: Context) {
      *
      * @param uri URI to scan for comic
      */
-    fun scan(uri: Uri? = null): Flow<Array<DocumentFile?>> {
-        // Param is val, i.e. no reassignment
-        // https://stackoverflow.com/a/42540294/5959593
-        val _uri = uri ?: TEST_COMIC_URI
-
+    fun scan(uri: Uri = TEST_COMIC_URI): Flow<Array<DocumentFile?>> {
         return flow {
             // Emit in chunk
             val BUFFER_SIZE = 10
             var buffer = arrayOfNulls<DocumentFile>(BUFFER_SIZE)
             var counter = 0
 
-            DocumentFile.fromTreeUri(context, _uri)?.walkTopDown()?.forEach { document ->
+            DocumentFile.fromTreeUri(context, uri)?.walkTopDown()?.forEach { document ->
                 if (isComic(document)) {
                     if (counter == BUFFER_SIZE) {
                         emit(buffer)
