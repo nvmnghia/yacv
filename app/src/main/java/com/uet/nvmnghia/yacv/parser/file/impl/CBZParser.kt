@@ -1,9 +1,11 @@
 package com.uet.nvmnghia.yacv.parser.file.impl
 
 import android.content.Context
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
 import com.uet.nvmnghia.yacv.parser.metadata.MetadataParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.IOUtils
@@ -13,7 +15,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
@@ -118,10 +119,8 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
         if (MODE == Mode.READ) {
             return getPageInputStream(0)
         } else if (MODE == Mode.SCAN) {
-            val zis = ZipInputStream(getInputStream())
-
             // https://stackoverflow.com/a/38957431/5959593
-            // If a mutable variable is outside lambda, smart cast is not available.
+            // If a mutable variable is declared outside lambda, smart cast is not available inside lambda.
             // In this particular case:
             // If coverEntry is inside the use block, then in compareString(),
             // there is no need for !!, as coverEntry is smart casted to ZipEntry
@@ -129,11 +128,10 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
             // However, it is outside the use block, rendering smart cast useless,
             // and coverEntry!!.name is required.
             var coverEntry: ZipEntry? = null
-            val baos = ByteArrayOutputStream()
 
-            zis.use {
+            // Find the cover entry
+            ZipInputStream(getInputStream()).use {
                 while (true) {
-                    // Once the entry is retrieved, zis is positioned to read the data
                     val currentEntry = it.nextEntry ?: break
 
                     if (!FileUtils.isImage(currentEntry.name)) {
@@ -146,10 +144,6 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
                             coverEntry!!.name, currentEntry.name) < 1
                     ) {
                         coverEntry = currentEntry
-
-                        baos.reset()
-                        IOUtils.copy(zis, baos, currentEntry.size.toInt())
-                        baos.flush()
                     }
                 }
             }
@@ -157,6 +151,22 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
             if (coverEntry == null) {
                 isCorrupted = true    // No image
                 return null
+            }
+
+            val baos = ByteArrayOutputStream()
+
+            // Read the cover
+            ZipInputStream(getInputStream()).use { zis ->
+                while (true) {
+                    // Once the entry is retrieved, zis is positioned to read the data
+                    val currentEntry = zis.nextEntry ?: break
+
+                    if (currentEntry.name == coverEntry!!.name) {
+                        IOUtils.copy(zis, baos)
+                        baos.flush()
+                        break
+                    }
+                }
             }
 
             return ByteArrayInputStream(baos.toByteArray())
@@ -174,7 +184,10 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
     }
 
     override fun parseInfo(): Comic? {
+        Log.w("yacv", "Parsing ${document.uri}")
+
         val comic = Comic(document.uri)
+        var parsed = false
 
         if (MODE == Mode.READ) {
             if (isCorrupted) {
@@ -185,12 +198,13 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
                 .asSequence()
                 .firstOrNull { ze ->
                     MetadataParser.checkParsableByName(
-                        StringUtils.fileNameFromPath(ze.name)!!) }
+                        StringUtils.fileNameFromPath(ze.name)!!)
+                }
 
-            MetadataParser.parse(
-                zipFile!!.getInputStream(metadataEntry),
+            MetadataParser.parseByFilename(
                 StringUtils.fileNameFromPath(metadataEntry?.name),
-                comic)
+                zipFile!!.getInputStream(metadataEntry), comic)
+            parsed = true
         } else if (MODE == Mode.SCAN) {
             val zis = ZipInputStream(getInputStream())
 
@@ -203,19 +217,22 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
                     }
 
                     if (MetadataParser.checkParsableByName(
-                        StringUtils.fileNameFromPath(currentEntry.name)!!)
+                            StringUtils.fileNameFromPath(currentEntry.name))
                     ) {
-                        MetadataParser.parse(
-                            it,
+                        MetadataParser.parseByFilename(
                             StringUtils.fileNameFromPath(currentEntry.name),
-                            comic
-                        )
+                            it, comic)
+                        parsed = true
                         break
                     }
                 }
             }
         } else {
             throw IllegalStateException("CBZParser Mode is not READ or SCAN")
+        }
+
+        if (!parsed) {
+            GenericMetadataParser.parse(comic)
         }
 
         return comic

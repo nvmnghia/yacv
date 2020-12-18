@@ -24,10 +24,14 @@ class FileUtils {
 
         /**
          * Get [DocumentFile] extension in lowercase.
+         * TODO: rewrite with magic byte check
          */
         fun getExtension(document: DocumentFile): String? {
-            return MimeTypeMap.getSingleton()
-                .getExtensionFromMimeType(document.type)
+//            return MimeTypeMap.getSingleton()
+//                .getExtensionFromMimeType(document.type)
+//                ?.toLowerCase(Locale.ROOT)
+            return document.name
+                ?.substringAfterLast('.')
                 ?.toLowerCase(Locale.ROOT)
         }
     }

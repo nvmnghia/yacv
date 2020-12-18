@@ -4,8 +4,11 @@ import android.net.Uri
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
+import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
+import com.uet.nvmnghia.yacv.parser.metadata.MetadataParser
 import java.io.File
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -84,6 +87,7 @@ data class Comic(
 
     constructor(uri: Uri) : this(uri.toString())
 
+
     @Ignore
     var nonGenericallyParsed = false
 
@@ -115,6 +119,7 @@ data class Comic(
     // @formatter:on
 
     // Temporary, as these fields will be split into tables
+    // @formatter:off
     @Ignore var tmpCharacters : String?  = null
     @Ignore var tmpGenre      : String?  = null
     @Ignore var tmpWriter     : String?  = null
@@ -124,10 +129,20 @@ data class Comic(
     @Ignore var tmpColorist   : String?  = null
     @Ignore var tmpLetterer   : String?  = null
     @Ignore var tmpCoverArtist: String?  = null
-    @Ignore lateinit var tmpSeries: String
     @Ignore var tmpVolume     : Int?     = null
     @Ignore var tmpCount      : Int?     = null
     @Ignore var tmpManga      : Boolean? = null
+    // @formatter:on
+
+    /**
+     * Temporary hold series name.
+     * This field is important, as it is a required field.
+     * When initialized using the constructor, [tmpSeries] is null.
+     * The [Comic] instance must then be passed to [GenericMetadataParser.parse]
+     * to fill this field.
+     * TODO: avoid the explicit call to GenericMetadataParser.
+     */
+    @Ignore var tmpSeries: String? = null
 
     // File info
     @ColumnInfo(name = "CurrentPage")

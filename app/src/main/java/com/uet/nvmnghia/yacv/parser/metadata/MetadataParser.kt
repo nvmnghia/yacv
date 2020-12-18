@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.parser.metadata
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.parser.metadata.comicrack.ComicRackParser
 import java.io.InputStream
+import java.util.*
 
 
 class MetadataParser {
@@ -16,9 +17,14 @@ class MetadataParser {
         /**
          * Given a file name, check if the file is parsable by any parser.
          */
-        fun checkParsableByName(metadataFilename: String): Boolean {
+        fun checkParsableByName(metadataFilename: String?): Boolean {
+            if (metadataFilename == null) {
+                return false
+            }
+
+            val metadataFilenameLowercase = metadataFilename.toLowerCase(Locale.ROOT)
             for (parser in PARSERS) {
-                if (parser.checkParsableByName(metadataFilename)) {
+                if (parser.checkParsableByName(metadataFilenameLowercase, true)) {
                     return true
                 }
             }
@@ -30,17 +36,26 @@ class MetadataParser {
          * Given a metadata input stream [mis], its name, and a [Comic] instance [comic],
          * parse metadata into [comic].
          */
-        fun parse(mis: InputStream?, metadataFilename: String?, comic: Comic) {
+        fun parseByFilename(metadataFilename: String?, mis: InputStream?, comic: Comic) {
             GenericMetadataParser.parse(comic)
 
+            val metadataFilenameLowercase = metadataFilename?.toLowerCase(Locale.ROOT)
             mis?.let {
                 for (parser in PARSERS) {
-                    if (parser.checkParsableByName(metadataFilename)) {
+                    if (parser.checkParsableByName(metadataFilenameLowercase, true)) {
                         parser.parse(it, comic)
                         break
                     }
                 }
             }
+        }
+
+        /**
+         * Given the content of a metadata file, parse metadata into [comic].
+         * Some metadata is stored as a string in comment section, and it is handled here.
+         */
+        fun parseByContent(metadataContent: String, comic: Comic) {
+            TODO("To be implemented")
         }
     }
 

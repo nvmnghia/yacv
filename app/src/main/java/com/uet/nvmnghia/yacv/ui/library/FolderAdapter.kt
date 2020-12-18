@@ -28,6 +28,11 @@ class FolderAdapter(
 
     private lateinit var context: Context
 
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        context = recyclerView.context
+    }
+
 
     //================================================================================
     // Adapter functions

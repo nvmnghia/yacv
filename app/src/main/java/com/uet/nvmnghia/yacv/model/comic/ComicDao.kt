@@ -39,8 +39,7 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     fun save(comic: Comic): Long {
         // Insert into tables that Comic refers to
         comic.folderId = appDb.folderDao().saveIfAbsent(comic.parentFolderPath)
-
-        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries)
+        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries!!)
 
         // Insert into Comic
         val comicId = saveUnsafe(comic)

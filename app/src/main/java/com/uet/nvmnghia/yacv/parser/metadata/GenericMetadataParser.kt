@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.parser.metadata
 
+import android.net.Uri
 import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
@@ -13,9 +14,9 @@ class GenericMetadataParser {
          */
         fun parse(comic: Comic) {
             // Stupid rule: Comic file name is likely to be the title.
-            comic.title = comic.uri
-                .substringAfterLast('/')
-                .substringBeforeLast('.')
+            comic.tmpSeries = Uri.parse(comic.uri)
+                .lastPathSegment
+                ?.substringBeforeLast('.')
         }
     }
 }
