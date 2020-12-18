@@ -8,8 +8,6 @@ import com.uet.nvmnghia.yacv.parser.helper.walkTopDown
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 
@@ -23,7 +21,7 @@ class ComicScanner @Inject constructor(val context: Context) {
             return FileUtils.getExtension(document) in COMPRESSION_FORMATS
         }
 
-        private val TEST_COMIC_URI = Uri.parse(
+        private val TEST_ROOT_FOLDER_URI = Uri.parse(
             "content://com.android.externalstorage.documents/tree/home%3A")
     }
 
@@ -33,7 +31,7 @@ class ComicScanner @Inject constructor(val context: Context) {
      *
      * @param uri URI to scan for comic
      */
-    fun scan(uri: Uri = TEST_COMIC_URI): Flow<Array<DocumentFile?>> {
+    fun scan(uri: Uri = TEST_ROOT_FOLDER_URI): Flow<Array<DocumentFile?>> {
         return flow {
             // Emit in chunk
             val BUFFER_SIZE = 10

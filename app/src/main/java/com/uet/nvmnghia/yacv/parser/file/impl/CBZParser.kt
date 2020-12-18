@@ -186,7 +186,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
     override fun parseInfo(): Comic? {
         Log.w("yacv", "Parsing ${document.uri}")
 
-        val comic = Comic(document.uri)
+        val comic = Comic(document)
         var parsed = false
 
         if (MODE == Mode.READ) {

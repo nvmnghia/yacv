@@ -17,7 +17,7 @@ class ComicScannerProvider {
     @Singleton
     @Provides
     fun provideComicScanner(
-        @ApplicationContext appContext: Context
+        @ApplicationContext appContext: Context,
     ): ComicScanner {
         return ComicScanner(appContext)
     }

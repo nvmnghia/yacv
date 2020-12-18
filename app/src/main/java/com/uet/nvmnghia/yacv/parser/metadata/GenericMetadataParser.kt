@@ -14,7 +14,7 @@ class GenericMetadataParser {
          */
         fun parse(comic: Comic) {
             // Stupid rule: Comic file name is likely to be the title.
-            comic.tmpSeries = Uri.parse(comic.uri)
+            comic.tmpSeries = Uri.parse(comic.fileUri)
                 .lastPathSegment
                 ?.substringBeforeLast('.')
         }
