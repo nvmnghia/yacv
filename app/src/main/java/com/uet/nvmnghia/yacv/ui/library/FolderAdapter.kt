@@ -55,7 +55,7 @@ class FolderAdapter(
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
 
             // TODO: #6: Handle missing file!
-            val parser = ComicParserFactory.create(context, firstComic.uri)!!
+            val parser = ComicParserFactory.create(context, firstComic.fileUri)!!
 
             withContext(Dispatchers.Main) {
                 glide.load(parser.requestCover())

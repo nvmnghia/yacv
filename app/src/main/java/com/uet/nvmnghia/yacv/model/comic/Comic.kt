@@ -1,14 +1,10 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
-import com.uet.nvmnghia.yacv.parser.metadata.MetadataParser
-import java.io.File
-import java.io.IOException
-import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -80,16 +76,14 @@ import java.util.*
             childColumns  = [Series.COLUMN_SERIES_ID]),
     ]
 )
-data class Comic(
+class Comic internal constructor(
     @ColumnInfo(name = COLUMN_COMIC_URI)
-    val uri: String,
+    val fileUri: String,
 ) {
 
-    constructor(uri: Uri) : this(uri.toString())
-
-
-    @Ignore
-    var nonGenericallyParsed = false
+    constructor(document: DocumentFile) : this(document.uri.toString()) {
+        this.tmpFolderUri = document.parentFile!!.uri.toString()    // TODO: when can parentFile be null? Top level directory?
+    }
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_COMIC_ID)
@@ -154,6 +148,9 @@ data class Comic(
     @ColumnInfo(name = Folder.COLUMN_FOLDER_ID)
     var folderId: Long = 0
 
+    @Ignore
+    lateinit var tmpFolderUri: String
+
     // Reading habit
     @ColumnInfo(name = "Love", defaultValue = "0")
     var love: Boolean = false
@@ -161,13 +158,8 @@ data class Comic(
     @ColumnInfo(name = "ReadCount", defaultValue = "0")
     var readCount: Int = 0
 
-    // https://stackoverflow.com/a/57762552/5959593
-    @delegate:Ignore
-    val parentFolderPath: String by lazy {
-        val parentFolder = File(uri).parentFile
-            ?: throw IOException("Cannot get parent folder of $uri")
-        parentFolder.canonicalPath
-    }
+    @Ignore
+    var nonGenericallyParsed = false
 
     companion object {
         // @formatter:off

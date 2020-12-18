@@ -7,7 +7,6 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 

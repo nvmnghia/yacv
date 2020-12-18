@@ -36,7 +36,7 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
         parseInfo()
     }
 
-    fun requestCover(): PageRequest {
+    fun  requestCover(): PageRequest {
         return PageRequest(context, document, PageRequest.COVER)
     }
 

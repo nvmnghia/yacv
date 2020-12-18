@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.utils
 
-import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import java.util.*
 
@@ -24,7 +23,7 @@ class FileUtils {
 
         /**
          * Get [DocumentFile] extension in lowercase.
-         * TODO: rewrite with magic byte check
+         * TODO: rewrite with magic byte check, or anything more robust
          */
         fun getExtension(document: DocumentFile): String? {
 //            return MimeTypeMap.getSingleton()
@@ -34,5 +33,6 @@ class FileUtils {
                 ?.substringAfterLast('.')
                 ?.toLowerCase(Locale.ROOT)
         }
+
     }
 }
