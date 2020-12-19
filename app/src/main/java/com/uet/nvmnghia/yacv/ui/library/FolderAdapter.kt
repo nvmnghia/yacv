@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.ui.library
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,19 +14,25 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
-import com.uet.nvmnghia.yacv.model.folder.FolderDao
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 
 class FolderAdapter(
     private val glide: RequestManager,
     private val comicDao: ComicDao
 ) : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
+
+    private lateinit var context: Context
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        context = recyclerView.context
+    }
+
 
     //================================================================================
     // Adapter functions
@@ -35,18 +42,20 @@ class FolderAdapter(
         val view = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.library_item_folder, parent,
-                false)    // not attach to parent so that parent doesn't receive touch event
+                false)    // Not attach to parent so that parent doesn't receive touch events
 
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val folder = getItem(position)
-        holder.folderName.text = folder.path.substringAfterLast('/')
+        holder.folderName.text = folder.uri.substringAfterLast('/')
 
         CoroutineScope(Dispatchers.IO).launch {
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
-            val parser = ComicParserFactory.create(firstComic.path)
+
+            // TODO: #6: Handle missing file!
+            val parser = ComicParserFactory.create(context, firstComic.uri)!!
 
             withContext(Dispatchers.Main) {
                 glide.load(parser.requestCover())
@@ -57,6 +66,7 @@ class FolderAdapter(
         }
     }
 
+
     //================================================================================
     // ViewHolder
     //================================================================================
@@ -65,7 +75,7 @@ class FolderAdapter(
     // furthermore, a constructor call
     // This line delegates the constructor to RecyclerView.ViewHolder(view)
     // i.e. a shorter syntax for super(view)
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val folderName: TextView = view.findViewById(R.id.library_item_folder_name)
         val folderCover: ImageView = view.findViewById(R.id.library_item_folder_cover)
     }
@@ -73,11 +83,11 @@ class FolderAdapter(
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {
             override fun areItemsTheSame(oldItem: Folder, newItem: Folder): Boolean {
-                return oldItem.path == newItem.path
+                return oldItem.uri == newItem.uri
             }
 
             override fun areContentsTheSame(oldItem: Folder, newItem: Folder): Boolean {
-                return oldItem.path == newItem.path
+                return oldItem.uri == newItem.uri
             }
         }
     }

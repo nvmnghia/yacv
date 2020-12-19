@@ -4,9 +4,11 @@ package com.uet.nvmnghia.yacv.ui.library
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -44,6 +46,8 @@ class LibraryFragment : Fragment() {
     lateinit var folderAdapter: FolderAdapter
     var NUM_COL: Int? = null
 
+    lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,6 +65,11 @@ class LibraryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
         setHasOptionsMenu(true)
+
+        folderPickerLauncher = registerForActivityResult(
+            ActivityResultContracts.OpenDocumentTree()) {
+            viewModel.rescanComics()
+        }
 
         setupListComicFolders(view)
 
@@ -105,7 +114,7 @@ class LibraryFragment : Fragment() {
         val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(requireContext(),
-                    "Clicked at ${folderAdapter.currentList[position].path}",
+                    "Clicked at ${folderAdapter.currentList[position].uri}",
                     Toast.LENGTH_SHORT).show()
             }
 
@@ -147,7 +156,9 @@ class LibraryFragment : Fragment() {
                 val requestPermissionLauncher = registerForActivityResult(
                     ActivityResultContracts.RequestPermission()
                 ) { result ->
-                    if (result) viewModel.rescanComics()
+                    if (result) {
+                        folderPickerLauncher.launch(null)
+                    }
                 }
                 requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }

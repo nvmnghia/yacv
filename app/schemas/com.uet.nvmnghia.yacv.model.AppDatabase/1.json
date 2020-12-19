@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0e237bf88022af17c2b245491fca4dcb",
+    "identityHash": "569cf02675f512cd688d62814b822cc3",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Number` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FilePath` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ComicID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SeriesID` INTEGER, `Number` INTEGER, `Title` TEXT, `Summary` TEXT, `Language` TEXT, `Publisher` TEXT, `BlackAndWhite` INTEGER, `Date` INTEGER, `Web` TEXT, `CurrentPage` INTEGER NOT NULL, `NumOfPages` INTEGER NOT NULL, `FolderID` INTEGER NOT NULL, `Love` INTEGER NOT NULL DEFAULT 0, `ReadCount` INTEGER NOT NULL DEFAULT 0, `FileUri` TEXT NOT NULL, FOREIGN KEY(`FolderID`) REFERENCES `Folder`(`FolderID`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`SeriesID`) REFERENCES `Series`(`SeriesID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -101,8 +101,8 @@
             "defaultValue": "0"
           },
           {
-            "fieldPath": "path",
-            "columnName": "FilePath",
+            "fieldPath": "uri",
+            "columnName": "FileUri",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -115,12 +115,12 @@
         },
         "indices": [
           {
-            "name": "index_Comic_FilePath",
+            "name": "index_Comic_FileUri",
             "unique": true,
             "columnNames": [
-              "FilePath"
+              "FileUri"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Comic_FilePath` ON `${TABLE_NAME}` (`FilePath`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Comic_FileUri` ON `${TABLE_NAME}` (`FileUri`)"
           },
           {
             "name": "index_Comic_FolderID",
@@ -219,7 +219,7 @@
       },
       {
         "tableName": "Folder",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderPath` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderUri` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -229,7 +229,7 @@
           },
           {
             "fieldPath": "uri",
-            "columnName": "FolderPath",
+            "columnName": "FolderUri",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -242,12 +242,12 @@
         },
         "indices": [
           {
-            "name": "index_Folder_FolderPath",
+            "name": "index_Folder_FolderUri",
             "unique": true,
             "columnNames": [
-              "FolderPath"
+              "FolderUri"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderPath` ON `${TABLE_NAME}` (`FolderPath`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderUri` ON `${TABLE_NAME}` (`FolderUri`)"
           }
         ],
         "foreignKeys": []
@@ -747,7 +747,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e237bf88022af17c2b245491fca4dcb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '569cf02675f512cd688d62814b822cc3')"
     ]
   }
 }

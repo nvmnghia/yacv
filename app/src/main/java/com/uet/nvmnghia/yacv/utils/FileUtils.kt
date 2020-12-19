@@ -1,5 +1,7 @@
 package com.uet.nvmnghia.yacv.utils
 
+import android.webkit.MimeTypeMap
+import androidx.documentfile.provider.DocumentFile
 import java.util.*
 
 
@@ -18,6 +20,19 @@ class FileUtils {
         fun isImage(fileName: String): Boolean {
             return IMAGE_FORMATS.contains(
                 fileName.substringAfterLast('.').toLowerCase(Locale.ROOT))
+        }
+
+        /**
+         * Get [DocumentFile] extension in lowercase.
+         * TODO: rewrite with magic byte check
+         */
+        fun getExtension(document: DocumentFile): String? {
+//            return MimeTypeMap.getSingleton()
+//                .getExtensionFromMimeType(document.type)
+//                ?.toLowerCase(Locale.ROOT)
+            return document.name
+                ?.substringAfterLast('.')
+                ?.toLowerCase(Locale.ROOT)
         }
     }
 }

@@ -69,8 +69,8 @@ interface FolderDao {
      * SELECT in this case does not seem to take advantage of UNIQUE constraint
      * and returns a normal list of results.
      */
-    @Query("SELECT FolderID FROM Folder WHERE FolderPath = :folderPath LIMIT 1")
-    fun getExistingId(folderPath: String): List<Long>
+    @Query("SELECT FolderID FROM Folder WHERE FolderUri = :folderUri LIMIT 1")
+    fun getExistingId(folderUri: String): List<Long>
 
     @Query("DELETE FROM Folder")
     fun truncate()
