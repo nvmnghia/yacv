@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.author.AuthorDao
 import com.uet.nvmnghia.yacv.model.author.AuthorFts
-import com.uet.nvmnghia.yacv.model.author.PositionTable
+import com.uet.nvmnghia.yacv.model.author.RoleTable
 import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.character.CharacterDao
 import com.uet.nvmnghia.yacv.model.character.CharacterFts
@@ -41,7 +41,7 @@ import com.uet.nvmnghia.yacv.utils.RoomUtils
     Genre::class, GenreFts::class, ComicGenreJoin::class,
     Author::class, AuthorFts::class, ComicAuthorJoin::class,
     Series::class, SeriesFts::class,
-    PositionTable::class,
+    RoleTable::class,
 ], version = 1)
 @TypeConverters(RoomUtils.CalendarConverter::class)
 abstract class AppDatabase : RoomDatabase() {

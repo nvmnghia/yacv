@@ -2,7 +2,6 @@ package com.uet.nvmnghia.yacv.utils
 
 import android.content.Context
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import java.util.*
 
@@ -25,31 +24,21 @@ class FileUtils {
         }
 
         /**
-         * Check if the given URI can be read or write.
+         * Get [DocumentFile] extension in lowercase.
+         * TODO: rewrite with magic byte check, or anything more robust
          */
-        fun canRead(context: Context, uri: Uri): Boolean {
-            if (! DocumentFile.isDocumentUri(context, uri)) {
-                return false
-            }
-
-            try {
-                return DocumentFile.fromTreeUri(context, uri)?.canRead() == true
-            } catch (e: Exception) {}
-
-            try {
-                return DocumentFile.fromSingleUri(context, uri)?.canRead() == true
-            } catch (e: Exception) {}
-
-            return false
+        fun getExtension(document: DocumentFile): String? {
+            return document.name
+                ?.substringAfterLast('.')
+                ?.toLowerCase(Locale.ROOT)
         }
 
         /**
-         * Given a [DocumentFile] [documentFile], get its extension in lowercase.
+         * Check if the given Uri can be read.
          */
-        fun getExtension(documentFile: DocumentFile): String? {
-            return MimeTypeMap.getSingleton()
-                .getExtensionFromMimeType(documentFile.type)
-                ?.toLowerCase(Locale.ROOT)
+        fun canReadTree(context: Context, uri: Uri): Boolean {
+            return DocumentFile.fromTreeUri(context, uri)?.canRead() == true
         }
+
     }
 }

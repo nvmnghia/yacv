@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
@@ -25,7 +24,8 @@ class ComicRepository
 // @Inject in constructor declaration: inject this class somewhere, init by this constructor
 @Inject constructor(
     private val comicDao: ComicDao,
-    private val appDb: AppDatabase
+    private val appDb: AppDatabase,
+    private val comicScanner: ComicScanner,
 ) {
     /**
      * Get comics from DB.
@@ -56,12 +56,12 @@ class ComicRepository
                 appDb.resetDb()
             }
 
-            ComicScanner.scan(rootFolder, _deep).collect { comicDocuments ->
-                comicDao.save(
-                    comicDocuments
-                        .filterNotNull()
-                        .map { comicDocument -> ComicParserFactory.create(comicDocument).info }
-                )
+            comicScanner.scan().collect { documents ->
+                val comics = documents
+                    .filterNotNull()
+                    .mapNotNull { document ->
+                        ComicParserFactory.create(comicScanner.context, document)?.info }
+                comicDao.save(comics)
             }
         }
     }

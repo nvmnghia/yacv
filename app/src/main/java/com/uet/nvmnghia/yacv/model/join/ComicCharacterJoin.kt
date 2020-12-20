@@ -6,21 +6,21 @@ import com.uet.nvmnghia.yacv.model.comic.Comic
 
 
 @Entity(
-    primaryKeys = ["ComicID", "CharacterID"],
-    indices = [Index(value = ["CharacterID"])],
+    primaryKeys = [Comic.COLUMN_COMIC_ID, Character.COLUMN_CHARACTER_ID],
+    indices = [Index(value = [Character.COLUMN_CHARACTER_ID])],
     foreignKeys = [
         ForeignKey(entity = Comic::class,
-            parentColumns = ["ComicID"],
-            childColumns = ["ComicID"]),
+            parentColumns = [Comic.COLUMN_COMIC_ID],
+            childColumns  = [Comic.COLUMN_COMIC_ID]),
         ForeignKey(entity = Character::class,
-            parentColumns = ["CharacterID"],
-            childColumns = ["CharacterID"]),
+            parentColumns = [Character.COLUMN_CHARACTER_ID],
+            childColumns  = [Character.COLUMN_CHARACTER_ID]),
     ]
 )
 data class ComicCharacterJoin(
-    @ColumnInfo(name = "ComicID")
+    @ColumnInfo(name = Comic.COLUMN_COMIC_ID)
     val comicId: Long,
-    @ColumnInfo(name = "CharacterID")
+    @ColumnInfo(name = Character.COLUMN_CHARACTER_ID)
     val characterId: Long,
 )
 
@@ -48,8 +48,8 @@ interface ComicCharacterJoinDao {
 //data class CharacterWithComics (
 //    @Embedded val character: Character,
 //    @Relation(
-//        parentColumn = "CharacterID",
-//        entityColumn = "ComicID",
+//        parentColumn = Character.COLUMN_CHARACTER_ID,
+//        entityColumn = Comic.COLUMN_COMIC_ID,
 //        associateBy = Junction(CharacterComicCrossRef::class)
 //    )
 //    val comics: List<Comic>
@@ -58,8 +58,8 @@ interface ComicCharacterJoinDao {
 //data class ComicWithCharacters (
 //    @Embedded val comic: Comic,
 //    @Relation(
-//        parentColumn = "ComicID",
-//        entityColumn = "CharacterID",
+//        parentColumn = Comic.COLUMN_COMIC_ID,
+//        entityColumn = Character.COLUMN_CHARACTER_ID,
 //        associateBy = Junction(CharacterComicCrossRef::class)
 //    )
 //    val characters: List<Character>

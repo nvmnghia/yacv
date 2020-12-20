@@ -6,21 +6,21 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 
 
 @Entity(
-    primaryKeys = ["ComicID", "GenreID"],
-    indices = [Index(value = ["GenreID"])],
+    primaryKeys = [Comic.COLUMN_COMIC_ID, Genre.COLUMN_GENRE_ID],
+    indices = [Index(value = [Genre.COLUMN_GENRE_ID])],
     foreignKeys = [
         ForeignKey(entity = Comic::class,
-            parentColumns = ["ComicID"],
-            childColumns = ["ComicID"]),
+            parentColumns = [Comic.COLUMN_COMIC_ID],
+            childColumns  = [Comic.COLUMN_COMIC_ID]),
         ForeignKey(entity = Genre::class,
-            parentColumns = ["GenreID"],
-            childColumns = ["GenreID"])
+            parentColumns = [Genre.COLUMN_GENRE_ID],
+            childColumns  = [Genre.COLUMN_GENRE_ID])
     ]
 )
 data class ComicGenreJoin(
-    @ColumnInfo(name = "ComicID")
+    @ColumnInfo(name = Comic.COLUMN_COMIC_ID)
     val comicId: Long,
-    @ColumnInfo(name = "GenreID")
+    @ColumnInfo(name = Genre.COLUMN_GENRE_ID)
     val genreId: Long,
 )
 

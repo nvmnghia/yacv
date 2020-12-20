@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.uet.nvmnghia.yacv.model.AppDatabase
-import com.uet.nvmnghia.yacv.model.author.Position
+import com.uet.nvmnghia.yacv.model.author.Role
 
 
 /**
@@ -38,32 +38,31 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     open    // By default, class methods are final (not overridable)
     fun save(comic: Comic): Long {
         // Insert into tables that Comic refers to
-        comic.folderId = appDb.folderDao().saveIfAbsent(comic.parentFolderPath)
-
-        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries)
+        comic.folderId = appDb.folderDao().saveIfAbsent(comic.tmpFolderUri)
+        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries!!)
 
         // Insert into Comic
         val comicId = saveUnsafe(comic)
 
         // Insert into tables that have join tables with Comic
         comic.tmpCharacters?.let {
-            val characterIds = appDb.characterDao().saveIfAbsent(it.split(','))
+            val characterIds = appDb.characterDao().saveIfAbsent(it.split(LIST_SEPARATOR))
             appDb.comicCharacterJoinDao().save(comicId, characterIds)
         }
 
         comic.tmpGenre?.let {
-            val genreIds = appDb.genreDao().saveIfAbsent(it.split(','))
+            val genreIds = appDb.genreDao().saveIfAbsent(it.split(LIST_SEPARATOR))
             appDb.comicGenreJoinDao().save(comicId, genreIds)
         }
 
         // Note: the order of item between 2 lists must be consistent
         val authors   = listOf(comic.tmpWriter, comic.tmpEditor, comic.tmpPenciller,
             comic.tmpInker, comic.tmpColorist, comic.tmpLetterer, comic.tmpCoverArtist)
-        val positions = listOf(Position.Writer, Position.Editor, Position.Penciller,
-            Position.Inker, Position.Colorist, Position.Letterer, Position.CoverArtist)
+        val positions = listOf(Role.Writer, Role.Editor, Role.Penciller,
+            Role.Inker, Role.Colorist, Role.Letterer, Role.CoverArtist)
         authors.zip(positions) { authorGroup, position ->
             authorGroup?. let {
-                val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(','))
+                val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(LIST_SEPARATOR))
                 authorIds.forEach { authorId ->
                     appDb.comicAuthorJoinDao().save(comicId, authorId, position.id) }
             }
@@ -116,4 +115,8 @@ abstract class ComicDao(private val appDb: AppDatabase) {
 
     @Query("DELETE FROM Comic")
     abstract fun truncate()
+
+    companion object {
+        const val LIST_SEPARATOR = ','
+    }
 }

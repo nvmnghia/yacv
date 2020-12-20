@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.model.folder
 
-import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -15,14 +14,12 @@ data class Folder(
     @ColumnInfo(name = COLUMN_FOLDER_URI)
     val uri: String
 ) {
-
-    constructor(folderUri: Uri) : this(folderUri.toString())
-
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "FolderID")
+    @ColumnInfo(name = COLUMN_FOLDER_ID)
     var id: Long = 0
 
     companion object {
-        internal const val COLUMN_FOLDER_URI = "FolderUri"
+        const val COLUMN_FOLDER_ID  = "FolderID"
+        const val COLUMN_FOLDER_URI = "FolderUri"
     }
 }

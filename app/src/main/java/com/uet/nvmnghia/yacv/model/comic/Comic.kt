@@ -1,11 +1,10 @@
 package com.uet.nvmnghia.yacv.model.comic
 
-import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
-import java.io.File
-import java.io.IOException
+import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
 import java.util.*
 
 
@@ -64,45 +63,46 @@ import java.util.*
  */
 @Entity(
     indices = [
-        Index(value = ["FilePath"], unique = true),
-        Index(value = ["FolderID"]),    // Foreign key doesn't automagically index
-        Index(value = ["SeriesID"]),
+        Index(value = [Comic.COLUMN_COMIC_URI], unique = true),
+        Index(value = [Folder.COLUMN_FOLDER_ID]),    // Foreign key doesn't automagically index
+        Index(value = [Series.COLUMN_SERIES_ID]),
     ],
     foreignKeys = [
         ForeignKey(entity = Folder::class,    // Referenced entity is parent
-            parentColumns = ["FolderID"],
-            childColumns = ["FolderID"]),
+            parentColumns = [Folder.COLUMN_FOLDER_ID],
+            childColumns  = [Folder.COLUMN_FOLDER_ID]),
         ForeignKey(entity = Series::class,
-            parentColumns = ["SeriesID"],
-            childColumns = ["SeriesID"]),
+            parentColumns = [Series.COLUMN_SERIES_ID],
+            childColumns  = [Series.COLUMN_SERIES_ID]),
     ]
 )
-data class Comic(
+class Comic internal constructor(
     @ColumnInfo(name = COLUMN_COMIC_URI)
-    val uri: String,    // TODO: make sure path is canonical
+    val fileUri: String,
 ) {
 
-    constructor(uri: Uri) : this(uri.toString())
-
+    constructor(document: DocumentFile) : this(document.uri.toString()) {
+        this.tmpFolderUri = document.parentFile!!.uri.toString()    // TODO: when can parentFile be null? Top level directory?
+    }
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "ComicID")
+    @ColumnInfo(name = COLUMN_COMIC_ID)
     var id: Long = 0
 
     // Comic info
     // TODO: Add volume,...
     // @formatter:off
-    @ColumnInfo(name = "SeriesID")
+    @ColumnInfo(name = Series.COLUMN_SERIES_ID)
     var seriesId : Long?     = null
     @ColumnInfo(name = "Number")
-    var number: Int? = null
-    @ColumnInfo(name = "Title")
+    var number   : Int?      = null
+    @ColumnInfo(name = COLUMN_TITLE)
     var title    : String?   = null
-    @ColumnInfo(name = "Summary")
+    @ColumnInfo(name = COLUMN_SUMMARY)
     var summary  : String?   = null
     @ColumnInfo(name = "Language")
     var language : String?   = null
-    @ColumnInfo(name = "Publisher")
+    @ColumnInfo(name = COLUMN_PUBLISHER)
     var publisher: String?   = null
     @ColumnInfo(name = "BlackAndWhite")
     var bw       : Boolean?  = null
@@ -113,6 +113,7 @@ data class Comic(
     // @formatter:on
 
     // Temporary, as these fields will be split into tables
+    // @formatter:off
     @Ignore var tmpCharacters : String?  = null
     @Ignore var tmpGenre      : String?  = null
     @Ignore var tmpWriter     : String?  = null
@@ -122,10 +123,20 @@ data class Comic(
     @Ignore var tmpColorist   : String?  = null
     @Ignore var tmpLetterer   : String?  = null
     @Ignore var tmpCoverArtist: String?  = null
-    @Ignore lateinit var tmpSeries: String
     @Ignore var tmpVolume     : Int?     = null
     @Ignore var tmpCount      : Int?     = null
     @Ignore var tmpManga      : Boolean? = null
+    // @formatter:on
+
+    /**
+     * Temporary hold series name.
+     * This field is important, as it is a required field.
+     * When initialized using the constructor, [tmpSeries] is null.
+     * The [Comic] instance must then be passed to [GenericMetadataParser.parse]
+     * to fill this field.
+     * TODO: avoid the explicit call to GenericMetadataParser.
+     */
+    @Ignore var tmpSeries: String? = null
 
     // File info
     @ColumnInfo(name = "CurrentPage")
@@ -134,11 +145,11 @@ data class Comic(
     @ColumnInfo(name = "NumOfPages")
     var numPages: Int = 0
 
-    // TODO: Check if format is necessary
-//    var format: String? = null
-
-    @ColumnInfo(name = "FolderID")
+    @ColumnInfo(name = Folder.COLUMN_FOLDER_ID)
     var folderId: Long = 0
+
+    @Ignore
+    lateinit var tmpFolderUri: String
 
     // Reading habit
     @ColumnInfo(name = "Love", defaultValue = "0")
@@ -147,15 +158,18 @@ data class Comic(
     @ColumnInfo(name = "ReadCount", defaultValue = "0")
     var readCount: Int = 0
 
-    // https://stackoverflow.com/a/57762552/5959593
-    @delegate:Ignore
-    val parentFolderPath: String by lazy {
-        val parentFolder = File(uri).parentFile
-            ?: throw IOException("Cannot get parent folder of $uri")
-        parentFolder.canonicalPath
-    }
+    @Ignore
+    var nonGenericallyParsed = false
 
     companion object {
-        internal const val COLUMN_COMIC_URI = "FileUri"
+        // @formatter:off
+        const val COLUMN_COMIC_ID  = "ComicID"
+        const val COLUMN_COMIC_URI = "FileUri"
+
+        internal const val COLUMN_TITLE     = "Title"
+        internal const val COLUMN_SUMMARY   = "Summary"
+        internal const val COLUMN_PUBLISHER = "Publisher"
+        internal const val COLUMN_WEB       = "Web"
+        // @formatter:on
     }
 }

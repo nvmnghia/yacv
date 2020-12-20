@@ -2,7 +2,6 @@ package com.uet.nvmnghia.yacv.model.character
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Fts4
 import androidx.room.PrimaryKey
 
 
@@ -11,7 +10,7 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class Character(
-    @ColumnInfo(name = "Name")
+    @ColumnInfo(name = COLUMN_CHARACTER_NAME)
     val name: String
 ) {
     // ID could be omitted for FTS, but if present:
@@ -19,6 +18,12 @@ data class Character(
     // - Row name: must be "rowid"
     // - SELECT: explicitly mention "rowid"
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "CharacterID")
+    @ColumnInfo(name = COLUMN_CHARACTER_ID)
     var id: Long = 0
+
+    companion object {
+        const val COLUMN_CHARACTER_ID = "CharacterID"
+
+        internal const val COLUMN_CHARACTER_NAME = "Name"
+    }
 }

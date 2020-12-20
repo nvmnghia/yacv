@@ -19,5 +19,13 @@ class StringUtils {
                 .replace('\t', ' ')
                 .trim()
         }
+
+        /**
+         * Given a path-like string (containing '/'), return the name of the file.
+         * Note that it doesn't work with folder name, which may end with '/'.
+         */
+        inline fun fileNameFromPath(path: String?): String? {
+            return path?.substringAfterLast('/')
+        }
     }
 }

@@ -7,7 +7,6 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 
@@ -18,10 +17,9 @@ class CompressedImageModelLoader : ModelLoader<ComicParser.PageRequest, InputStr
      */
     override fun handles(model: ComicParser.PageRequest): Boolean {
         return try {
-            File(model.uri)
-            true
+            model.document.canRead()
         } catch (ioe: IOException) {
-            Log.w("Comic", ioe)
+            Log.w("yacv", ioe)
             false
         }
     }

@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.ui.library
 
-
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
@@ -26,9 +25,9 @@ import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
 import com.uet.nvmnghia.yacv.ui.library.LibraryViewModel.TextState.*
 import com.uet.nvmnghia.yacv.utils.DeviceUtil
-import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -100,6 +99,11 @@ class LibraryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
         setHasOptionsMenu(true)
+
+        folderPickerLauncher = registerForActivityResult(
+            ActivityResultContracts.OpenDocumentTree()) {
+            viewModel.rescanComics()
+        }
 
         setupListComicFolders(view)
 

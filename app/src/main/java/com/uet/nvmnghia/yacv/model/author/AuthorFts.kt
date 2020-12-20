@@ -8,6 +8,6 @@ import androidx.room.Fts4
 @Entity
 @Fts4(contentEntity = Author::class)
 data class AuthorFts(
-    @ColumnInfo(name = "Name")
+    @ColumnInfo(name = Author.COLUMN_AUTHOR_NAME)
     val name: String,
 )

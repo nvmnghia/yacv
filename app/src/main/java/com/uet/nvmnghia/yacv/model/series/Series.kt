@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Series(
-    @ColumnInfo(name = "Name")
+    @ColumnInfo(name = COLUMN_SERIES_NAME)
     val name: String,
     @ColumnInfo(name = "Volume")
     var volume: Int? = null,
@@ -17,7 +17,12 @@ data class Series(
     var manga: Boolean? = null
 ) {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "SeriesID")
+    @ColumnInfo(name = COLUMN_SERIES_ID)
     var id: Long = 0
 
+    companion object {
+        const val COLUMN_SERIES_ID = "SeriesID"
+
+        internal const val COLUMN_SERIES_NAME = "Name"
+    }
 }

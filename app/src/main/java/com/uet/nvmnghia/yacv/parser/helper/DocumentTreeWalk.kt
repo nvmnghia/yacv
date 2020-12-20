@@ -29,6 +29,10 @@ class DocumentTreeWalk private constructor(
     override fun iterator(): Iterator<DocumentFile> = DocumentTreeWalkIterator()
 
 
+    //================================================================================
+    // Walk state
+    //================================================================================
+
     /**
      * Abstract class that encapsulates file visiting in some order, beginning from a given [root].
      */
@@ -67,6 +71,10 @@ class DocumentTreeWalk private constructor(
         }
     }
 
+
+    //================================================================================
+    // Iterator
+    //================================================================================
 
     private inner class DocumentTreeWalkIterator : AbstractIterator<DocumentFile>() {
 

@@ -44,7 +44,7 @@ class LibraryViewModel @ViewModelInject constructor(
             textState.value = field.let {
                 when {
                     it == null || it.toString().isEmpty() -> TextState.NO_ROOT_FOLDER
-                    ! FileUtils.canRead(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
+                    ! FileUtils.canReadTree(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
                     else -> {
                         scanComics(deep = true, truncateOld = true)
                         TextState.NO_TEXT
