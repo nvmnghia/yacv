@@ -18,7 +18,8 @@ class ComicScanner @Inject constructor(val context: Context) {
             .map { format -> format.extension }.toSet()
 
         private fun isComic(document: DocumentFile): Boolean {
-            return FileUtils.getExtension(document) in COMPRESSION_FORMATS
+            return FileUtils.getExtension(document) in COMPRESSION_FORMATS &&
+                    !FileUtils.naiveIsHidden(document.uri.toString())
         }
 
         private val TEST_ROOT_FOLDER_URI = Uri.parse(

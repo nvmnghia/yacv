@@ -40,5 +40,16 @@ class FileUtils {
             return DocumentFile.fromTreeUri(context, uri)?.canRead() == true
         }
 
+        /**
+         * Given a file path, check if it is hidden naively using the leading dot rule.
+         */
+        fun naiveIsHidden(filePath: String): Boolean {
+            return filePath
+                .split('/')
+                .firstOrNull { segment ->
+                    segment.startsWith('.') &&
+                            !(segment == "." || segment == "..")
+                } != null
+        }
     }
 }

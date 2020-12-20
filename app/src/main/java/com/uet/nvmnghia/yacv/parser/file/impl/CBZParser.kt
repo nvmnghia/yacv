@@ -11,10 +11,7 @@ import com.uet.nvmnghia.yacv.parser.helper.NaturalOrderComparator
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.IOUtils
 import com.uet.nvmnghia.yacv.utils.StringUtils
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
+import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
@@ -134,7 +131,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
                 while (true) {
                     val currentEntry = it.nextEntry ?: break
 
-                    if (!FileUtils.isImage(currentEntry.name)) {
+                    if (!FileUtils.isImage(currentEntry.name) || FileUtils.naiveIsHidden(currentEntry.name)) {
                         continue
                     }
 
@@ -216,12 +213,10 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
                         break
                     }
 
-                    if (MetadataParser.checkParsableByName(
-                            StringUtils.fileNameFromPath(currentEntry.name))
-                    ) {
-                        MetadataParser.parseByFilename(
-                            StringUtils.fileNameFromPath(currentEntry.name),
-                            it, comic)
+                    // name in ZipEntry is path instead of name only
+                    val fileName = StringUtils.fileNameFromPath(currentEntry.name)
+                    if (MetadataParser.checkParsableByName(fileName)) {
+                        MetadataParser.parseByFilename(fileName, it, comic)
                         parsed = true
                         break
                     }
