@@ -11,15 +11,17 @@
     <string name="yacv_explain_storage">yacv needs your permission to read comic in your phone.</string>
     <string name="ok_allow">OK, allow</string>
     <string name="preference_file_key">com.uet.nvmnghia.yacv</string>
-    <string name="no_root_folder_selected">No folder selected to scan for comics. Click the Folder icon to select one.</string>
-    <string name="no_root_folder_selected_spannable_part">Folder icon</string>
-    <string name="cannot_read_root_folder">Selected Folder cannot be read. Either the read permission was revoked, or the folder was deleted. Click the Folder icon to select another one.</string>
-    <string name="cannot_read_root_folder_spannable_part">Folder icon</string>
-    <string name="no_read_permission">Read permission not granted. Click here to grant yacv one.</string>
-    <string name="no_read_permission_spannable_part">Click here</string>
-    <string name="no_comic">Looks like it\'s empty here. Consider adding more comics, or click the Folder icon to choose another folder to scan for comics.</string>
-    <string name="no_comic_spannable_part">Folder icon</string>
+    <string name="no_root">No folder selected, so yacv can\'t scan for comics. Click the Folder icon to select one!</string>
+    <string name="no_root_span_part">Folder icon</string>
+    <string name="have_root_no_permission">yacv is not allowed to read 😿. Click here to allow yacv!</string>
+    <string name="have_root_no_permission_span_part">here</string>
+<!--    <string name="no_root_no_read_permission">yacv is not allowed to read 😿. Click here to allow yacv!</string>-->
+<!--    <string name="no_root_no_read_permission_span_part">Click here</string>-->
+    <string name="no_comic">Looks like it\'s empty here. Consider adding more comics, or click the Folder icon to pick another one for yacv.</string>
+    <string name="no_comic_span_part">Folder icon</string>
     <string name="deny">Deny</string>
-    <string name="no_read_permission_twice">yacv has been denied twice. yacv can not read comics. Allow yacv by open Settings and give yacv a chance!</string>
-    <string name="no_read_permission_twice_spannable_part">Settings</string>
+    <string name="no_read_permission_forever">yacv is not allowed to read, forever 😿. Open Settings and give yacv a chance!</string>
+    <string name="no_read_permission_forever_span_part">Settings</string>
+    <string name="have_root_not_exist">yacv had a folder, but can\'t find it anymore (is it deleted?). Give yacv another one by clicking the Folder icon!</string>
+    <string name="have_root_not_exist_span_part">Folder icon</string>
 </resources>

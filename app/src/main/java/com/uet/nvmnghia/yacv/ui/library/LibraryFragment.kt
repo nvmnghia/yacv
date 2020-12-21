@@ -28,6 +28,7 @@ import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
 import com.uet.nvmnghia.yacv.ui.library.LibraryViewModel.TextState.*
 import com.uet.nvmnghia.yacv.utils.DeviceUtil
+import com.uet.nvmnghia.yacv.utils.ThemeUtils
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -90,6 +91,8 @@ class LibraryFragment : Fragment() {
 
         folderAdapter = FolderAdapter(glide, comicDao)
         NUM_COL = calculateNumberOfColumns()
+
+        HandleNoListTextView.SPAN_TEXT_COLOR = ThemeUtils.getPrimaryColor(requireContext())
     }
 
     override fun onCreateView(
@@ -99,11 +102,6 @@ class LibraryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
         setHasOptionsMenu(true)
-
-        folderPickerLauncher = registerForActivityResult(
-            ActivityResultContracts.OpenDocumentTree()) {
-            viewModel.rescanComics()
-        }
 
         setupListComicFolders(view)
 
@@ -128,7 +126,9 @@ class LibraryFragment : Fragment() {
         appSettingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
-            isReadPermissionGranted()
+            if (isReadPermissionGranted()) {
+                viewModel.rescanComics(false)
+            }
         }
     }
 
@@ -162,20 +162,20 @@ class LibraryFragment : Fragment() {
      */
     private fun toggleEmptyListText(state: LibraryViewModel.TextState) {
         noListTextView.text = when (state) {
-            NO_ROOT_FOLDER -> {
-                HandleNoListTextView.noRootFolder(
+            NO_ROOT -> {
+                HandleNoListTextView.noRoot(
                     resources, this::changeRootScanFolder)
             }
-            CANNOT_READ_ROOT_FOLDER -> {
-                HandleNoListTextView.cannotReadRootFolder(
-                    resources, this::changeRootScanFolder)
+            HAVE_ROOT_NO_PERMISSION -> {
+                HandleNoListTextView.haveRootNoPermission(
+                    resources, this::launchAppSettings)    // If possible, use the normal dialog
             }
-            NO_READ_PERMISSION -> {
-                HandleNoListTextView.noReadPermission(
-                    resources, this::launchRequestReadPermission)
+            HAVE_ROOT_NOT_EXIST -> {
+                HandleNoListTextView.haveRootNotExist(
+                    resources, this::changeRootScanFolder)
             }
             NO_READ_PERMISSION_FOREVER -> {
-                HandleNoListTextView.noReadPermissionTwice(
+                HandleNoListTextView.noReadPermissionForever(
                     resources, this::launchAppSettings)
             }
             NO_COMIC -> {
@@ -268,19 +268,13 @@ class LibraryFragment : Fragment() {
 
     /**
      * Check if READ_EXTERNAL_STORAGE is granted.
-     * If not granted, call [LibraryViewModel.readPermissionNotGranted].
      */
     private fun isReadPermissionGranted(): Boolean {
-        val granted = ContextCompat.checkSelfPermission(requireActivity(),
+        viewModel.readPermissionGranted = ContextCompat.checkSelfPermission(requireActivity(),
             Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
-        when (granted) {
-            true -> viewModel.readPermissionGranted()
-            false -> viewModel.readPermissionNotGranted()
-        }
-
-        return granted
+        return viewModel.readPermissionGranted
     }
 
 
@@ -309,8 +303,7 @@ class LibraryFragment : Fragment() {
         builder
             .setTitle(R.string.yacv_needs_storage)
             .setMessage(R.string.yacv_explain_storage)
-            .setPositiveButton(R.string.ok_allow) { _, _ ->
-                launchRequestReadPermission() }
+            .setPositiveButton(R.string.ok_allow) { _, _ -> launchRequestReadPermission() }
             .setNegativeButton(R.string.deny) { _, _ -> }
         builder.create().show()
     }
@@ -329,12 +322,14 @@ class LibraryFragment : Fragment() {
      * Otherwise, check if Never ask again is tick. If so, call [viewModel].
      */
     private fun handleRequestReadPermissionResult(granted: Boolean) {
+        viewModel.readPermissionGranted = granted
+
         if (granted) {
             launchFolderPicker()
         } else {
             // Check if deny with Never ask again
             if (! shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                viewModel.readPermissionNotGrantedForever()
+                viewModel.readPermissionDeniedForever = true
             }
         }
     }
@@ -352,7 +347,7 @@ class LibraryFragment : Fragment() {
      * Given the [folderUri] from the picker, pass it to [viewModel].
      */
     private fun handleFolderPickerResult(folderUri: Uri?) {
-        folderUri?.let { viewModel.changeRootFolder(it) }
+        folderUri?.let { viewModel.rootFolderUri = it }
     }
 
     /**

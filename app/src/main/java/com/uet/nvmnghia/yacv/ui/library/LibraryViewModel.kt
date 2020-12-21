@@ -1,8 +1,12 @@
 package com.uet.nvmnghia.yacv.ui.library
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
@@ -12,7 +16,6 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 import com.uet.nvmnghia.yacv.utils.Constants
-import com.uet.nvmnghia.yacv.utils.FileUtils
 
 
 /**
@@ -33,99 +36,146 @@ class LibraryViewModel @ViewModelInject constructor(
     private val sharedPref = application.getSharedPreferences(
         application.resources.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-    // Initialization DOES NOT call custom setter.
-    private var rootFolderUri: Uri? = null
-        set(newRootFolderUri) {
-            field = newRootFolderUri
-
-            textState.value = field.let {
-                when {
-                    it == null || it.toString().isEmpty() -> TextState.NO_ROOT_FOLDER
-                    ! FileUtils.canReadTree(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
-                    else -> {
-                        scanComics(deep = true, truncateOld = true)
-                        TextState.NO_TEXT
-                    }
+    var rootFolderUri: Uri? = sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, null)?.let { Uri.parse(it) }
+        set(uri) {
+            if (field == uri) {
+                rescanComics(true)
+            } else {
+                field = uri
+                scanComics(deep = true, truncateOld = true)
+                with(sharedPref.edit()) {
+                    putString(Constants.SHPREF_ROOT_FOLDER, uri.toString())
+                    apply()
                 }
             }
-
-            // Upon initialization, the SharedPreference is written back unnecessarily.
-            with(sharedPref.edit()) {
-                putString(Constants.SHPREF_ROOT_FOLDER, field.toString())
-                apply()
-            }
+            rootFolderSelected = uri != null
         }
-
 
     // ViewModel communicates with View by LiveData, instead of direct control
     val folders: LiveData<List<Folder>> = folderRepo.getFolders()
 
+
+    //================================================================================
+    // Text state
+    //================================================================================
+
     /**
-     * State for the text if list comic folders is not displayed.
+     * Whether the read permission is granted.
      */
-    val textState =                      // https://developer.android.com/topic/libraries/architecture/viewmodel#implement
-        MediatorLiveData<TextState>()    // ViewModel shouldn't observe LiveData, instead use MediatorLiveData or transformation.
+    var readPermissionGranted: Boolean = false    // Meaningless initial value to use var with custom setter
+        // A custom getter can guarantee to be always correct by checking directly
+        // but it seems to be expensive
+        // Manually check & set seems to be a reasonable choice
+        // TODO: compare with custom getter
+        set(granted) {
+            if (granted) {
+                readPermissionDeniedForever = false
 
-
-    // Primary constructor.
-    // All init blocks will be merged as one.
-    init {
-        rootFolderUri = Uri.parse(sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, ""))
-
-        textState.addSource(folders) {
-            if (it.isEmpty()) {
-                if (textState.value == TextState.NO_TEXT) {
-                    textState.value = TextState.NO_COMIC
+                when {
+                    !rootFolderSelected -> textState.value = TextState.NO_ROOT
+                    !rootFolderExists -> textState.value = TextState.HAVE_ROOT_NOT_EXIST
+//                    folders.value?.isEmpty() == true -> TextState.NO_COMIC
+//                    else -> TextState.NO_TEXT
+                    else -> {
+                        if (field != granted) {
+                            rescanComics(false)
+                            Log.w("yacv", "Rescan triggered by flip readPermissionGranted to true")
+                        }
+                    }
                 }
             } else {
-                if (textState.value == TextState.NO_COMIC) {
-                    textState.value = TextState.NO_TEXT
+                if (rootFolderExists) {
+                    textState.value = TextState.HAVE_ROOT_NO_PERMISSION
                 }
+            }
+
+            field = granted
+        }
+
+    /**
+     * Whether the Never ask again box is checked.
+     * As there's no reliable way to check this, it is persisted.
+     */
+    var readPermissionDeniedForever: Boolean = sharedPref.getBoolean(Constants.SHPREF_READ_PERMISSION_DENIED_FOREVER, false)
+        set(deniedForever) {
+            field = deniedForever
+
+            with(sharedPref.edit()) {
+                putBoolean(Constants.SHPREF_READ_PERMISSION_DENIED_FOREVER, deniedForever)
+                apply()
+            }
+
+            if (deniedForever) {
+                textState.value = TextState.NO_READ_PERMISSION_FOREVER
+            }
+        }
+
+    /**
+     * Whether a folder is selected as root.
+     */
+    private var rootFolderSelected: Boolean = false    // Meaningless initial value to use var with custom setter
+        set(selected) {
+            field = selected
+
+            if (!selected && !readPermissionDeniedForever) {
+                textState.value = TextState.NO_ROOT
+            }
+
+            rootFolderExists = true
+        }
+
+    /**
+     * Whether the selected root folder can be read.
+     */
+    private var rootFolderExists = false
+        set(exist) {
+            field = exist
+
+            if (!exist && rootFolderSelected && readPermissionGranted) {
+                textState.value = TextState.HAVE_ROOT_NOT_EXIST
+            }
+        }
+
+    /**
+     * Enum for all possible states of the text if list folders is not displayed.
+     */
+    enum class TextState {
+        // List displayed normally
+        NO_TEXT,
+
+        // List is not displayed, and text is
+        NO_ROOT,
+        HAVE_ROOT_NO_PERMISSION,       // Had root folder, but cannot read due to revoked permission
+        HAVE_ROOT_NOT_EXIST,           // Had root folder, but cannot find it anymore
+        NO_READ_PERMISSION_FOREVER,    // No more asking
+        NO_COMIC
+    }
+
+    var textState =                      // https://developer.android.com/topic/libraries/architecture/viewmodel#implement
+        MediatorLiveData<TextState>()    // ViewModel shouldn't observe LiveData, instead use MediatorLiveData or transformation.
+
+    init {
+        // Initialization order matters
+        rootFolderSelected = rootFolderUri != null
+
+        val documentFile = rootFolderUri?.let { DocumentFile.fromTreeUri(getApplication(), it) }
+        rootFolderExists = documentFile?.exists() ?: false
+
+        readPermissionGranted = ContextCompat.checkSelfPermission(getApplication(),
+            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+        textState.addSource(folders) { newListFolders ->
+            if (readPermissionGranted && rootFolderExists) {
+                textState.value = if (newListFolders.isEmpty()) TextState.NO_COMIC
+                    else TextState.NO_TEXT
             }
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        // Destroy shit here
-    }
 
-    /**
-     * Given an URI, convert it to a native path and assign the result to [rootFolderUri].
-     * If the converted path is the same as [rootFolderUri], only do a quick rescan.
-     */
-    fun changeRootFolder(newFolderUri: Uri) {
-        if (newFolderUri == rootFolderUri) {
-            // rootFolder doesn't change, do a deep rescan then
-            rescanComics(true)
-        } else {
-            // Rescan & shit is done inside setter
-            rootFolderUri = newFolderUri
-        }
-    }
-
-    /**
-     * TODO: Somehow merge these readPermission methods together.
-     */
-    fun readPermissionNotGranted() {
-        if (textState.value != TextState.NO_ROOT_FOLDER) {
-            textState.value = TextState.NO_READ_PERMISSION
-        }
-    }
-
-    fun readPermissionGranted() {
-        if (rootFolderUri == null) {
-            textState.value = TextState.NO_ROOT_FOLDER
-        } else if (folders.value == null || folders.value!!.isEmpty()) {
-            textState.value = TextState.NO_COMIC
-        } else {
-            textState.value = TextState.NO_TEXT
-        }
-    }
-
-    fun readPermissionNotGrantedForever() {
-        textState.value = TextState.NO_READ_PERMISSION_FOREVER
-    }
+    //================================================================================
+    // Other functions
+    //================================================================================
 
     /**
      * A wrapper for ComicRepository's scanComics().
@@ -147,13 +197,8 @@ class LibraryViewModel @ViewModelInject constructor(
         scanComics(deep, truncateOld = false)
     }
 
-    enum class TextState {
-        // List displayed normally
-        NO_TEXT,
-
-        // List is not displayed, and text is
-        NO_ROOT_FOLDER, CANNOT_READ_ROOT_FOLDER, NO_READ_PERMISSION,
-        NO_READ_PERMISSION_FOREVER,    // No more asking
-        NO_COMIC,
+    override fun onCleared() {
+        super.onCleared()
+        // Destroy shit here
     }
 }

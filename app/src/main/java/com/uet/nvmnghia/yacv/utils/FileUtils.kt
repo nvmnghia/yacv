@@ -34,6 +34,13 @@ class FileUtils {
         }
 
         /**
+         * Check if the given Uri exist.
+         */
+        fun isTreeExist(context: Context, uri: Uri): Boolean {
+            return DocumentFile.fromTreeUri(context, uri)?.exists() == true
+        }
+
+        /**
          * Check if the given Uri can be read.
          */
         fun canReadTree(context: Context, uri: Uri): Boolean {
