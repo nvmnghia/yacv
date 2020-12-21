@@ -82,7 +82,9 @@ class Comic internal constructor(
 ) {
 
     constructor(document: DocumentFile) : this(document.uri.toString()) {
-        this.tmpFolderUri = document.parentFile!!.uri.toString()    // TODO: when can parentFile be null? Top level directory?
+        val parentFile = document.parentFile!!
+        tmpFolderUri = parentFile.uri.toString()
+        tmpFolderName = parentFile.name!!
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -151,6 +153,13 @@ class Comic internal constructor(
     @Ignore
     lateinit var tmpFolderUri: String
 
+    /**
+     * Sometimes folder name is difficult to naively parse from [tmpFolderUri].
+     * So it's best to save folder name in [Folder].
+     */
+    @Ignore
+    lateinit var tmpFolderName: String
+
     // Reading habit
     @ColumnInfo(name = "Love", defaultValue = "0")
     var love: Boolean = false
@@ -160,6 +169,7 @@ class Comic internal constructor(
 
     @Ignore
     var nonGenericallyParsed = false
+
 
     companion object {
         // @formatter:off

@@ -51,5 +51,18 @@ class FileUtils {
                             !(segment == "." || segment == "..")
                 } != null
         }
+
+        /**
+         * Given a URI denoting a path, return the name of the resource.
+         */
+        inline fun folderNameFromPathUri(pathUri: String): String {
+            val uri = if (pathUri.endsWith('/')) {
+                Uri.parse(pathUri.substringBeforeLast('/'))
+            } else {
+                Uri.parse(pathUri)
+            }
+
+            return uri.schemeSpecificPart.substringAfterLast('/')
+        }
     }
 }

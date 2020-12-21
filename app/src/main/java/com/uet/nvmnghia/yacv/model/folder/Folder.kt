@@ -12,8 +12,11 @@ import androidx.room.PrimaryKey
 @Entity(indices = [Index(value = [Folder.COLUMN_FOLDER_URI], unique = true)])
 data class Folder(
     @ColumnInfo(name = COLUMN_FOLDER_URI)
-    val uri: String
+    val uri: String,
+    @ColumnInfo(name = "Name")
+    val name: String,
 ) {
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_FOLDER_ID)
     var id: Long = 0

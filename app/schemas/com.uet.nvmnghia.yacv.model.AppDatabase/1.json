@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "569cf02675f512cd688d62814b822cc3",
+    "identityHash": "384c09e078da8ef039c3e2f4b223749d",
     "entities": [
       {
         "tableName": "Comic",
@@ -219,7 +219,7 @@
       },
       {
         "tableName": "Folder",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderUri` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`FolderID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `FolderUri` TEXT NOT NULL, `Name` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -230,6 +230,12 @@
           {
             "fieldPath": "uri",
             "columnName": "FolderUri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -747,7 +753,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '569cf02675f512cd688d62814b822cc3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '384c09e078da8ef039c3e2f4b223749d')"
     ]
   }
 }

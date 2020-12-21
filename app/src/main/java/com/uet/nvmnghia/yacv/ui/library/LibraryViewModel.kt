@@ -25,10 +25,7 @@ import com.uet.nvmnghia.yacv.utils.FileUtils
  *   BUT NOT anything referencing views
  */
 
-/**
- * ViewModel for LibraryFragment
- * Currently used to test compression reading code
- */
+
 class LibraryViewModel @ViewModelInject constructor(
     private val folderRepo: FolderRepository, application: Application,
 ) : AndroidViewModel(application) {
@@ -66,13 +63,12 @@ class LibraryViewModel @ViewModelInject constructor(
     /**
      * State for the text if list comic folders is not displayed.
      */
-    val textState =                      // ViewModel should not observe LiveData,
-        MediatorLiveData<TextState>()    // instead use MediatorLiveData or transformation.
+    val textState =                      // https://developer.android.com/topic/libraries/architecture/viewmodel#implement
+        MediatorLiveData<TextState>()    // ViewModel shouldn't observe LiveData, instead use MediatorLiveData or transformation.
 
-    /**
-     * Primary constructor.
-     * All init blocks will be merged as one.
-     */
+
+    // Primary constructor.
+    // All init blocks will be merged as one.
     init {
         rootFolderUri = Uri.parse(sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, ""))
 

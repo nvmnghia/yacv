@@ -26,12 +26,12 @@ interface FolderDao {
      * Save with checking duplicate.
      */
     @Transaction
-    fun saveIfAbsent(folderPath: String): Long {
-        val id = getExistingId(folderPath)
+    fun saveIfAbsent(folderUri: String, folderName: String): Long {
+        val id = getExistingId(folderUri)
         return if (id.isNotEmpty()) {
             id[0]
         } else {
-            return saveUnsafe(Folder(folderPath))
+            return saveUnsafe(Folder(folderUri, folderName))
         }
     }
 
@@ -39,23 +39,42 @@ interface FolderDao {
      * Same as the overloaded method.
      */
     @Transaction
-    fun saveIfAbsent(folderPaths: Iterable<String>): List<Long> {
-        return folderPaths.map { folderPath -> saveIfAbsent(folderPath) }
+    fun saveIfAbsent(folderUris: Iterable<String>, folderNames: Iterable<String>): List<Long> {
+        val folderUrisItr = folderUris.iterator()
+        val folderNamesItr = folderNames.iterator()
+        val folderIds = ArrayList<Long>()
+
+        while (folderUrisItr.hasNext()) {
+            folderIds.add(saveIfAbsent(folderUrisItr.next(), folderNamesItr.next()))
+        }
+
+        return folderIds
     }
 
     /**
      * Deduplicate, then save.
      * Returns a [HashMap] that maps a folder path to its ID.
      */
-    fun dedupThenSaveIfAbsent(folderPaths: Iterable<String>): HashMap<String, Long> {
-        val folderPathSet = folderPaths.toSet()
-        val folderIds = saveIfAbsent(folderPathSet)
+    fun dedupThenSaveIfAbsent(folderUris: Iterable<String>, folderNames: Iterable<String>): Map<String, Long> {
+        val folderUrisItr = folderUris.iterator()
+        val folderNamesItr = folderNames.iterator()
+        val mapUri2Name = mutableMapOf<String, String>()
 
-        var counter = 0
-        val mapFolderPathToId = HashMap<String, Long>()
-        folderPathSet.forEach { folderPath -> mapFolderPathToId[folderPath] = folderIds[counter++] }
+        while (folderUrisItr.hasNext()) {
+            val folderUri = folderNamesItr.next()
+            val folderName = folderNamesItr.next()
 
-        return mapFolderPathToId
+            if (mapUri2Name[folderUri] == null) {
+                mapUri2Name[folderUri] = folderName
+            }
+        }
+
+        val folderIds = mapUri2Name.map { entry -> saveIfAbsent(entry.key, entry.value) }
+        var idx = 0
+        val mapUri2Id = mutableMapOf<String, Long>()
+        mapUri2Name.forEach { entry -> mapUri2Id[entry.key] = folderIds[idx++] }
+
+        return mapUri2Id
     }
 
     @Query("SELECT * FROM Folder WHERE FolderID = :folderId")

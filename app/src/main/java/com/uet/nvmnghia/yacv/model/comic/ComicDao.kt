@@ -38,7 +38,7 @@ abstract class ComicDao(private val appDb: AppDatabase) {
     open    // By default, class methods are final (not overridable)
     fun save(comic: Comic): Long {
         // Insert into tables that Comic refers to
-        comic.folderId = appDb.folderDao().saveIfAbsent(comic.tmpFolderUri)
+        comic.folderId = appDb.folderDao().saveIfAbsent(comic.tmpFolderUri, comic.tmpFolderName)
         comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries!!)
 
         // Insert into Comic
