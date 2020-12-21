@@ -309,8 +309,7 @@ class LibraryFragment : Fragment() {
         builder
             .setTitle(R.string.yacv_needs_storage)
             .setMessage(R.string.yacv_explain_storage)
-            .setPositiveButton(R.string.ok_allow) { _, _ ->
-                launchRequestReadPermission() }
+            .setPositiveButton(R.string.ok_allow) { _, _ -> launchRequestReadPermission() }
             .setNegativeButton(R.string.deny) { _, _ -> }
         builder.create().show()
     }

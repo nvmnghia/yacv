@@ -33,74 +33,56 @@ class LibraryViewModel @ViewModelInject constructor(
     private val sharedPref = application.getSharedPreferences(
         application.resources.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-    // Initialization DOES NOT call custom setter.
-    private var rootFolderUri: Uri? = null
-        set(newRootFolderUri) {
-            field = newRootFolderUri
-
-            textState.value = field.let {
-                when {
-                    it == null || it.toString().isEmpty() -> TextState.NO_ROOT_FOLDER
-                    ! FileUtils.canReadTree(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
-                    else -> {
-                        scanComics(deep = true, truncateOld = true)
-                        TextState.NO_TEXT
-                    }
-                }
-            }
-
-            // Upon initialization, the SharedPreference is written back unnecessarily.
-            with(sharedPref.edit()) {
-                putString(Constants.SHPREF_ROOT_FOLDER, field.toString())
-                apply()
-            }
-        }
-
-
     // ViewModel communicates with View by LiveData, instead of direct control
     val folders: LiveData<List<Folder>> = folderRepo.getFolders()
+
+
+    //================================================================================
+    // Text state
+    //================================================================================
+
+    enum class TextState {
+        // List displayed normally
+        NO_TEXT,
+
+        // List is not displayed, and text is
+        NO_ROOT_FOLDER, CANNOT_READ_ROOT_FOLDER, NO_READ_PERMISSION,
+        NO_READ_PERMISSION_FOREVER,    // No more asking
+        NO_COMIC,
+    }
 
     /**
      * State for the text if list comic folders is not displayed.
      */
-    val textState =                      // https://developer.android.com/topic/libraries/architecture/viewmodel#implement
+    var textState =                      // https://developer.android.com/topic/libraries/architecture/viewmodel#implement
         MediatorLiveData<TextState>()    // ViewModel shouldn't observe LiveData, instead use MediatorLiveData or transformation.
 
-
-    // Primary constructor.
-    // All init blocks will be merged as one.
     init {
-        rootFolderUri = Uri.parse(sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, ""))
+        textState.addSource(folders, this::folderListChanged)
+    }
 
-        textState.addSource(folders) {
-            if (it.isEmpty()) {
-                if (textState.value == TextState.NO_TEXT) {
-                    textState.value = TextState.NO_COMIC
-                }
-            } else {
-                if (textState.value == TextState.NO_COMIC) {
-                    textState.value = TextState.NO_TEXT
-                }
+    private fun folderListChanged(folderList: List<Folder>) {
+        if (folderList.isEmpty()) {
+            if (textState.value == TextState.NO_TEXT) {
+                textState.value = TextState.NO_COMIC
+            }
+        } else {
+            if (textState.value == TextState.NO_COMIC) {
+                textState.value = TextState.NO_TEXT
             }
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        // Destroy shit here
-    }
-
-    /**
-     * Given an URI, convert it to a native path and assign the result to [rootFolderUri].
-     * If the converted path is the same as [rootFolderUri], only do a quick rescan.
-     */
-    fun changeRootFolder(newFolderUri: Uri) {
-        if (newFolderUri == rootFolderUri) {
-            // rootFolder doesn't change, do a deep rescan then
-            rescanComics(true)
-        } else {
-            // Rescan & shit is done inside setter
-            rootFolderUri = newFolderUri
+    private fun rootFolderChanged(newRootFolderUri: Uri?) {
+        textState.value = newRootFolderUri.let {
+            when {
+                it == null -> TextState.NO_ROOT_FOLDER
+                ! FileUtils.canReadTree(getApplication(), it) -> TextState.CANNOT_READ_ROOT_FOLDER
+                else -> {
+                    scanComics(deep = true, truncateOld = true)
+                    TextState.NO_TEXT
+                }
+            }
         }
     }
 
@@ -127,6 +109,50 @@ class LibraryViewModel @ViewModelInject constructor(
         textState.value = TextState.NO_READ_PERMISSION_FOREVER
     }
 
+
+    //================================================================================
+    // Root folder state
+    //================================================================================
+
+    // Initialization DOES NOT call custom setter.
+    private var rootFolderUri: Uri? = null
+        set(newRootFolderUri) {
+            field = newRootFolderUri
+
+            rootFolderChanged(newRootFolderUri)
+
+            // Upon initialization, the SharedPreference is written back unnecessarily.
+            with(sharedPref.edit()) {
+                putString(Constants.SHPREF_ROOT_FOLDER, field.toString())
+                apply()
+            }
+        }
+
+    init {
+        // https://medium.com/keepsafe-engineering/an-in-depth-look-at-kotlins-initializers-a0420fcbf546
+        // rootFolderUri must be set after textState initialization, as inside its setter, textState is used.
+        rootFolderUri = sharedPref.getString(Constants.SHPREF_ROOT_FOLDER, null)?.let { Uri.parse(it) }
+    }
+
+    /**
+     * Given an URI, convert it to a native path and assign the result to [rootFolderUri].
+     * If the converted path is the same as [rootFolderUri], only do a quick rescan.
+     */
+    fun changeRootFolder(newFolderUri: Uri) {
+        if (newFolderUri == rootFolderUri) {
+            // rootFolder doesn't change, do a deep rescan then
+            rescanComics(true)
+        } else {
+            // Rescan & shit is done inside setter
+            rootFolderUri = newFolderUri
+        }
+    }
+
+
+    //================================================================================
+    // Other functions
+    //================================================================================
+
     /**
      * A wrapper for ComicRepository's scanComics().
      */
@@ -147,13 +173,8 @@ class LibraryViewModel @ViewModelInject constructor(
         scanComics(deep, truncateOld = false)
     }
 
-    enum class TextState {
-        // List displayed normally
-        NO_TEXT,
-
-        // List is not displayed, and text is
-        NO_ROOT_FOLDER, CANNOT_READ_ROOT_FOLDER, NO_READ_PERMISSION,
-        NO_READ_PERMISSION_FOREVER,    // No more asking
-        NO_COMIC,
+    override fun onCleared() {
+        super.onCleared()
+        // Destroy shit here
     }
 }
