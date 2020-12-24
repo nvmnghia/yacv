@@ -1,7 +1,6 @@
 package com.uet.nvmnghia.yacv.ui.library
 
 import android.content.res.Resources
-import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -15,34 +14,36 @@ import com.uet.nvmnghia.yacv.R
  */
 class HandleNoListTextView {
     companion object {
-        fun noRootFolder(res: Resources, clickCallback: () -> Any): SpannableString {
+        var SPAN_TEXT_COLOR: Int? = null
+
+        fun noRoot(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
-                res.getString(R.string.no_root_folder_selected),
-                res.getString(R.string.no_root_folder_selected_spannable_part),
+                res.getString(R.string.no_root),
+                res.getString(R.string.no_root_span_part),
                 clickCallback
             )
         }
 
-        fun cannotReadRootFolder(res: Resources, clickCallback: () -> Any): SpannableString {
+        fun haveRootNoPermission(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
-                res.getString(R.string.cannot_read_root_folder),
-                res.getString(R.string.cannot_read_root_folder_spannable_part),
+                res.getString(R.string.have_root_no_permission),
+                res.getString(R.string.have_root_no_permission_span_part),
                 clickCallback
             )
         }
 
-        fun noReadPermission(res: Resources, clickCallback: () -> Any): SpannableString {
+        fun haveRootNotExist(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
-                res.getString(R.string.no_read_permission),
-                res.getString(R.string.no_read_permission_spannable_part),
+                res.getString(R.string.have_root_not_exist),
+                res.getString(R.string.have_root_not_exist_span_part),
                 clickCallback
             )
         }
 
-        fun noReadPermissionTwice(res: Resources, clickCallback: () -> Any): SpannableString {
+        fun noReadPermissionForever(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
-                res.getString(R.string.no_read_permission_twice),
-                res.getString(R.string.no_read_permission_twice_spannable_part),
+                res.getString(R.string.no_read_permission_forever),
+                res.getString(R.string.no_read_permission_forever_span_part),
                 clickCallback
             )
         }
@@ -50,7 +51,7 @@ class HandleNoListTextView {
         fun noComic(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
                 res.getString(R.string.no_comic),
-                res.getString(R.string.no_comic_spannable_part),
+                res.getString(R.string.no_comic_span_part),
                 clickCallback
             )
         }
@@ -72,7 +73,7 @@ class HandleNoListTextView {
 
                 override fun updateDrawState(ds: TextPaint) {
                     super.updateDrawState(ds)
-                    ds.color = Color.BLUE
+                    ds.color = SPAN_TEXT_COLOR!!
                     ds.isUnderlineText = true
                 }
             }
@@ -84,5 +85,6 @@ class HandleNoListTextView {
 
             return spannableContent
         }
+
     }
 }
