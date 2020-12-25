@@ -49,6 +49,9 @@ class ComicRepository
         } else {
             deep
         }
+        if (!_deep) {
+            return
+        }
 
         // Run in background
         CoroutineScope(Dispatchers.IO).launch {
