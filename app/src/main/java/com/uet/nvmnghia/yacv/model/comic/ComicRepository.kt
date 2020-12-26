@@ -5,10 +5,8 @@ import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.parser.ComicScanner
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,6 +25,8 @@ class ComicRepository
     private val appDb: AppDatabase,
     private val comicScanner: ComicScanner,
 ) {
+    private var currentScanningJob: Job? = null
+
     /**
      * Get comics from DB.
      * This method DOES NOT rescan.
@@ -49,17 +49,22 @@ class ComicRepository
         } else {
             deep
         }
-        if (!_deep) {
-            return
+
+        runBlocking {
+            currentScanningJob?.apply { cancelAndJoin() }
         }
 
         // Run in background
-        CoroutineScope(Dispatchers.IO).launch {
+        currentScanningJob = CoroutineScope(Dispatchers.IO).launch {
             if (truncateOld) {
                 appDb.resetDb()
             }
 
-            comicScanner.scan(rootFolder).collect { documents ->
+            if (!_deep) {
+                return@launch
+            }
+
+            comicScanner.scan(rootFolder, this).collect { documents ->
                 val comics = documents
                     .filterNotNull()
                     .mapNotNull { document ->

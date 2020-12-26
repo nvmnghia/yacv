@@ -16,6 +16,8 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 import com.uet.nvmnghia.yacv.utils.Constants
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 
 
 /**
@@ -48,6 +50,7 @@ class LibraryViewModel @ViewModelInject constructor(
                     apply()
                 }
             }
+
             rootFolderSelected = uri != null
         }
 
@@ -176,6 +179,8 @@ class LibraryViewModel @ViewModelInject constructor(
     //================================================================================
     // Other functions
     //================================================================================
+
+    private var currentScanningJob: Job? = null
 
     /**
      * A wrapper for ComicRepository's scanComics().
