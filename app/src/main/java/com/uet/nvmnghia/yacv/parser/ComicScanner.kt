@@ -1,7 +1,6 @@
 package com.uet.nvmnghia.yacv.parser
 
 import android.content.Context
-import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.helper.walkTopDown
@@ -21,18 +20,12 @@ class ComicScanner @Inject constructor(val context: Context) {
             return FileUtils.getExtension(document) in COMPRESSION_FORMATS &&
                     !FileUtils.naiveIsHidden(document.uri.toString())
         }
-
-        private val TEST_ROOT_FOLDER_URI = Uri.parse(
-            "content://com.android.externalstorage.documents/tree/home%3A")
     }
 
     /**
-     * Given a [Uri] pointing to a folder, scan for comics inside it.
-     * If nothing is given, use TEST_COMIC_URI.
-     *
-     * @param uri URI to scan for comic
+     * Given a [DocumentFile] of a folder, scan for comics inside it.
      */
-    fun scan(uri: Uri = TEST_ROOT_FOLDER_URI): Flow<Array<DocumentFile?>> {
+    fun scan(rootFolder: DocumentFile): Flow<Array<DocumentFile?>> {
         return flow {
             // Emit in chunk of BUFFER_SIZE Comics
             val BUFFER_SIZE = 10
@@ -44,7 +37,7 @@ class ComicScanner @Inject constructor(val context: Context) {
             var counter = 0
             var emitImmediate = true
 
-            DocumentFile.fromTreeUri(context, uri)?.walkTopDown()?.forEach { document ->
+            rootFolder.walkTopDown().forEach { document ->
                 if (isComic(document)) {
                     if (emitImmediate) {
                         if (counter < IMMEDIATE_LIMIT) {

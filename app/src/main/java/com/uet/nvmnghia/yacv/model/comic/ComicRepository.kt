@@ -59,7 +59,7 @@ class ComicRepository
                 appDb.resetDb()
             }
 
-            comicScanner.scan().collect { documents ->
+            comicScanner.scan(rootFolder).collect { documents ->
                 val comics = documents
                     .filterNotNull()
                     .mapNotNull { document ->
