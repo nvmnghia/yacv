@@ -1,10 +1,7 @@
 package com.uet.nvmnghia.yacv.model.comic
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.author.Role
 
@@ -36,7 +33,12 @@ abstract class ComicDao(private val appDb: AppDatabase) {
      */
     @Transaction
     open    // By default, class methods are final (not overridable)
-    fun save(comic: Comic): Long {
+    fun saveIfAbsent(comic: Comic): Long {
+        val ids = getExistingId(comic.fileUri)
+        if (ids.isNotEmpty()) {
+            return ids[0]
+        }
+
         // Insert into tables that Comic refers to
         comic.folderId = appDb.folderDao().saveIfAbsent(comic.tmpFolderUri, comic.tmpFolderName)
         comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries!!)
@@ -55,12 +57,12 @@ abstract class ComicDao(private val appDb: AppDatabase) {
             appDb.comicGenreJoinDao().save(comicId, genreIds)
         }
 
-        // Note: the order of item between 2 lists must be consistent
-        val authors   = listOf(comic.tmpWriter, comic.tmpEditor, comic.tmpPenciller,
+        // Note: the order of items between 2 lists must be consistent
+        val authors = listOf(comic.tmpWriter, comic.tmpEditor, comic.tmpPenciller,
             comic.tmpInker, comic.tmpColorist, comic.tmpLetterer, comic.tmpCoverArtist)
-        val positions = listOf(Role.Writer, Role.Editor, Role.Penciller,
+        val roles   = listOf(Role.Writer, Role.Editor, Role.Penciller,
             Role.Inker, Role.Colorist, Role.Letterer, Role.CoverArtist)
-        authors.zip(positions) { authorGroup, position ->
+        authors.zip(roles) { authorGroup, position ->
             authorGroup?. let {
                 val authorIds = appDb.authorDao().saveIfAbsent(authorGroup.split(LIST_SEPARATOR))
                 authorIds.forEach { authorId ->
@@ -76,9 +78,9 @@ abstract class ComicDao(private val appDb: AppDatabase) {
      * Internally, this method deduplicates before inserting.
      */
     @Transaction
-    open fun save(comics: List<Comic>): List<Long> {
+    open fun saveIfAbsent(comics: List<Comic>): List<Long> {
         // Normal implementation: use existing save()
-        return comics.map { comic -> save(comic) }
+        return comics.map { comic -> saveIfAbsent(comic) }
 
         // WIP: Deduplicate, if a future me think it's worth
 //        val mapParentFolderToId = appDatabase.folderDao().dedupThenSaveIfNotExist(
@@ -102,10 +104,17 @@ abstract class ComicDao(private val appDb: AppDatabase) {
 
     // Room is smart: only queries if there's observer
     @Query("SELECT * FROM Comic WHERE ComicID = :comicId")
-    abstract fun get(comicId: String): LiveData<Comic>
+    abstract fun get(comicId: Long): LiveData<Comic>
 
     @Query("SELECT * FROM Comic")
     abstract fun getAll(): LiveData<List<Comic>>
+
+    @Query("SELECT ComicID FROM Comic WHERE FileUri = :fileUri")
+    abstract fun getExistingId(fileUri: String): List<Long>
+
+    fun existing(fileUri: String): Boolean {
+        return getExistingId(fileUri).isEmpty()
+    }
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId")
     abstract fun getComicsInFolder(folderId: Int): LiveData<List<Comic>>

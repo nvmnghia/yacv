@@ -69,7 +69,7 @@ class ComicRepository
                     .filterNotNull()
                     .mapNotNull { document ->
                         ComicParserFactory.create(comicScanner.context, document)?.info }
-                comicDao.save(comics)
+                comicDao.saveIfAbsent(comics)
             }
         }
     }

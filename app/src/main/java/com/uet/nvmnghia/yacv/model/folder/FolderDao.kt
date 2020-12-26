@@ -83,10 +83,8 @@ interface FolderDao {
     @Query("SELECT * FROM Folder")
     fun getAll(): LiveData<List<Folder>>
 
-    /**
-     * SELECT in this case does not seem to take advantage of UNIQUE constraint
-     * and returns a normal list of results.
-     */
+    // SELECT in this case does not seem to take advantage of UNIQUE constraint
+    // and returns a normal list of results.
     @Query("SELECT FolderID FROM Folder WHERE FolderUri = :folderUri LIMIT 1")
     fun getExistingId(folderUri: String): List<Long>
 
