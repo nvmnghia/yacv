@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- Use the following foreground & clickable attributes for ripple effect -->
-<!-- Focusable is for keyboard navigation, and should go hand in hand with clickable-->
+<!-- TODO: This layout differs from library_item_folder
+      only in thw WxH ratio (layout_constraintDimensionRatio)
+      so try to make one layout and somehow inherit from it. -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -10,44 +11,30 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground">
 
-    <!-- Maybe a LinearLayout with custom ImageView that override -->
-    <!-- onMeasure (like bubble's implementation) is better, but -->
-    <!-- for now, just stick with ConstraintLayout -->
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:orientation="vertical">-->
-
-    <!--        <ImageView-->
-    <!--            android:layout_width=""-->
-    <!--            android:layout_height=""-->
-    <!--    </LinearLayout>-->
-
-    <!-- GridAdapter will decide the width of the item, so just set it to match_parent -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- No constraint for bottom, as it overrides layout_constraintDimensionRatio -->
         <ImageView
-            android:id="@+id/library_item_folder_cover"
+            android:id="@+id/browse_folder_item_comic_cover"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="@string/cover_image_placeholder"
-            app:layout_constraintDimensionRatio="H,16:9"
+            app:layout_constraintDimensionRatio="H,663:1024"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/library_item_folder_name"
+            android:id="@+id/browse_folder_item_comic_name"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:padding="10dp"
             android:singleLine="true"
             android:text="shitty placeholder"
-            android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@id/library_item_folder_cover" />
+            android:textSize="18dp"
+            app:layout_constraintTop_toBottomOf="@id/browse_folder_item_comic_cover" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>

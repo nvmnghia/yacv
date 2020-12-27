@@ -2,7 +2,10 @@ package com.uet.nvmnghia.yacv.utils
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.Rect
 import android.util.TypedValue
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
 
 
@@ -23,6 +26,22 @@ class ThemeUtils {
             val color = ta.getColor(0, 0)
             ta.recycle()
             return color
+        }
+
+        /**
+         * Given the [spacing] value in pixel, returns a [RecyclerView.ItemDecoration]
+         * that has right and bottom spacing both set to [spacing].
+         */
+        fun getRightBottomSpacer(spacing: Int): RecyclerView.ItemDecoration {
+            return object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect, view: View,
+                    parent: RecyclerView, state: RecyclerView.State
+                ) {
+                    outRect.right  = spacing
+                    outRect.bottom = spacing
+                }
+            }
         }
     }
 }

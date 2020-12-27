@@ -4,14 +4,12 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -32,6 +30,7 @@ import com.uet.nvmnghia.yacv.utils.DeviceUtil
 import com.uet.nvmnghia.yacv.utils.ThemeUtils
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 
 @AndroidEntryPoint
@@ -63,7 +62,7 @@ class LibraryFragment : Fragment() {
      * Number of column for [listComicFolders],
      * set to [calculateNumberOfColumns]'s returned value.
      */
-    private var NUM_COL: Int? = null
+    private var NUM_COL by Delegates.notNull<Int>()
 
     /**
      * [TextView] displayed when [listComicFolders] is empty,
@@ -209,30 +208,18 @@ class LibraryFragment : Fragment() {
     //================================================================================
 
     /**
-     * Setup [RecyclerView] for list comic folders
+     * Setup [listComicFolders].
      */
     private fun setupListComicFolders(view: View) {
         // General setup
         listComicFolders = view.findViewById(R.id.library_list_folders)
         listComicFolders.adapter = folderAdapter
-        listComicFolders.layoutManager = GridLayoutManager(activity, NUM_COL!!)
+        listComicFolders.layoutManager = GridLayoutManager(activity, NUM_COL)
         listComicFolders.setHasFixedSize(true)
 
         // Spacing
-        val SPACING = resources.getDimension(R.dimen.library_item_folder_spacing).toInt()
-        val spacer = object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect, view: View,
-                parent: RecyclerView, state: RecyclerView.State,
-            ) {
-                // Trick:
-                // - in library_list_folders, pad left and top only
-                // - in this spacing code, add right and bottom spacing only
-                outRect.right  = SPACING
-                outRect.bottom = SPACING
-            }
-        }
-        listComicFolders.addItemDecoration(spacer)
+        val spacing = resources.getDimension(R.dimen.library_item_folder_spacing).toInt()
+        listComicFolders.addItemDecoration(ThemeUtils.getRightBottomSpacer(spacing))
 
         // Click listener
         val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
@@ -250,6 +237,9 @@ class LibraryFragment : Fragment() {
         noListTextView.movementMethod = LinkMovementMethod.getInstance()    // TODO: For clickable span?
     }
 
+    /**
+     * Callback when a folder is clicked.
+     */
     private fun onItemClick(position: Int) {
         val folderUri = folderAdapter.currentList[position].uri
         val action = LibraryFragmentDirections.actionNavFragmentLibraryToListComicFragment(folderUri)
@@ -257,7 +247,7 @@ class LibraryFragment : Fragment() {
     }
 
     /**
-     * Calculate number of column in the [RecyclerView].
+     * Calculate number of columns of [listComicFolders].
      */
     private fun calculateNumberOfColumns(): Int {
         val screenWidth: Int = DeviceUtil.getScreenWidthInPx(requireContext())
@@ -323,7 +313,7 @@ class LibraryFragment : Fragment() {
     /**
      * Callback to handle READ_EXTERNAL_STORAGE request result.
      * If [granted] is set, launch a folder picker.
-     * Otherwise, check if Never ask again is tick. If so, call [viewModel].
+     * Otherwise, check if Never ask again is ticked. If so, call [viewModel].
      */
     private fun handleRequestReadPermissionResult(granted: Boolean) {
         viewModel.readPermissionGranted = granted

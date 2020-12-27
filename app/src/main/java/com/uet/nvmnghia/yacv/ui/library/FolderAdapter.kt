@@ -1,7 +1,6 @@
 package com.uet.nvmnghia.yacv.ui.library
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
-import com.uet.nvmnghia.yacv.utils.FileUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,19 +49,20 @@ class FolderAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val folder = getItem(position)
+
         holder.folderName.text = folder.name
 
         CoroutineScope(Dispatchers.IO).launch {
+            // TODO: try to make this in a single call
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
 
             // TODO: #6: Handle missing file!
-            val parser = ComicParserFactory.create(context, firstComic.fileUri)!!
-
-            withContext(Dispatchers.Main) {
-                glide.load(parser.requestCover())
-                    .transform(TopCrop())
-                    .into(holder.folderCover)
-                parser.close()
+            ComicParserFactory.create(context, firstComic.fileUri)!!.use {parser ->
+                withContext(Dispatchers.Main) {
+                    glide.load(parser.requestCover())
+                        .transform(TopCrop())
+                        .into(holder.folderCover)
+                }
             }
         }
     }
