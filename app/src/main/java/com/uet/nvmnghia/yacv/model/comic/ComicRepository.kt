@@ -36,6 +36,13 @@ class ComicRepository
     }
 
     /**
+     * Given the folder URI, returns the comics inside that folders.
+     */
+    fun getComicsInFolder(folderUri: String): LiveData<List<Comic>> {
+        return comicDao.getComicsInFolder(folderUri)
+    }
+
+    /**
      * Scan the given folder for comics.
      * When [truncateOld] is set, [deep] is also set.
      *

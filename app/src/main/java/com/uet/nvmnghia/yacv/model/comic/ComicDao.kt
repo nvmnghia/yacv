@@ -116,8 +116,8 @@ abstract class ComicDao(private val appDb: AppDatabase) {
         return getExistingId(fileUri).isEmpty()
     }
 
-    @Query("SELECT * FROM Comic WHERE FolderID = :folderId")
-    abstract fun getComicsInFolder(folderId: Int): LiveData<List<Comic>>
+    @Query("SELECT Comic.* FROM Comic INNER JOIN Folder ON Comic.FolderID = Folder.FolderID WHERE FolderUri = :folderUri")
+    abstract fun getComicsInFolder(folderUri: String): LiveData<List<Comic>>
 
     @Query("SELECT * FROM Comic WHERE FolderID = :folderId LIMIT 1")
     abstract fun getFirstComicInFolder(folderId: Long): Comic
