@@ -8,7 +8,4 @@ import dagger.hilt.android.HiltAndroidApp
 // https://developer.android.com/training/dependency-injection/hilt-android#application-class
 @HiltAndroidApp
 class MainApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-    }
 }

@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -236,9 +237,7 @@ class LibraryFragment : Fragment() {
         // Click listener
         val clickListener = object : RecyclerItemClickListener.OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                Toast.makeText(requireContext(),
-                    "Clicked at ${folderAdapter.currentList[position].uri}",
-                    Toast.LENGTH_SHORT).show()
+                onItemClick(position)
             }
 
             override fun onLongItemClick(view: View?, position: Int) {}
@@ -249,6 +248,12 @@ class LibraryFragment : Fragment() {
         // Text displayed if empty list
         noListTextView = view.findViewById(R.id.library_no_list_info)
         noListTextView.movementMethod = LinkMovementMethod.getInstance()    // TODO: For clickable span?
+    }
+
+    private fun onItemClick(position: Int) {
+        val folderUri = folderAdapter.currentList[position].uri
+        val action = LibraryFragmentDirections.actionNavFragmentLibraryToListComicFragment(folderUri)
+        findNavController().navigate(action)
     }
 
     /**
@@ -307,7 +312,6 @@ class LibraryFragment : Fragment() {
             .setNegativeButton(R.string.deny) { _, _ -> }
         builder.create().show()
     }
-
 
     /**
      * Ask for READ_EXTERNAL_STORAGE permission.
