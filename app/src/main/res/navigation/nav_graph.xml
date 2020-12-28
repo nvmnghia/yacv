@@ -30,5 +30,16 @@
         android:label="ListComicFragment" >
         <argument android:name="folderUri"
             app:argType="string" />
+        <action
+            android:id="@+id/action_nav_fragment_browse_folder_to_readerFragment"
+            app:destination="@id/nav_fragment_reader" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fragment_reader"
+        android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment"
+        android:label="ReaderFragment" >
+        <argument
+            android:name="fileUri"
+            app:argType="string" />
     </fragment>
 </navigation>

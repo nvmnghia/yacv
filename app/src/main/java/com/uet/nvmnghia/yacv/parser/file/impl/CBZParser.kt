@@ -42,14 +42,10 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
     // Read mode
     //================================================================================
 
-    /**
-     * Path to a copy of the archive in app-specific storage.
-     * Only available in Read mode.
-     *
-     * TODO: Take advantage of Glide caching to avoid copy the whole archive
-     *  as images itself are already compressed.
-     */
-    private var filePath: String? = null
+    // TODO: Take advantage of Glide caching to avoid copy the whole archive
+    //  as images itself are already compressed.
+    override var cachedFile: File? = null
+        get() = super.cachedFile
         set(value) {
             if (value != null) {
                 field = value
@@ -57,7 +53,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
 
                 // TODO: make this lazy
                 try {
-                    zipFile = ZipFile(filePath)
+                    zipFile = ZipFile(field)
                 } catch (ioe: IOException) {
                     isCorrupted = true
                 }
@@ -109,6 +105,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
     //================================================================================
 
     override fun getPageInputStream(pageIdx: Int): InputStream {
+        copyToAppSpecific()
         return zipFile!!.getInputStream(pages!![pageIdx])
     }
 
@@ -127,20 +124,22 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
             var coverEntry: ZipEntry? = null
 
             // Find the cover entry
-            ZipInputStream(getInputStream()).use {
-                while (true) {
-                    val currentEntry = it.nextEntry ?: break
+            getInputStream().use { documentIS ->
+                ZipInputStream(documentIS).use { zipIS ->
+                    while (true) {
+                        val currentEntry = zipIS.nextEntry ?: break
 
-                    if (!FileUtils.isImage(currentEntry.name) || FileUtils.naiveIsHidden(currentEntry.name)) {
-                        continue
-                    }
+                        if (!FileUtils.isImage(currentEntry.name) || FileUtils.naiveIsHidden(currentEntry.name)) {
+                            continue
+                        }
 
-                    if (
-                        coverEntry == null ||
-                        NaturalOrderComparator.STRING_COMPARATOR.compareString(
-                            coverEntry!!.name, currentEntry.name) < 1
-                    ) {
-                        coverEntry = currentEntry
+                        if (
+                            coverEntry == null ||
+                            NaturalOrderComparator.STRING_COMPARATOR.compareString(
+                                coverEntry!!.name, currentEntry.name) < 1
+                        ) {
+                            coverEntry = currentEntry
+                        }
                     }
                 }
             }
@@ -173,6 +172,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
     }
 
     override fun lazyGetNumOfPages(): Int {
+        copyToAppSpecific()
         return pages!!.size
     }
 
@@ -233,7 +233,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
         return comic
     }
 
-    override fun close() {
+    override fun cleanup() {
         if (MODE == Mode.READ) {
             zipFile!!.close()
         }

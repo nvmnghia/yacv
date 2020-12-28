@@ -10,12 +10,17 @@ class IOUtils {
 
     companion object {
         /**
-         * Read all [input] and write to [output].
-         * Default [bufferSize] is 100KB, as the app mostly deals with images.
+         * Default buffer size for copying images: 100KB.
          */
-        fun copy(input: InputStream, output: OutputStream, bufferSize: Int = 100 * (1 shl 20)): Boolean {
+        const val DEFAULT_BUFFER_SIZE = 200 * (1 shl 10)
+
+        /**
+         * Read all [input] and write to [output].
+         * Default [bufferSize] is [DEFAULT_BUFFER_SIZE], as the app mostly deals with images.
+         */
+        fun copy(input: InputStream, output: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): Boolean {
             val _bufferSize = if (bufferSize <= 0) {
-                100 * (1 shl 20)
+                DEFAULT_BUFFER_SIZE
             } else {
                 bufferSize
             }

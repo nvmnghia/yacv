@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -94,11 +95,12 @@ class ListComicFragment: Fragment() {
 
     /**
      * Callback when a comic is clicked.
+     * Currently only moves to [ReaderFragment].
      */
     private fun onItemClick(position: Int) {
-        Toast.makeText(requireContext(),
-            "Clicked at $comicAdapter.currentList[position].fileUri",
-            Toast.LENGTH_SHORT).show()
+        val fileUri = comicAdapter.currentList[position].fileUri
+        val action = ListComicFragmentDirections.actionNavFragmentBrowseFolderToReaderFragment(fileUri)
+        findNavController().navigate(action)
     }
 
     /**

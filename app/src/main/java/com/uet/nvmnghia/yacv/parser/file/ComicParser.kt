@@ -3,7 +3,9 @@ package com.uet.nvmnghia.yacv.parser.file
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.utils.IOUtils
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 
 
@@ -21,6 +23,11 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
     // Example URI
     // content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Download/...
 
+    /**
+     * Path to a copy of the archive in app-specific storage.
+     */
+    protected open var cachedFile: File? = null
+
     val numOfPages: Int by lazy {
         lazyGetNumOfPages()
     }
@@ -36,7 +43,7 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
         parseInfo()
     }
 
-    fun  requestCover(): PageRequest {
+    fun requestCover(): PageRequest {
         return PageRequest(context, document, PageRequest.COVER)
     }
 
@@ -131,11 +138,58 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
     }
 
     /**
-     * Copy to app-specific storage.
+     * Copy to app-specific storage, if needed.
+     * Return true if the file is ready (copied successfully, or already exists).
+     * TODO: Avoid running on main thread here.
      */
-    private fun copyToAppSpecific(): File {
-        TODO("Not fucking implemented")
+    protected fun copyToAppSpecific(): Boolean {
+        if (cachedFile == null) {
+            val temp = File(context.getExternalFilesDir(null),
+                document.name!!)    // TODO: avoid another IPC hop, and is name enough?
+            temp.createNewFile()
+
+            val result = getInputStream()?.use { documentIS ->
+                FileOutputStream(temp).use { cachedFIS ->
+                    IOUtils.copy(documentIS, cachedFIS,
+                        10 * (1 shl 20))    // 10MB
+                }
+            }
+
+            // cachedFile has a sensitive custom setter
+            // The file is required to be ready first
+            cachedFile = temp
+
+            return result == true
+        }
+
+        if (!cachedFile!!.exists()) {
+            getInputStream()?.use { documentIS ->
+                FileOutputStream(cachedFile).use { cachedFIS ->
+                    return IOUtils.copy(documentIS, cachedFIS,
+                        10 * (1 shl 20))    // 10MB
+                }
+            }
+        }
+
+        return true
     }
+
+    /**
+     * Cleanup cached file.
+     * Child class must override [cleanup] to do its own cleanup.
+     */
+    override fun close() {
+        cleanup()
+
+        if (cachedFile != null) {
+            cachedFile!!.delete()
+        }
+    }
+
+    /**
+     * Cleanup whatever is left by the child class.
+     */
+    protected abstract fun cleanup()
 
 
     /**
