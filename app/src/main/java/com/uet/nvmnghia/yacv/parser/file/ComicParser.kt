@@ -110,16 +110,7 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
      *
      * @return [ComicFileType] of the comic.
      */
-    abstract fun getTypeEnum(): ComicFileType
-
-    /**
-     * Get the file type of the comic.
-     *
-     * @return File type of the comic, in lowercase string
-     */
-    fun getType(): String {
-        return getTypeEnum().extension
-    }
+    abstract fun getType(): ComicFileType
 
     /**
      * Get comic info.
@@ -175,6 +166,11 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
     }
 
     /**
+     * Cleanup whatever is left by the child class.
+     */
+    protected abstract fun cleanup()
+
+    /**
      * Cleanup cached file.
      * Child class must override [cleanup] to do its own cleanup.
      */
@@ -187,9 +183,11 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
     }
 
     /**
-     * Cleanup whatever is left by the child class.
+     * In case stupid me forget to [close].
      */
-    protected abstract fun cleanup()
+    private fun finalize() {
+        close()
+    }
 
 
     /**

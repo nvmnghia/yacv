@@ -13,7 +13,7 @@ import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import dagger.hilt.android.AndroidEntryPoint
 
-
+// 0903429148
 @AndroidEntryPoint
 class ReaderFragment : Fragment() {
 
@@ -27,8 +27,7 @@ class ReaderFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         fileUri = Uri.parse(requireArguments().getString("fileUri"))
-        parser = ComicParserFactory.create(requireContext(),
-            DocumentFile.fromSingleUri(requireContext(), fileUri))!!
+        parser = ComicParserFactory.create(requireContext(), fileUri)!!
 
         comicPageAdapter = ComicPageAdapter(this, parser)
     }
@@ -46,10 +45,4 @@ class ReaderFragment : Fragment() {
         return view
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // TODO: Somehow tie parser.close() to onDestroy() instead of manual calling
-        parser.close()
-    }
 }

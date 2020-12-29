@@ -26,7 +26,11 @@ class ComicParserFactory {
         }
 
         fun create(context: Context, uri: String): ComicParser? {
-            return create(context, DocumentFile.fromSingleUri(context, Uri.parse(uri)))
+            return create(context, Uri.parse(uri))
+        }
+
+        fun create(context: Context, uri: Uri): ComicParser? {
+            return create(context, DocumentFile.fromSingleUri(context, uri))
         }
     }
 

@@ -176,7 +176,7 @@ class CBZParser(context: Context, document: DocumentFile) : ComicParser(context,
         return pages!!.size
     }
 
-    override fun getTypeEnum(): ComicFileType {
+    override fun getType(): ComicFileType {
         return ComicFileType.CBZ
     }
 
