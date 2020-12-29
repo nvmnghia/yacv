@@ -13,7 +13,7 @@ class ComicPageAdapter(fragment: Fragment,
     }
 
     override fun createFragment(position: Int): Fragment {
-        return ComicPageViewerFragment(parser, position)
+        return ComicPageViewerFragment.newInstance(parser.document.uri.toString(), position)
     }
 
 }

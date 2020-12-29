@@ -18,7 +18,10 @@ import java.io.InputStream
  * In short, it does not return a [Comic], and all read/write
  * are operated on the parser instance returned.
  */
-abstract class ComicParser(private val context: Context, val document: DocumentFile) : AutoCloseable {
+abstract class ComicParser(
+    private val context: Context,
+    val document: DocumentFile
+) : AutoCloseable {
 
     // Example URI
     // content://com.android.providers.downloads.documents/tree/raw:/storage/emulated/0/Download/...
@@ -177,9 +180,9 @@ abstract class ComicParser(private val context: Context, val document: DocumentF
     override fun close() {
         cleanup()
 
-        if (cachedFile != null) {
-            cachedFile!!.delete()
-        }
+//        if (cachedFile != null) {
+//            cachedFile!!.delete()
+//        }
     }
 
     /**
