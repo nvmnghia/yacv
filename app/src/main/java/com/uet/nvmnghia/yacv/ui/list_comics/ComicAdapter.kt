@@ -13,7 +13,7 @@ import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.Comic
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,12 +51,11 @@ class ComicAdapter(
         holder.comicName.text = FileUtils.folderNameFromPathUri(comic.fileUri)
 
         CoroutineScope(Dispatchers.IO).launch {
-            ComicParserFactory.create(context, comic.fileUri)!!.use {parser ->
-                withContext(Dispatchers.Main) {
-                    glide.load(parser.requestCover())
-                        .transform(TopCrop())
-                        .into(holder.comicCover)
-                }
+            val parser = ComicParser(context, comic.fileUri)
+            withContext(Dispatchers.Main) {
+                glide.load(parser.requestPage(0))
+                    .transform(TopCrop())
+                    .into(holder.comicCover)
             }
         }
     }

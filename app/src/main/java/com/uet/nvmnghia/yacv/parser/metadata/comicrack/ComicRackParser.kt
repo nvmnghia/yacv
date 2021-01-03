@@ -19,7 +19,7 @@ import java.util.*
  * is stored in `ComicInfo.xsd`
  */
 class ComicRackParser: INonGenericMetadataParser {
-    override fun checkParsableByName(metadataFilename: String?, lowered: Boolean): Boolean {
+    override fun isParsableByName(metadataFilename: String?, lowered: Boolean): Boolean {
         if (metadataFilename == null) {
             return false
         }

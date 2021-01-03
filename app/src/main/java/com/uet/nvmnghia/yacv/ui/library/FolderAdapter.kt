@@ -14,7 +14,7 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,12 +57,11 @@ class FolderAdapter(
             val firstComic = comicDao.getFirstComicInFolder(folder.id)
 
             // TODO: #6: Handle missing file!
-            ComicParserFactory.create(context, firstComic.fileUri)!!.use {parser ->
-                withContext(Dispatchers.Main) {
-                    glide.load(parser.requestCover())
-                        .transform(TopCrop())
-                        .into(holder.folderCover)
-                }
+            val parser = ComicParser(context, firstComic.fileUri)
+            withContext(Dispatchers.Main) {
+                glide.load(parser.requestPage(0))
+                    .transform(TopCrop())
+                    .into(holder.folderCover)
             }
         }
     }

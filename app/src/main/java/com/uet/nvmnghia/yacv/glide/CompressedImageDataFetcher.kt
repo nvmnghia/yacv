@@ -4,7 +4,6 @@ import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import java.io.InputStream
 
 
@@ -18,13 +17,11 @@ class CompressedImageDataFetcher(
     private lateinit var parser: ComicParser
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
-        parser = ComicParserFactory.create(pageRequest.context, pageRequest.document)!!    // TODO: Fix #6
-        callback.onDataReady(parser.readPage(pageRequest.pageIdx))
+        parser = ComicParser(pageRequest.context, pageRequest.document)    // TODO: Fix #6
+        callback.onDataReady(parser.readPage(pageRequest.pageName))
     }
 
-    override fun cleanup() {
-        parser.close()
-    }
+    override fun cleanup() {}
 
     override fun cancel() {
         // Load to death!

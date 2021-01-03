@@ -34,6 +34,19 @@ class FileUtils {
         }
 
         /**
+         * Get [Uri] extension, if exist, in lowercase.
+         */
+        fun getExtension(uri: Uri): String? {
+            val extension = uri.schemeSpecificPart
+                .substringAfterLast('.', "")
+            return if (extension.isEmpty()) {
+                null
+            } else {
+                extension.toLowerCase(Locale.ROOT)
+            }
+        }
+
+        /**
          * Check if the given Uri exist.
          */
         fun isTreeExist(context: Context, uri: Uri): Boolean {
@@ -54,8 +67,8 @@ class FileUtils {
             return filePath
                 .split('/')
                 .firstOrNull { segment ->
-                    segment.startsWith('.') &&
-                            !(segment == "." || segment == "..")
+                    segment == "__MACOSX" ||
+                    (segment.startsWith('.') && !(segment == "." || segment == ".."))
                 } != null
         }
 

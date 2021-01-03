@@ -5,12 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import dagger.hilt.android.AndroidEntryPoint
 
 // 0903429148
@@ -27,7 +25,7 @@ class ReaderFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         fileUri = Uri.parse(requireArguments().getString("fileUri"))
-        parser = ComicParserFactory.create(requireContext(), fileUri)!!
+        parser = ComicParser(requireContext(), fileUri)
 
         comicPageAdapter = ComicPageAdapter(this, parser)
     }
