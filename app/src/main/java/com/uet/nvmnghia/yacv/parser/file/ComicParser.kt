@@ -82,6 +82,13 @@ class ComicParser(
     private var pages: List<String>? = null
 
     /**
+     * Convenient wrapper for [requestPage] to request cover.
+     */
+    fun requestCover(): PageRequest {
+        return requestPage(0)
+    }
+
+    /**
      * Given a 0-based [pageIdx], return a [PageRequest] for the page.
      */
     fun requestPage(pageIdx: Int): PageRequest {
@@ -109,7 +116,7 @@ class ComicParser(
      * Scan for comic pages and store their paths inside the archive
      * in [pages] in display order. Also check if the archive is corrupted.
      */
-    private fun scanPages() {
+    fun scanPages() {
         val pageEntryPaths = mutableListOf<String>()
 
         archiveParser.entries.use { entries ->

@@ -58,8 +58,10 @@ class FolderAdapter(
 
             // TODO: #6: Handle missing file!
             val parser = ComicParser(context, firstComic.fileUri)
+            val coverRequest = parser.requestCover()
+
             withContext(Dispatchers.Main) {
-                glide.load(parser.requestPage(0))
+                glide.load(coverRequest)
                     .transform(TopCrop())
                     .into(holder.folderCover)
             }

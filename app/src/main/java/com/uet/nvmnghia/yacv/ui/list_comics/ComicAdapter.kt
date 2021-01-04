@@ -52,8 +52,10 @@ class ComicAdapter(
 
         CoroutineScope(Dispatchers.IO).launch {
             val parser = ComicParser(context, comic.fileUri)
+            val coverRequest = parser.requestCover()
+
             withContext(Dispatchers.Main) {
-                glide.load(parser.requestPage(0))
+                glide.load(coverRequest)
                     .transform(TopCrop())
                     .into(holder.comicCover)
             }
