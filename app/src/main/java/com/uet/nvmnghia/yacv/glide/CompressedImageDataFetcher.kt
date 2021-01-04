@@ -32,7 +32,7 @@ class CompressedImageDataFetcher(
     }
 
     override fun getDataSource(): DataSource {
-        return DataSource.LOCAL
+        return DataSource.REMOTE
     }
 
 }
