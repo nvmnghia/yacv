@@ -50,7 +50,12 @@ class ComicParser(
 
     /**
      * Check if the content is corrupted (invalid file, no image) or not.
-     * TODO: fully implement this.
+     * Currently, this check is not reliable, and seems to be redundant.
+     * It can only be set by methods that scan the whole archive:
+     *   - [requestPage]
+     *   - [readPage]
+     *   -
+     * TODO: fully implement this, or remove it.
      */
     var isCorrupted: Boolean? = null
         private set
@@ -82,10 +87,38 @@ class ComicParser(
     private var pages: List<String>? = null
 
     /**
-     * Convenient wrapper for [requestPage] to request cover.
+     * Returns a special [PageRequest] that has [PageRequest.isCover] set.
+     * Also this method does NOT call [scanPages], unlike [requestPage].
      */
     fun requestCover(): PageRequest {
-        return requestPage(0)
+        return PageRequest(context, document, pages?.getOrNull(0), true)
+    }
+
+    /**
+     * Given the cover's page path, return an [InputStream] to read it.
+     */
+    fun readCover(pagePath: String?): InputStream? {
+        if (pagePath != null) {
+            return readPage(pagePath)
+        } else {
+            var coverEntry: ArchiveParser.ArchiveEntry? = null
+
+            for (entry in archiveParser.entries) {
+                if (!FileUtils.isImage(entry.path)) {
+                    continue
+                }
+
+                if (coverEntry == null) {
+                    coverEntry = entry
+                } else {
+                    if (PATH_COMPARATOR.compare(coverEntry.path, entry.path) > 0) {
+                        coverEntry = entry
+                    }
+                }
+            }
+
+            return coverEntry?.inputStream
+        }
     }
 
     /**
@@ -100,15 +133,16 @@ class ComicParser(
     }
 
     /**
-     * Given a page name, return an [InputStream] to read that page.
+     * Given a page path, return an [InputStream] to read that page.
      */
-    fun readPage(pageName: String): InputStream? {
+    fun readPage(pagePath: String): InputStream? {
         for (entry in archiveParser.entries) {
-            if (entry.path == pageName) {
+            if (entry.path == pagePath) {
                 return entry.inputStream
             }
         }
 
+        Log.w("yacv", "Page not found: $pagePath in file ${document.uri}")
         return null
     }
 
@@ -116,18 +150,21 @@ class ComicParser(
      * Scan for comic pages and store their paths inside the archive
      * in [pages] in display order. Also check if the archive is corrupted.
      */
-    fun scanPages() {
+    private fun scanPages() {
         val pageEntryPaths = mutableListOf<String>()
 
         archiveParser.entries.use { entries ->
             for (entry in entries) {
-                if (FileUtils.isImage(entry.path) && !FileUtils.naiveIsHidden(entry.path)) {
+                if (FileUtils.isImage(entry.path)) {
                     pageEntryPaths.add(entry.path)
                 }
             }
         }
 
         pages = pageEntryPaths.sortedWith(PATH_COMPARATOR)
+        if (pages?.isEmpty() == true) {
+            isCorrupted = true
+        }
     }
 
     /**
@@ -145,16 +182,11 @@ class ComicParser(
                     break
                 }
 
-                if (FileUtils.naiveIsHidden(entry.path)) {
-                    continue
-                }
-
+                val entryName = StringUtils.nameFromPath(entry.path)
                 if (!parsed &&    // Parse once, even if there's several metadata files
-                    MetadataParser.isParsableByName(StringUtils.nameFromPath(entry.path))
+                    MetadataParser.isParsableByName(entryName)
                 ) {
-                    MetadataParser.parseByFilename(
-                        StringUtils.nameFromPath(entry.path),
-                        entry.inputStream, comic)
+                    MetadataParser.parseByFilename(entryName, entry.inputStream, comic)
                     parsed = true
                 } else if (isCorrupted == null && FileUtils.isImage(entry.path)) {
                     isCorrupted = false
@@ -224,13 +256,14 @@ class ComicParser(
     data class PageRequest(
         val context: Context,
         val document: DocumentFile,
-        val pageName: String,
+        val pagePath: String?,
+        val isCover: Boolean = false,
     ) {
-        /**
-         * Needs a proper serialization, as by default Glide use toString() as cache key.
-         */
+
+        // By default Glide uses toString() as cache key, so this is enough.
+        // https://bumptech.github.io/glide/tut/custom-modelloader.html#picking-the-key
         override fun toString(): String {
-            return "${document.uri}::$pageName"
+            return "${document.uri}::$pagePath"
         }
     }
 }

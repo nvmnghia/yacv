@@ -5,6 +5,7 @@ import android.net.Uri
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.helper.CloseableIterator
+import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.IOUtils
 import java.io.File
 import java.io.InputStream
@@ -39,8 +40,8 @@ class CBZParser(
                 private var nexted = false
 
                 override fun hasNext(): Boolean {
-                    if (start || nexted) {
-                        currentEntry = zipIS.nextEntry
+                    if (nexted || start) {
+                        currentEntry = skipExtra(zipIS)
                         nexted = false
                         start = false
                     }
@@ -52,7 +53,7 @@ class CBZParser(
                     if (!nexted) {
                         nexted = true
                     } else {
-                        currentEntry = zipIS.nextEntry
+                        currentEntry = skipExtra(zipIS)
                     }
 
                     if (currentEntry == null) {
@@ -67,6 +68,19 @@ class CBZParser(
                 }
             }
         }
+
+    /**
+     * Skip folder & hidden file entries.
+     */
+    private fun skipExtra(zis: ZipInputStream): java.util.zip.ZipEntry? {
+        do {
+            val fileEntry = zis.nextEntry ?: return null
+
+            if (!(fileEntry.isDirectory || FileUtils.naiveIsHidden(fileEntry.name))) {
+                return fileEntry
+            }
+        } while (true)
+    }
 
     class ZipEntry(
         override val path: String,

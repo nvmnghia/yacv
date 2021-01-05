@@ -21,6 +21,7 @@ interface ArchiveParser {
 
     /**
      * Get the iterator for entries of the archive.
+     * Child class must guarantee that the iterator skips folders and hidden files.
      */
     val entries: CloseableIterator<ArchiveEntry>
 

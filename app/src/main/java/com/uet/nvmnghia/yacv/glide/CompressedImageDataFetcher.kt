@@ -18,7 +18,11 @@ class CompressedImageDataFetcher(
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
         parser = ComicParser(pageRequest.context, pageRequest.document)    // TODO: Fix #6
-        callback.onDataReady(parser.readPage(pageRequest.pageName))
+        if (pageRequest.isCover) {
+            callback.onDataReady(parser.readCover(pageRequest.pagePath))
+        } else {
+            callback.onDataReady(parser.readPage(pageRequest.pagePath!!))
+        }
     }
 
     override fun cleanup() {}
@@ -32,7 +36,11 @@ class CompressedImageDataFetcher(
     }
 
     override fun getDataSource(): DataSource {
-        return DataSource.REMOTE
+        return if (pageRequest.isCover) {
+            DataSource.LOCAL
+        } else {
+            DataSource.REMOTE
+        }
     }
 
 }
