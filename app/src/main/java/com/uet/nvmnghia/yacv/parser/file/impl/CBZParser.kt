@@ -5,6 +5,7 @@ import android.net.Uri
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.helper.CloseableIterator
+import com.uet.nvmnghia.yacv.utils.IOUtils
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipInputStream
@@ -15,7 +16,7 @@ import java.util.zip.ZipInputStream
  */
 class CBZParser(
     private val context: Context,
-    private val uri: Uri
+    private val uri: Uri,
 ) : ArchiveParser {
 
     override fun extractTo(folder: File) {
@@ -58,7 +59,7 @@ class CBZParser(
                         throw NoSuchElementException("CBZParser iterator already reached its end")
                     }
 
-                    return ZipEntry(currentEntry!!.name, zipIS)
+                    return ZipEntry(currentEntry!!.name, IOUtils.toInputStream(zipIS))
                 }
 
                 override fun close() {

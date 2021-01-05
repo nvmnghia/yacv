@@ -2,54 +2,45 @@ package com.uet.nvmnghia.yacv.utils
 
 import android.util.Log
 import com.uet.nvmnghia.yacv.utils.IOUtils.Companion.DEFAULT_BUFFER_SIZE
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 
 
 class IOUtils {
 
     companion object {
         /**
-         * Default buffer size for copying images: 100KB.
+         * Default buffer size for copying images: 200KB.
          */
         const val DEFAULT_BUFFER_SIZE = 200 * (1 shl 10)
 
         /**
-         * Read all [input] and write a [ByteArrayOutputStream] and return it.
+         * Read all [input] and write to a [ByteArrayOutputStream] then return it.
          * Default [bufferSize] is [DEFAULT_BUFFER_SIZE], as the app mostly deals with images.
          */
-        fun copyToMemory(input: InputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): ByteArrayOutputStream {
+        fun toOutputStream(input: InputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): ByteArrayOutputStream {
             val baos = ByteArrayOutputStream()
             copy(input, baos)
             return baos
         }
 
         /**
-         * Read all [input] and write to [output].
-         * Default [bufferSize] is [DEFAULT_BUFFER_SIZE], as the app mostly deals with images.
+         * Read all [input] and write to a [ByteArrayInputStream] then return it.
+         * TODO: At one point this doubles the memory consumption of baos,
+         *  due to Array:copyOf making a new ByteArray copy.
+         */
+        fun toInputStream(input: InputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): ByteArrayInputStream {
+            val baos = toOutputStream(input, bufferSize)
+            return ByteArrayInputStream(baos.toByteArray())
+        }
+
+        /**
+         * Convenient wrapper for [InputStream.copyTo], with [DEFAULT_BUFFER_SIZE].
          */
         fun copy(input: InputStream, output: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): Boolean {
-            val _bufferSize = if (bufferSize <= 0) {
-                DEFAULT_BUFFER_SIZE
-            } else {
-                bufferSize
-            }
-
-            val buffer = ByteArray(_bufferSize)
-            var len: Int
-
             try {
-                while (true) {
-                    len = input.read(buffer)
-                    if (len <= -1) {
-                        break
-                    }
-                    output.write(buffer, 0, len)
-                }
+                input.copyTo(output, bufferSize)
             } catch (ioe: IOException) {
-                Log.e("yacv", "Cannot transfer data from InputStream to OutputStream when reading comic")
+                Log.e("yacv", "Cannot transfer data from InputStream to OutputStream")
                 return false
             }
 
