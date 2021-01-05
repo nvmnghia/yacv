@@ -31,5 +31,22 @@ class StringUtils {
                 path.substringAfterLast('/')
             }
         }
+
+        /**
+         * Check string equality, but work backward.
+         */
+        fun equalBackward(s1: String, s2: String): Boolean {
+            if (s1.length != s2.length) {
+                return false
+            }
+
+            for (i in s1.indices.reversed()) {
+                if (s1[i] != s2[i]) {
+                    return false
+                }
+            }
+
+            return true
+        }
     }
 }

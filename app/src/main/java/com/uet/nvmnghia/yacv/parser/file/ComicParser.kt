@@ -117,6 +117,10 @@ class ComicParser(
                 }
             }
 
+            if (coverEntry == null) {
+                Log.w("yacv", "Cover not found in file ${document.uri}")
+            }
+
             return coverEntry?.inputStream
         }
     }
@@ -137,7 +141,7 @@ class ComicParser(
      */
     fun readPage(pagePath: String): InputStream? {
         for (entry in archiveParser.entries) {
-            if (entry.path == pagePath) {
+            if (StringUtils.equalBackward(entry.path, pagePath)) {    // Most of the time paths differ at the end.
                 return entry.inputStream
             }
         }
