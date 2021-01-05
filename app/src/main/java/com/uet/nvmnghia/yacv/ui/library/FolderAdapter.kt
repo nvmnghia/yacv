@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.request.RequestOptions
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao

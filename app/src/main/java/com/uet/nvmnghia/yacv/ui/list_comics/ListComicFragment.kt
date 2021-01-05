@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.request.RequestOptions
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.Comic
 import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
@@ -46,6 +48,9 @@ class ListComicFragment: Fragment() {
         super.onCreate(savedInstanceState)
 
         glide = Glide.with(this)
+            .setDefaultRequestOptions(
+                RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)    // In this fragment, Glide only loads cover
+            )
 
         comicAdapter = ComicAdapter(glide)
         NUM_COL = calculateNumberOfColumns()
