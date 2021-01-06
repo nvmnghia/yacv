@@ -48,9 +48,6 @@ class ListComicFragment: Fragment() {
         super.onCreate(savedInstanceState)
 
         glide = Glide.with(this)
-            .setDefaultRequestOptions(
-                RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)    // In this fragment, Glide only loads cover
-            )
 
         comicAdapter = ComicAdapter(glide)
         NUM_COL = calculateNumberOfColumns()
