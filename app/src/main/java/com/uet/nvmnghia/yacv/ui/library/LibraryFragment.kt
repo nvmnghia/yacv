@@ -90,6 +90,9 @@ class LibraryFragment : Fragment() {
 
         // TODO: Inject this shit
         glide = Glide.with(this)
+            .setDefaultRequestOptions(
+                RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)    // In this fragment, Glide only loads cover
+            )
 
         folderAdapter = FolderAdapter(glide, comicDao)
         NUM_COL = calculateNumberOfColumns()
