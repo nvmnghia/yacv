@@ -37,8 +37,8 @@ class ComicPageViewerFragment : Fragment() {
         val view = inflater.inflate(R.layout.reader_item_comic_page, container, false)
 
         comicImageView = view.findViewById(R.id.comic_imageview)
-        glide.load(viewModel.parser.requestPage(viewModel.pageNum))
-            .into(comicImageView)
+        glide.load(viewModel.parser.requestPage(viewModel.pageNum))    // Glide only needs to know about file name and page number anyway.
+            .into(comicImageView)                                      // How about moving all parsers into caching layer?
 
         return view
     }
