@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
@@ -41,6 +42,19 @@ class ReaderFragment : Fragment() {
         viewPager.adapter = comicPageAdapter
 
         return view
+    }
+
+}
+
+class ComicPageAdapter(fragment: Fragment,
+                       val parser: ComicParser) : FragmentStateAdapter(fragment) {
+
+    override fun getItemCount(): Int {
+        return parser.numOfPages
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        return ComicPageViewerFragment.newInstance(parser.document.uri.toString(), position)
     }
 
 }
