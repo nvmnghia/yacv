@@ -10,4 +10,12 @@ import androidx.room.Fts4
 data class AuthorFts(
     @ColumnInfo(name = Author.COLUMN_AUTHOR_NAME)
     val name: String,
-)
+) {
+
+    companion object {
+        const val COLUMN_AUTHOR_ID = "AuthorID"
+
+        internal const val COLUMN_AUTHOR_NAME = "Name"
+    }
+
+}
