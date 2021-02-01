@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
+import java.net.URI
 
 
 class ListComicViewModel @ViewModelInject constructor(
@@ -16,6 +19,10 @@ class ListComicViewModel @ViewModelInject constructor(
 
     private val folderUri: String = savedStateHandle.get<String>("folderUri")
         ?: throw IllegalArgumentException("Missing folder URI when browsing comics in folder")
+
+    private val _folderName = MutableLiveData(URI(folderUri).path.substringAfterLast('/'))
+    val folderName: LiveData<String>
+        get() = _folderName
 
     val comics = comicRepo.getComicsInFolder(folderUri)
 

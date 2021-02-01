@@ -18,7 +18,7 @@
     <fragment
         android:id="@+id/nav_fragment_library"
         android:name="com.uet.nvmnghia.yacv.ui.library.LibraryFragment"
-        android:label="fragment_library"
+        android:label="@string/library"
         tools:layout="@layout/fragment_library" >
         <action
             android:id="@+id/action_nav_fragment_library_to_listComicFragment"
@@ -26,8 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_fragment_browse_folder"
-        android:name="com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment"
-        android:label="ListComicFragment" >
+        android:name="com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment" >
         <argument android:name="folderUri"
             app:argType="string" />
         <action
@@ -36,8 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_fragment_reader"
-        android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment"
-        android:label="ReaderFragment" >
+        android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment" >
         <argument
             android:name="fileUri"
             app:argType="string" />
