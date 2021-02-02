@@ -1,8 +1,10 @@
 package com.uet.nvmnghia.yacv.model.comic
 
+import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
 import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
 import java.util.*
@@ -26,33 +28,35 @@ import java.util.*
  * TL;DR:
  *   Wolverine 1982(1) #1
  *   │         │       └─ Number/no (String): issue number, ~ chapter. Note that it is a String.
- *   │         └─ Volume (Int): Several series can have the same name, so they are distinguished by year or version.
+ *   │         └─ Volume (Int): Several series can have the same name, so they are distinguished by either year or version.
  *   └─Series (String): Name of the series.
  *   Count (Int): number of issues (Not in the example).
  *
  * Fts table doesn't support UNIQUE, which is a must for storing canonical paths.
  * Methods considered:
- * - (Current) Split into 2 tables, exactly like:
+ * - (Current) Split into 2 separate tables, exactly like:
  *   https://stackoverflow.com/questions/29815248/full-text-search-example-in-android
  *     + original table: store all fields
  *     + Fts table:      store Fts fields (Fts fields seem to be stored twice, but in fact they're not)
- *   Drawbacks: complicated linking (2 separated tables) IF not using Room, INSERT seems to be slower
- * - Split into 2 tables, inspired by the above SO
+ *   Drawbacks: complicated linking (2 separated tables) IF NOT using Room, INSERT seems to be slower
+ *              needs JOIN the original & Fts table when search with MATCH to enjoy the speedup
+ * - Split into 2 tables
  *     + `comic`:    store id & path: use UNIQUE on path
  *     + `metadata`: store the rest:  Fts4 enabled
  *   Drawbacks: even more complicated & manual linking
- * - Normal table + Trigger check
+ * - Normal table + Trigger check instead of indexing
  *     + Trigger on every INSERT
- *     + Trigger doesn't work for Fts (manual index is 1 lines of Room annotation)
- *   Drawbacks: slowish
- * - Fts table + app-side check
- *   Drawbacks: even more slowish
+ *     + Trigger doesn't work for Fts (manual index is 1 lines of Room annotation though)
+ *   Drawbacks: slowish as Fts is not used
+ * - Fts table + app-side unique check
+ *   Drawbacks: even more slowish (1 queries to check, 1 to insert)
  *
- * 2 other downside of Fts:
+ * Other downsides of Fts:
  * - rowid/docid cannot be used as foreign key:
  *   https://stackoverflow.com/a/62365525/5959593
- * - Update in content table, but search in Fts table. Predictable (since Room has
- *   to use trigger to sync the 2 tables) but still surprising.
+ * - Only store strings.
+ * - Update in content table, but search in Fts table (that's why JOIN is needed in the current method).
+ *   Predictable (since Room has to use trigger to sync the 2 tables) but still surprising.
  */
 
 /**
@@ -79,7 +83,7 @@ import java.util.*
 class Comic internal constructor(
     @ColumnInfo(name = COLUMN_COMIC_URI)
     val fileUri: String,
-) {
+) : SearchableMetadata {
 
     constructor(document: DocumentFile) : this(document.uri.toString()) {
         val parentFile = document.parentFile!!
@@ -99,7 +103,9 @@ class Comic internal constructor(
     @ColumnInfo(name = "Number")
     var number   : Int?      = null
     @ColumnInfo(name = COLUMN_TITLE)
-    var title    : String?   = null
+    var title    : String    = Uri.parse(fileUri)
+        .lastPathSegment!!
+        .substringBeforeLast('.')
     @ColumnInfo(name = COLUMN_SUMMARY)
     var summary  : String?   = null
     @ColumnInfo(name = "Language")
@@ -132,7 +138,7 @@ class Comic internal constructor(
 
     /**
      * Temporary hold series name.
-     * This field is important, as it is a required field.
+     * This field is important, as the file name is very likely to be the series name.
      * When initialized using the constructor, [tmpSeries] is null.
      * The [Comic] instance must then be passed to [GenericMetadataParser.parse]
      * to fill this field.
@@ -167,9 +173,16 @@ class Comic internal constructor(
     @ColumnInfo(name = "ReadCount", defaultValue = "0")
     var readCount: Int = 0
 
+    /**
+     * Check if the comic is non-generically parsed.
+     * Only used when parsing.
+     */
     @Ignore
     var nonGenericallyParsed = false
 
+    override fun getID() = id
+
+    override fun getLabel() = title
 
     companion object {
         // @formatter:off
@@ -182,4 +195,5 @@ class Comic internal constructor(
         internal const val COLUMN_WEB       = "Web"
         // @formatter:on
     }
+
 }

@@ -76,7 +76,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     /**
-     * Remove not referenced entries metadata-related tables.
+     * Remove non-referenced entries in metadata-related tables.
      */
     fun cleanDb() {
         TODO("Implement this")

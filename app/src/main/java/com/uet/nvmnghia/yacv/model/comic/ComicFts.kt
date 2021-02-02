@@ -13,7 +13,7 @@ import androidx.room.Fts4
 data class ComicFts(
     // @formatter:off
     @ColumnInfo(name = Comic.COLUMN_TITLE)
-    var title    : String?,
+    var title    : String,
     @ColumnInfo(name = Comic.COLUMN_SUMMARY)
     var summary  : String?,
     @ColumnInfo(name = Comic.COLUMN_PUBLISHER)
