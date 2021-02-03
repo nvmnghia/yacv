@@ -5,10 +5,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
 
 
 @Dao
-abstract class CharacterDao {
+abstract class CharacterDao : SearchableMetadataDao<Character> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.
@@ -67,6 +69,15 @@ abstract class CharacterDao {
 
     @Query("SELECT docid FROM CharacterFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    // How about column alias?
+    // https://stackoverflow.com/questions/5225925/sqlite-alias-column-name-cant-contains-a-dot
+    @Query("SELECT Character.* FROM Character INNER JOIN CharacterFts ON Character.CharacterID = CharacterFts.docid WHERE CharacterFts.Name MATCH :name LIMIT :limit")
+    abstract fun searchByName(name: String, limit: Int = Int.MAX_VALUE): List<Character>
+
+    override fun search(name: String, limit: Int): List<Character> {
+        return searchByName(name, limit)
+    }
 
     @Query("DELETE FROM Character")
     abstract fun truncate()

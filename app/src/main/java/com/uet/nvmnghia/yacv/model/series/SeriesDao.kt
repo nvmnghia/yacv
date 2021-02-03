@@ -5,10 +5,14 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.character.Character
+import com.uet.nvmnghia.yacv.model.genre.Genre
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
 
 
 @Dao
-abstract class SeriesDao {
+abstract class SeriesDao : SearchableMetadataDao<Series> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.
@@ -44,6 +48,13 @@ abstract class SeriesDao {
 
     @Query("SELECT docid FROM SeriesFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    @Query("SELECT Series.* FROM Series INNER JOIN SeriesFts ON Series.SeriesID = SeriesFts.docid WHERE SeriesFts.Name MATCH :name LIMIT :limit")
+    abstract fun searchByName(name: String, limit: Int = Int.MAX_VALUE): List<Series>
+
+    override fun search(name: String, limit: Int): List<Series> {
+        return searchByName(name, limit)
+    }
 
     @Query("DELETE FROM Series")
     abstract fun truncate()

@@ -7,7 +7,8 @@ import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
 
 
 /**
- * An author could be a writer/penciller/inker/colorist/letterer/editor.
+ * An author could have multiple roles:
+ * writer/penciller/inker/colorist/letterer/editor.
  */
 @Entity
 data class Author(

@@ -3,10 +3,12 @@ package com.uet.nvmnghia.yacv.model.genre
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
 
 
 @Dao
-abstract class GenreDao {
+abstract class GenreDao : SearchableMetadataDao<Genre> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.
@@ -45,6 +47,13 @@ abstract class GenreDao {
 
     @Query("SELECT docid FROM GenreFts WHERE Name MATCH :name")
     abstract fun searchIdByName(name: String): List<Long>
+
+    @Query("SELECT Genre.* FROM Genre INNER JOIN GenreFts ON Genre.GenreID = GenreFts.docid WHERE GenreFts.Name MATCH :name LIMIT :limit")
+    abstract fun searchByName(name: String, limit: Int = Int.MAX_VALUE): List<Genre>
+
+    override fun search(name: String, limit: Int): List<Genre> {
+        return searchByName(name, limit)
+    }
 
     @Query("DELETE FROM Genre")
     abstract fun truncate()
