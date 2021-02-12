@@ -8,6 +8,7 @@ import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.author.RoleTable
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.FolderDao
+import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,4 +55,11 @@ class DBProvider {
     fun provideFolderDao(db: AppDatabase): FolderDao {
         return db.folderDao()
     }
+
+    @Singleton
+    @Provides
+    fun provideMetadataSearchHandler(db: AppDatabase): MetadataSearchHandler {
+        return MetadataSearchHandler(db)
+    }
+
 }
