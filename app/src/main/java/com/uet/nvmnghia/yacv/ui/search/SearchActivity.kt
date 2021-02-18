@@ -1,11 +1,25 @@
 package com.uet.nvmnghia.yacv.ui.search
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+import android.app.SearchManager
+import android.content.Intent
+import android.util.Log
+import com.uet.nvmnghia.yacv.ui.MainActivity
+import kotlinx.coroutines.*
 
-class SearchActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search2)
+
+/**
+ * Given a [searchIntent] whose action is [Intent.ACTION_SEARCH], search the term queried.
+ */
+fun MainActivity.handleSearch(searchIntent: Intent) {
+    searchIntent.getStringExtra(SearchManager.QUERY)?.also { query ->
+        CoroutineScope(Dispatchers.IO).launch {
+            val matches = searchHandler.search("hulk", preview = true)
+            delay(2000)
+            withContext(Dispatchers.Main + Job()) {
+                matches.value?.flatten()?.forEach { match ->
+                    Log.d("yacvsearch", match.getLabel())
+                }
+            }
+        }
     }
 }
