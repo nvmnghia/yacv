@@ -6,13 +6,13 @@
         android:id="@+id/library_toolbar_search"
         android:icon="@drawable/search_dark"
         android:title="@string/search"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
         android:id="@+id/library_toolbar_select_root_folder"
         android:icon="@drawable/select_folder"
         android:title="@string/select_root_folder"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/library_toolbar_rescan"
         android:icon="@drawable/rescan"
