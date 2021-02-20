@@ -2,6 +2,8 @@ package com.uet.nvmnghia.yacv.ui.library
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,6 +14,7 @@ import android.view.*
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -36,6 +39,7 @@ import kotlin.properties.Delegates
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
 
+    // TODO: Move it into viewModel?
     @Inject
     lateinit var comicDao: ComicDao
 
@@ -136,6 +140,14 @@ class LibraryFragment : Fragment() {
         // Remember to include in onCreateView
         // setHasOptionsMenu(true)
         inflater.inflate(R.menu.library_toolbar, menu)
+
+        // Get the SearchView and set the searchable configuration
+        requireActivity().let { activity ->
+            val searchManager = activity.getSystemService(Context.SEARCH_SERVICE) as SearchManager
+            val searchableInfo = searchManager.getSearchableInfo(activity.componentName)
+            (menu.findItem(R.id.library_toolbar_search).actionView as SearchView)
+                .setSearchableInfo(searchableInfo)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -234,7 +246,8 @@ class LibraryFragment : Fragment() {
 
         // Text displayed if empty list
         noListTextView = view.findViewById(R.id.library_no_list_info)
-        noListTextView.movementMethod = LinkMovementMethod.getInstance()    // TODO: For clickable span?
+        noListTextView.movementMethod =
+            LinkMovementMethod.getInstance()    // TODO: For clickable span?
     }
 
     /**
@@ -242,7 +255,8 @@ class LibraryFragment : Fragment() {
      */
     private fun onItemClick(position: Int) {
         val folderUri = folderAdapter.currentList[position].uri
-        val action = LibraryFragmentDirections.actionNavFragmentLibraryToListComicFragment(folderUri)
+        val action =
+            LibraryFragmentDirections.actionNavFragmentLibraryToListComicFragment(folderUri)
         findNavController().navigate(action)
     }
 
@@ -251,7 +265,8 @@ class LibraryFragment : Fragment() {
      */
     private fun calculateNumberOfColumns(): Int {
         val screenWidth: Int = DeviceUtil.getScreenWidthInPx(requireContext())
-        val columnWidth = resources.getDimension(R.dimen.library_item_folder_column_width).toInt()    // In pixel, already scaled.
+        val columnWidth = resources.getDimension(R.dimen.library_item_folder_column_width)
+            .toInt()    // In pixel, already scaled.
         val numColumn = screenWidth / columnWidth
         return if (numColumn != 0) numColumn else 1
     }
@@ -322,7 +337,7 @@ class LibraryFragment : Fragment() {
             launchFolderPicker()
         } else {
             // Check if deny with Never ask again
-            if (! shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 viewModel.readPermissionDeniedForever = true
             }
         }
@@ -348,7 +363,7 @@ class LibraryFragment : Fragment() {
      * Launch app settings.
      */
     private fun launchAppSettings() {
-        if (! this::APP_SETTING_INTENT.isInitialized) {
+        if (!this::APP_SETTING_INTENT.isInitialized) {
             APP_SETTING_INTENT = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             APP_SETTING_INTENT.data = Uri.fromParts(
                 "package", requireContext().packageName, null)
