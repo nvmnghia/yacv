@@ -27,7 +27,11 @@ class SearchFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
         val textView: TextView = view.findViewById(R.id.search_test_textview)
-        textView.text = viewModel.query
+        viewModel.results.observe(viewLifecycleOwner) { nestedResults ->
+            textView.text = nestedResults.joinToString("\n") { results ->
+                results.joinToString("; ") { result -> result.getLabel() }
+            }
+        }
 
         return view
     }
