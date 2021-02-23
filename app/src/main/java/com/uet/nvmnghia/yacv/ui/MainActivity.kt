@@ -2,7 +2,6 @@ package com.uet.nvmnghia.yacv.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -12,12 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.AppDatabase
-import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
-import com.uet.nvmnghia.yacv.ui.search.handleSearch
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.logging.Logger
-import javax.inject.Inject
 
 
 // Inject dependency
@@ -27,8 +21,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mAppBarConfiguration: AppBarConfiguration
     private lateinit var mNavController: NavController
-
-    @Inject lateinit var searchHandler: MetadataSearchHandler    // For the extension function in SearchActivity.kt
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,19 +54,6 @@ class MainActivity : AppCompatActivity() {
         // Move Toolbar into fragments, instead of a fixed one here
         NavigationUI.setupActionBarWithNavController(this, mNavController, mAppBarConfiguration)
         NavigationUI.setupWithNavController(navView, mNavController)
-
-        if (intent.action == Intent.ACTION_SEARCH) {
-            handleSearch(intent)
-        }
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-
-        // MainActivity launch mode is singleTop, so search intent is also checked here
-        if (intent?.action == Intent.ACTION_SEARCH) {
-            handleSearch(intent)
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

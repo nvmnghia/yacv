@@ -153,7 +153,6 @@ class LibraryFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.library_toolbar_select_root_folder -> changeRootScanFolder()
-
         }
 
         return true
@@ -371,4 +370,5 @@ class LibraryFragment : Fragment() {
 
         appSettingsLauncher.launch(APP_SETTING_INTENT)
     }
+
 }

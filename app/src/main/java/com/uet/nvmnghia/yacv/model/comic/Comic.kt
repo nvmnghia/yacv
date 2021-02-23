@@ -29,7 +29,7 @@ import java.util.*
  *   Wolverine 1982(1) #1
  *   │         │       └─ Number/no (String): issue number, ~ chapter. Note that it is a String.
  *   │         └─ Volume (Int): Several series can have the same name, so they are distinguished by either year or version.
- *   └─Series (String): Name of the series.
+ *   └─ Series (String): Name of the series.
  *   Count (Int): number of issues (Not in the example).
  *
  * Fts table doesn't support UNIQUE, which is a must for storing canonical paths.
