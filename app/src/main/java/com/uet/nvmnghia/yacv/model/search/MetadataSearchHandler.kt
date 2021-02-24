@@ -5,7 +5,9 @@ import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,18 +18,25 @@ import javax.inject.Singleton
  */
 @Singleton
 class MetadataSearchHandler @Inject constructor(
-    private val appDb: AppDatabase,
+    appDb: AppDatabase,
 ) {
 
+    private var daos: List<MetadataDao<out Metadata>> = appDb.run {
+        listOf(authorDao(), characterDao(), comicDao(), genreDao(), seriesDao(), folderDao())
+            .sortedBy { dao -> DAO_PRECEDENCE[dao::class] }
+    }
+
+
     /**
-     * Given a [term], search the whole database for it.
+     * Given a [query], search the database for it, and return a 2D list of results.
      * Searchable tables are given above.
-     * Result list from DAO is included only if it is NOT empty.
-     * The list from DAO when included is called a result group.
-     * The list of group is sorted with [METADATA_PRECEDENCE].
-     * If [preview] is set, only returns the first [NUM_PREVIEW_MATCH] + 1 results.
+     * Searched tables are included in [query].
+     * If an empty 2D list is ever emitted, then the search ends but nothing is found.
+     * Result list from DAO is called a result group, included only if NOT empty.
+     * The list of groups is sorted with [METADATA_PRECEDENCE].
+     * If [query]'s preview is set, only returns the first [NUM_PREVIEW_MATCH] + 1 results.
      */
-    suspend fun search(term: String, preview: Boolean = false):
+    suspend fun search(query: QueryMultipleTypes):
             LiveData<List<List<Metadata>>> = liveData(timeoutInMs = 3000) {
 
         // Some advantages over manual coroutine + channel:
@@ -42,28 +51,49 @@ class MetadataSearchHandler @Inject constructor(
         // https://play.kotlinlang.org/hands-on/Introduction%20to%20Coroutines%20and%20Channels/08_Channels
         // dao.search() is likely to NOT cooperate anyway
 
-        val searchableMetadataDaos = appDb.run {
-            listOf(
-                authorDao(), characterDao(), comicDao(), genreDao(), seriesDao(), folderDao())
-        }
+        val requiredDaos = daos.slice(query.types)
         val limit =
-            if (preview) NUM_PREVIEW_MATCH + 1    // Preview 3 matches, the 4th one is used to check
-            else Int.MAX_VALUE                    // if there's more
-        val lists = mutableListOf<List<Metadata>>()
+            if (query.preview) NUM_PREVIEW_MATCH + 1    // Preview 3 matches, the 4th one is used to check
+            else Int.MAX_VALUE                          // if there's more
+        val results2D = mutableListOf<List<Metadata>>()
+        val latch = CountDownLatch(requiredDaos.size)
 
         withContext(Dispatchers.IO) {
-            searchableMetadataDaos.parallelForEach { dao ->
-                val list = dao.search(term, limit)
+            requiredDaos.parallelForEach { dao ->
+                val results = dao.search(query.query, limit)
+                var shouldEmit = false
 
-                synchronized(lists) {
-                    if (list.isNotEmpty()) {
-                        lists.add(list)
-                        lists.sortBy { li -> li[0].getType() }
+                // TODO: How about making use of the other search function...
+                synchronized(results2D) {
+                    if (results.isNotEmpty()) {
+                        results2D.add(results)
+                        results2D.sortBy { li -> li[0].getType() }
+                        shouldEmit = true
+                    }
+
+                    latch.countDown()
+                    if (latch.count == 0 && results2D.size == 0) {
+                        shouldEmit = true
                     }
                 }
 
-                if (list.isNotEmpty()) emit(lists)
+                if (shouldEmit) emit(results2D)
             }
+        }
+    }
+
+    /**
+     * Same as the above, but for [QuerySingleType].
+     * Given a [query], search the database for it, and return a 1D list of results.
+     */
+    suspend fun search(query: QuerySingleType): LiveData<List<Metadata>> = liveData(timeoutInMs = 3000) {
+        val requiredDao = daos[query.type]
+        val limit =
+            if (query.preview) NUM_PREVIEW_MATCH + 1
+            else Int.MAX_VALUE
+
+        withContext(Dispatchers.IO) {
+            emit(requiredDao.search(query.query, limit))
         }
     }
 

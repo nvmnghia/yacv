@@ -1,11 +1,18 @@
 package com.uet.nvmnghia.yacv.model.search
 
 import com.uet.nvmnghia.yacv.model.author.Author
+import com.uet.nvmnghia.yacv.model.author.AuthorDao
 import com.uet.nvmnghia.yacv.model.character.Character
+import com.uet.nvmnghia.yacv.model.character.CharacterDao
+import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.folder.FolderDao
 import com.uet.nvmnghia.yacv.model.genre.Genre
+import com.uet.nvmnghia.yacv.model.genre.GenreDao
 import com.uet.nvmnghia.yacv.model.series.Series
+import com.uet.nvmnghia.yacv.model.series.SeriesDao
+import kotlin.reflect.KClass
 
 
 /**
@@ -38,8 +45,15 @@ interface MetadataDao<T : Metadata> {
 }
 
 
-// Metadata display precedence in search preview, doubles as group ID
-// Currently not used
-val SORTED_METADATA = listOf(
-    ComicMini::class, Series::class, Folder::class, Character::class, Author::class, Genre::class)
-val METADATA_PRECEDENCE = SORTED_METADATA.mapIndexed { idx, kclass -> kclass to idx }.toMap()
+// Metadata display precedence in search preview
+// The index is both precedence value and group/category/type ID
+val SORTED_METADATA_DAO = listOf(
+    Pair(ComicMini::class, ComicDao::class),
+    Pair(Series::class,    SeriesDao::class),
+    Pair(Folder::class,    FolderDao::class),
+    Pair(Character::class, CharacterDao::class),
+    Pair(Author::class,    AuthorDao::class),
+    Pair(Genre::class,     GenreDao::class),
+)
+val METADATA_PRECEDENCE = SORTED_METADATA_DAO.mapIndexed { idx, pair -> pair.first  to idx }.toMap()
+val DAO_PRECEDENCE      = SORTED_METADATA_DAO.mapIndexed { idx, pair -> pair.second to idx }.toMap()

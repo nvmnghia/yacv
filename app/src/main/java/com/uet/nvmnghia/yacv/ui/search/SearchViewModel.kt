@@ -7,7 +7,11 @@ import androidx.lifecycle.*
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
 import com.uet.nvmnghia.yacv.model.search.Metadata
+import com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes
+import com.uet.nvmnghia.yacv.model.search.QuerySingleType
 import kotlinx.coroutines.launch
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 
 class SearchViewModel @ViewModelInject constructor(
@@ -16,13 +20,21 @@ class SearchViewModel @ViewModelInject constructor(
     searchHandler: MetadataSearchHandler
 ) : ViewModel() {
 
-    val query: String = savedStateHandle.get<String>(application.resources.getString(R.string.query))
-        ?: throw IllegalArgumentException("Missing query when instantiating SearchFragment")
+    val querySingleType = savedStateHandle.get<QuerySingleType>(application.resources.getString(R.string.query_single_type))
+    val queryMultipleTypes = savedStateHandle.get<QueryMultipleTypes>(application.resources.getString(R.string.query_multiple_types))
 
     lateinit var results: LiveData<List<Metadata>>
     init {
+        if (querySingleType == null && queryMultipleTypes == null) {
+            throw IllegalArgumentException("SearchViewModel cannot get any query.")
+        }
+
         viewModelScope.launch {
-            results = Transformations.map(searchHandler.search(query, true)) { flattenResults(it) }
+            results = when {
+                querySingleType != null -> searchHandler.search(querySingleType)
+                queryMultipleTypes != null -> Transformations.map(searchHandler.search(queryMultipleTypes)) { flattenResults(it) }
+                else -> throw IllegalStateException("SearchViewModel queries are null although checked.")
+            }
         }
     }
 

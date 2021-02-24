@@ -35,4 +35,6 @@
     <string name="genre">Genre</string>
     <string name="see_more">See more...</string>
     <string name="folder">Folder</string>
+    <string name="query_single_type">query_single_type</string>
+    <string name="query_multiple_types">query_multiple_types</string>
 </resources>
