@@ -26,7 +26,7 @@ interface SearchableMetadata {
 
     fun getLabel(): String
 
-    fun getType(): Int
+    fun getGroupID(): Int
 }
 
 /**

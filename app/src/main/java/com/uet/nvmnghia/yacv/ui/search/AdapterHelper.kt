@@ -15,24 +15,38 @@ import com.uet.nvmnghia.yacv.model.series.Series
 // Placeholders
 //================================================================================
 
-class ResultGroupPlaceholder(sample: SearchableMetadata) : SearchableMetadata {
+/**
+ * Class for placeholders: group title and See More.
+ * The ID of the placeholders is the group ID of the corresponding group,
+ * i.e. METADATA_GROUP_ID of the other [SearchableMetadata] classes.
+ */
+abstract class MetadataPlaceholder(sample: SearchableMetadata) : SearchableMetadata {
 
-    private var title: String
-    private var id: Long
+    protected var id: Long
 
     init {
         val kclass = sample::class
-        id    = MAP_CLASS_2_GROUP_ID[kclass]?.toLong()
-            ?: throw IllegalStateException("Unexpected metadata of type $kclass")
-        title = MAP_GROUP_ID_2_TITLE[id.toInt()]
+        id = MAP_CLASS_2_GROUP_ID[kclass]?.toLong()
             ?: throw IllegalStateException("Unexpected metadata of type $kclass")
     }
 
     override fun getID(): Long = id
 
+    abstract override fun getLabel(): String
+
+    abstract override fun getGroupID(): Int
+
+}
+
+
+class ResultGroupPlaceholder(sample: SearchableMetadata) : MetadataPlaceholder(sample) {
+
+    private var title: String = MAP_GROUP_ID_2_TITLE[id.toInt()]
+        ?: throw IllegalStateException("Unexpected metadata of ID $id")
+
     override fun getLabel(): String = title
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getGroupID(): Int = METADATA_GROUP_ID
 
     companion object {
         const val METADATA_GROUP_ID: Int = -1
@@ -41,12 +55,16 @@ class ResultGroupPlaceholder(sample: SearchableMetadata) : SearchableMetadata {
 }
 
 
-val SeeMorePlaceholder = object : SearchableMetadata {
-    override fun getID(): Long = -2
+class SeeMorePlaceholder(sample: SearchableMetadata) : MetadataPlaceholder(sample) {
 
-    override fun getLabel(): String = "SeeMore"    // Dummy, the label is read from resource
+    override fun getLabel(): String = "SeeMore"
 
-    override fun getType(): Int = getID().toInt()
+    override fun getGroupID(): Int = METADATA_GROUP_ID
+
+    companion object {
+        const val METADATA_GROUP_ID = -2
+    }
+
 }
 
 
@@ -68,19 +86,13 @@ fun initialize(context: Context) {
     // If initialized, returns
     if (::MAP_GROUP_ID_2_TITLE.isInitialized) return
 
-    // If not initialized, lock for one initialization.
-    // This SHOULD not be needed.
-//            synchronized(MAP_METADATA_TITLE) {
-//                if (this::MAP_METADATA_TITLE.isInitialized) return
-//            }
-
     MAP_GROUP_ID_2_TITLE = METADATA_PRECEDENCE.entries.associate { (kclass, groupID) ->
         groupID to when (kclass) {
             ComicMini::class -> context.resources.getString(R.string.comic)
-            Series::class -> context.resources.getString(R.string.series)
+            Series::class    -> context.resources.getString(R.string.series)
             Character::class -> context.resources.getString(R.string.character)
-            Author::class -> context.resources.getString(R.string.author)
-            Genre::class -> context.resources.getString(R.string.genre)
+            Author::class    -> context.resources.getString(R.string.author)
+            Genre::class     -> context.resources.getString(R.string.genre)
             else -> throw IllegalStateException("Unexpected metadata of type $kclass")
         }
     }

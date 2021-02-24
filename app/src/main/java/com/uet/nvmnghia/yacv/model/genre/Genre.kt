@@ -22,7 +22,7 @@ data class Genre(
 
     override fun getLabel() = name
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getGroupID(): Int = METADATA_GROUP_ID
 
     companion object {
         const val COLUMN_GENRE_ID = "GenreID"

@@ -18,11 +18,12 @@ import com.uet.nvmnghia.yacv.model.series.Series
 
 
 /**
- * Given a 2D list of search results [flatPreviewResults] display it.
- * This adapter is used in SearchFragment, which means it only display the preview.
- * [flatPreviewResults] has at most 5 elements (5 search categories), and can be empty.
- * [flatPreviewResults]'s element (list of results of a category) is guarantee to have
- * from 1 to [MetadataSearchHandler.NUM_PREVIEW_MATCH] + 1 = 4 elements.
+ * Given a 2D list of search results via [submitListToFlatten], display it.
+ * This adapter is used in [SearchFragment], which means it only display the preview.
+ * The 2D list has at most 5 elements (5 result groups correspond to 5 search
+ * categories), and can be empty.
+ * Each result group is guarantee to have from 1 to
+ * [MetadataSearchHandler.NUM_PREVIEW_MATCH] + 1 = 4 elements.
  * However, at most 3 results are displayed per category.
  * If the fourth result is included, "See more..." is displayed, but the result
  * itself is not shown.
@@ -65,11 +66,12 @@ class SearchPreviewAdapter :
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (val item = getItem(position)) {
-            SeeMorePlaceholder        -> VIEW_TYPE_SEEMORE
-            is ResultGroupPlaceholder -> VIEW_TYPE_GROUP
-            is ComicMini              -> VIEW_TYPE_COMIC
-            is Series, is Character, is Author, is Genre -> VIEW_TYPE_METADATA
+        val item = getItem(position)
+        return when (item.getGroupID()) {
+            ResultGroupPlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_GROUP
+            ComicMini.METADATA_GROUP_ID              -> VIEW_TYPE_COMIC
+            Series.METADATA_GROUP_ID, Character.METADATA_GROUP_ID, Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID -> VIEW_TYPE_METADATA
+            SeeMorePlaceholder.METADATA_GROUP_ID     -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }
     }
@@ -94,7 +96,7 @@ class SearchPreviewAdapter :
 
             // See More if needed
             if (group.size == MetadataSearchHandler.NUM_PREVIEW_MATCH + 1) {
-                flattened[flattened.lastIndex] = SeeMorePlaceholder
+                flattened[flattened.lastIndex] = SeeMorePlaceholder(group[0])
             }
         }
 
@@ -173,17 +175,6 @@ class SearchPreviewAdapter :
     // Misc
     //================================================================================
 
-    /**
-     * Given a [childPosition], check if it's a See More item.
-     */
-    private fun isSeeMore(childPosition: Int): Boolean =
-        childPosition == MetadataSearchHandler.NUM_PREVIEW_MATCH
-
-    private fun throwIllegalViewType(viewType: Int): Nothing {
-        throw IllegalArgumentException("Invalid viewType: $viewType. " +
-                "Valid ones: $VIEW_TYPE_COMIC, $VIEW_TYPE_METADATA, $VIEW_TYPE_SEEMORE.")
-    }
-
     companion object {
         // Item view types
         const val VIEW_TYPE_GROUP    = 1
@@ -193,11 +184,11 @@ class SearchPreviewAdapter :
 
         val DIFF_CALLBACK: DiffUtil.ItemCallback<SearchableMetadata> = object : DiffUtil.ItemCallback<SearchableMetadata>() {
             override fun areItemsTheSame(old: SearchableMetadata, new: SearchableMetadata): Boolean {
-                return old.getType() == new.getType() && old.getID() == new.getID()
+                return old.getGroupID() == new.getGroupID() && old.getID() == new.getID()
             }
 
             override fun areContentsTheSame(old: SearchableMetadata, new: SearchableMetadata): Boolean {
-                return old.getType() == new.getType() && old.getLabel() == new.getLabel()
+                return old.getLabel() == new.getLabel()    // This method is called only if areItemsTheSame returns true
             }
         }
     }

@@ -28,7 +28,7 @@ data class Series(
 
     override fun getLabel() = name
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getGroupID(): Int = METADATA_GROUP_ID
 
     companion object {
         const val COLUMN_SERIES_ID = "SeriesID"
