@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.search
+package com.uet.nvmnghia.yacv.ui.search.preview
 
 import android.app.Application
 import androidx.hilt.Assisted
@@ -13,7 +13,7 @@ import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
 import kotlinx.coroutines.launch
 
 
-class SearchViewModel @ViewModelInject constructor(
+class SearchPreviewViewModel @ViewModelInject constructor(
     @Assisted savedStateHandle: SavedStateHandle,    // Access Fragment/Activity args
     application: Application,
     searchHandler: MetadataSearchHandler

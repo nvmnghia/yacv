@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.search
+package com.uet.nvmnghia.yacv.ui.search.preview
 
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +20,7 @@ import com.uet.nvmnghia.yacv.model.series.Series
 
 /**
  * Given a 2D list of search results via [submitListToFlatten], display it.
- * This adapter is used in [SearchFragment], which means it only display the preview.
+ * This adapter is used in [SearchPreviewFragment], which means it only display the preview.
  * The 2D list has at most 5 elements (5 result groups correspond to 5 search
  * categories), and can be empty.
  * Each result group is guarantee to have from 1 to
@@ -73,7 +73,7 @@ class SearchPreviewAdapter :
             ComicMini.METADATA_GROUP_ID              -> VIEW_TYPE_COMIC
             Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID,
                     Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID -> VIEW_TYPE_METADATA
-            SeeMorePlaceholder.METADATA_GROUP_ID     -> VIEW_TYPE_SEEMORE
+            SeeMorePlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }
     }

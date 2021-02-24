@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.search
+package com.uet.nvmnghia.yacv.ui.search.preview
 
 import android.content.Context
 import com.uet.nvmnghia.yacv.R
