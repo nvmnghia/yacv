@@ -1,6 +1,8 @@
 package com.uet.nvmnghia.yacv
 
 import android.app.Application
+import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
+import com.uet.nvmnghia.yacv.ui.search.initialize
 import dagger.hilt.android.HiltAndroidApp
 
 
@@ -8,4 +10,10 @@ import dagger.hilt.android.HiltAndroidApp
 // https://developer.android.com/training/dependency-injection/hilt-android#application-class
 @HiltAndroidApp
 class MainApplication : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        initialize(this)
+    }
 }

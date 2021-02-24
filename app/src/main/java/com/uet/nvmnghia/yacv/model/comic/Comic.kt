@@ -4,22 +4,21 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
 import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
 import java.util.*
-
 
 /**
  * Comic info class.
  *
  * Note that this class should NOT be created directly
- * - A temporary [Comic] should be created by calling [ComicParser]'s
- *   parseInfo(). Without calling this method, no data is ever parsed.
+ * - A temporary [Comic] should be created by calling
+ *   [com.uet.nvmnghia.yacv.parser.file.ComicParser.parseInfo].
+ *   Without calling this method, no data is ever parsed.
  *   Even then, the data is not persisted in DB, lacking all ID fields
  *   and only suitable for DAO use.
- * - A fully parsed & persisted [Comic] is returned by using [ComicDao]'s
- *   various get() methods (currently returning [LiveData]).
+ * - A fully parsed & persisted Comic is returned by using [ComicDao]'s
+ *   various get() methods (currently returning [androidx.lifecycle.LiveData]).
  *
  * This class is a selected subset of what provided in:
  * https://github.com/dickloraine/EmbedComicMetadata/blob/master/genericmetadata.py
@@ -57,9 +56,7 @@ import java.util.*
  * - Only store strings.
  * - Update in content table, but search in Fts table (that's why JOIN is needed in the current method).
  *   Predictable (since Room has to use trigger to sync the 2 tables) but still surprising.
- */
-
-/**
+ *
  * Analogy
  * - Entity: data
  * - Dao: collection of queries
@@ -74,16 +71,20 @@ import java.util.*
     foreignKeys = [
         ForeignKey(entity = Folder::class,    // Referenced entity is parent
             parentColumns = [Folder.COLUMN_FOLDER_ID],
-            childColumns  = [Folder.COLUMN_FOLDER_ID]),
+            childColumns = [Folder.COLUMN_FOLDER_ID]),
         ForeignKey(entity = Series::class,
             parentColumns = [Series.COLUMN_SERIES_ID],
-            childColumns  = [Series.COLUMN_SERIES_ID]),
+            childColumns = [Series.COLUMN_SERIES_ID]),
     ]
 )
-class Comic internal constructor(
+class Comic(
     @ColumnInfo(name = COLUMN_COMIC_URI)
     val fileUri: String,
-) : SearchableMetadata {
+) {
+
+    //================================================================================
+    // Room fields - Metadata
+    //================================================================================
 
     constructor(document: DocumentFile) : this(document.uri.toString()) {
         val parentFile = document.parentFile!!
@@ -95,7 +96,6 @@ class Comic internal constructor(
     @ColumnInfo(name = COLUMN_COMIC_ID)
     var id: Long = 0
 
-    // Comic info
     // TODO: Add volume,...
     // @formatter:off
     @ColumnInfo(name = Series.COLUMN_SERIES_ID)
@@ -119,6 +119,34 @@ class Comic internal constructor(
     @ColumnInfo(name = "Web")
     var web      : String?   = null
     // @formatter:on
+
+
+    //================================================================================
+    // Room fields - Management
+    //================================================================================
+
+    // File info
+    @ColumnInfo(name = "CurrentPage")
+    var currentPage: Int = 0
+
+    @ColumnInfo(name = "NumOfPages")
+    var numPages: Int = 0
+
+    @ColumnInfo(name = Folder.COLUMN_FOLDER_ID)
+    var folderId: Long = 0
+
+
+    // Reading habit
+    @ColumnInfo(name = "Love", defaultValue = "0")
+    var love: Boolean = false
+
+    @ColumnInfo(name = "ReadCount", defaultValue = "0")
+    var readCount: Int = 0
+
+
+    //================================================================================
+    // Non-Room fields
+    //================================================================================
 
     // Temporary, as these fields will be split into tables
     // @formatter:off
@@ -144,17 +172,8 @@ class Comic internal constructor(
      * to fill this field.
      * TODO: avoid the explicit call to GenericMetadataParser.
      */
-    @Ignore var tmpSeries: String? = null
-
-    // File info
-    @ColumnInfo(name = "CurrentPage")
-    var currentPage: Int = 0
-
-    @ColumnInfo(name = "NumOfPages")
-    var numPages: Int = 0
-
-    @ColumnInfo(name = Folder.COLUMN_FOLDER_ID)
-    var folderId: Long = 0
+    @Ignore
+    var tmpSeries: String? = null
 
     @Ignore
     lateinit var tmpFolderUri: String
@@ -166,13 +185,6 @@ class Comic internal constructor(
     @Ignore
     lateinit var tmpFolderName: String
 
-    // Reading habit
-    @ColumnInfo(name = "Love", defaultValue = "0")
-    var love: Boolean = false
-
-    @ColumnInfo(name = "ReadCount", defaultValue = "0")
-    var readCount: Int = 0
-
     /**
      * Check if the comic is non-generically parsed.
      * Only used when parsing.
@@ -180,11 +192,9 @@ class Comic internal constructor(
     @Ignore
     var nonGenericallyParsed = false
 
-    override fun getID() = id
-
-    override fun getLabel() = title
 
     companion object {
+        // Column names
         // @formatter:off
         const val COLUMN_COMIC_ID  = "ComicID"
         const val COLUMN_COMIC_URI = "FileUri"

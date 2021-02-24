@@ -5,8 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.search.SearchFragment">
 
-    <TextView
-        android:id="@+id/search_test_textview"
+    <!-- TODO: what if this is the single outer view? -->
+    <!-- ?android:attr is for style attribute, not hard-coded resource -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_list_preview_result"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

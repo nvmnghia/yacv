@@ -28,4 +28,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="query">query</string>
+    <string name="comic">Comic</string>
+    <string name="series">Series</string>
+    <string name="character">Character</string>
+    <string name="author">Author</string>
+    <string name="genre">Genre</string>
+    <string name="see_more">See more...</string>
 </resources>

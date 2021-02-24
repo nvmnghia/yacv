@@ -16,7 +16,7 @@ import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
  */
 
 @Dao
-abstract class ComicDao(private val appDb: AppDatabase) : SearchableMetadataDao<Comic> {
+abstract class ComicDao(private val appDb: AppDatabase) : SearchableMetadataDao<ComicMini> {
     /**
      * Save without checking for foreign keys.
      * Only suitable for internal use.
@@ -128,10 +128,10 @@ abstract class ComicDao(private val appDb: AppDatabase) : SearchableMetadataDao<
     // This query is valid, but can't be parsed:
     // SELECT Comic.* FROM Comic INNER JOIN ComicFts Fts ON Comic.ComicID = Fts.docid WHERE Fts MATCH :name LIMIT :limit
     // Fts.docid is recognised, but not Fts MATCH
-    @Query("SELECT Comic.* FROM Comic INNER JOIN ComicFts ON Comic.ComicID = ComicFts.docid WHERE ComicFts MATCH :name LIMIT :limit")
-    abstract fun searchEverything(name: String, limit: Int): List<Comic>
+    @Query("SELECT Comic.ComicID, Comic.Title FROM Comic INNER JOIN ComicFts ON Comic.ComicID = ComicFts.docid WHERE ComicFts MATCH :name LIMIT :limit")
+    abstract fun searchEverything(name: String, limit: Int): List<ComicMini>
 
-    override fun search(name: String, limit: Int): List<Comic> {
+    override fun search(name: String, limit: Int): List<ComicMini> {
         // TODO: convert all of these to single-expression function
         return searchEverything(name, limit)
     }
