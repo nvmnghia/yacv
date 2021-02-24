@@ -11,6 +11,7 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
 import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
@@ -70,7 +71,8 @@ class SearchPreviewAdapter :
         return when (item.getGroupID()) {
             ResultGroupPlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_GROUP
             ComicMini.METADATA_GROUP_ID              -> VIEW_TYPE_COMIC
-            Series.METADATA_GROUP_ID, Character.METADATA_GROUP_ID, Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID -> VIEW_TYPE_METADATA
+            Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID,
+                    Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID -> VIEW_TYPE_METADATA
             SeeMorePlaceholder.METADATA_GROUP_ID     -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }

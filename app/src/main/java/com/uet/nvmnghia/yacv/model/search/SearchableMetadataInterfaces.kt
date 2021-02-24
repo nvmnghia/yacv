@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.model.search
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.series.Series
 
@@ -32,5 +33,5 @@ interface SearchableMetadataDao<T : SearchableMetadata> {
 // Metadata display precedence in search preview, doubles as group ID
 // Currently not used
 val sortedMetadata =
-    listOf(ComicMini::class, Series::class, Character::class, Author::class, Genre::class)
+    listOf(ComicMini::class, Series::class, Folder::class, Character::class, Author::class, Genre::class)
 val METADATA_PRECEDENCE = sortedMetadata.mapIndexed { idx, kclass -> kclass to idx }.toMap()

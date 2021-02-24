@@ -5,6 +5,7 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
@@ -90,6 +91,7 @@ fun initialize(context: Context) {
         groupID to when (kclass) {
             ComicMini::class -> context.resources.getString(R.string.comic)
             Series::class    -> context.resources.getString(R.string.series)
+            Folder::class    -> context.resources.getString(R.string.folder)
             Character::class -> context.resources.getString(R.string.character)
             Author::class    -> context.resources.getString(R.string.author)
             Genre::class     -> context.resources.getString(R.string.genre)

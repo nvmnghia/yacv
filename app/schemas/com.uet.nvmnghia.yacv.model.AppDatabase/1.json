@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "636067064a57548f59b72a83e052c2f9",
+    "identityHash": "780ac0d6fbdc9cdbf134d994b3e8d6a7",
     "entities": [
       {
         "tableName": "Comic",
@@ -256,6 +256,41 @@
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Folder_FolderUri` ON `${TABLE_NAME}` (`FolderUri`)"
           }
         ],
+        "foreignKeys": []
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "Folder",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_FolderFTS_BEFORE_UPDATE BEFORE UPDATE ON `Folder` BEGIN DELETE FROM `FolderFTS` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_FolderFTS_BEFORE_DELETE BEFORE DELETE ON `Folder` BEGIN DELETE FROM `FolderFTS` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_FolderFTS_AFTER_UPDATE AFTER UPDATE ON `Folder` BEGIN INSERT INTO `FolderFTS`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_FolderFTS_AFTER_INSERT AFTER INSERT ON `Folder` BEGIN INSERT INTO `FolderFTS`(`docid`, `Name`) VALUES (NEW.`rowid`, NEW.`Name`); END"
+        ],
+        "tableName": "FolderFTS",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`Name` TEXT NOT NULL, content=`Folder`)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [],
+          "autoGenerate": false
+        },
+        "indices": [],
         "foreignKeys": []
       },
       {
@@ -645,6 +680,32 @@
         ]
       },
       {
+        "tableName": "Role",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`RoleID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`RoleID`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "RoleID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "RoleID"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "Series",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`SeriesID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL, `Volume` INTEGER, `Count` INTEGER, `IsManga` INTEGER)",
         "fields": [
@@ -722,38 +783,12 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "Role",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`RoleID` INTEGER NOT NULL, `Name` TEXT NOT NULL, PRIMARY KEY(`RoleID`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "RoleID",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "Name",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "RoleID"
-          ],
-          "autoGenerate": false
-        },
-        "indices": [],
-        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '636067064a57548f59b72a83e052c2f9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '780ac0d6fbdc9cdbf134d994b3e8d6a7')"
     ]
   }
 }

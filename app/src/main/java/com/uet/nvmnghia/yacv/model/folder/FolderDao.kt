@@ -5,10 +5,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
 
 
 @Dao
-interface FolderDao {
+interface FolderDao : SearchableMetadataDao<Folder> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.
@@ -87,6 +90,11 @@ interface FolderDao {
     // and returns a normal list of results.
     @Query("SELECT FolderID FROM Folder WHERE FolderUri = :folderUri LIMIT 1")
     fun getExistingId(folderUri: String): List<Long>
+
+    @Query("SELECT Folder.* FROM Folder INNER JOIN FolderFTS ON Folder.FolderID = FolderFTS.docid WHERE FolderFTS.Name MATCH :name LIMIT :limit")
+    fun searchByName(name: String, limit: Int): List<Folder>
+
+    override fun search(name: String, limit: Int): List<Folder> = searchByName(name, limit)
 
     @Query("DELETE FROM Folder")
     fun truncate()

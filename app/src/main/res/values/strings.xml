@@ -34,4 +34,5 @@
     <string name="author">Author</string>
     <string name="genre">Genre</string>
     <string name="see_more">See more...</string>
+    <string name="folder">Folder</string>
 </resources>

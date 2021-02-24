@@ -45,7 +45,7 @@ class MetadataSearchHandler @Inject constructor(
 
         val searchableMetadataDaos = appDb.run {
             listOf(
-                authorDao(), characterDao(), comicDao(), genreDao(), seriesDao())
+                authorDao(), characterDao(), comicDao(), genreDao(), seriesDao(), folderDao())
         }
         val limit =
             if (preview) NUM_PREVIEW_MATCH + 1    // Preview 3 matches, the 4th one is used to check
