@@ -5,12 +5,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
+import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
 @Dao
-abstract class CharacterDao : SearchableMetadataDao<Character> {
+abstract class CharacterDao : MetadataDao<Character> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.

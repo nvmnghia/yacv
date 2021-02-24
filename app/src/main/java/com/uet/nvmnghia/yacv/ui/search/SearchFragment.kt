@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.search.preview
+package com.uet.nvmnghia.yacv.ui.search
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -18,11 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
  * Only the first 3 results in each group are displayed.
  */
 @AndroidEntryPoint
-class SearchPreviewFragment : Fragment() {
+class SearchFragment : Fragment() {
 
-    val viewModel: SearchPreviewViewModel by viewModels()
-
-    private lateinit var previewResultsAdapter: SearchPreviewAdapter
+    val viewModel: SearchViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,22 +28,13 @@ class SearchPreviewFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_search_preview, container, false)
 
-//        val textView: TextView = view.findViewById(R.id.search_test_textview)
-//        viewModel.results.observe(viewLifecycleOwner) { nestedResults ->
-//            textView.text = nestedResults.joinToString("\n") { results ->
-//                results.joinToString("; ") { result -> result.getLabel() }
-//            }
-//        }
-
         val recyclerView: RecyclerView = view.findViewById(R.id.search_list_preview_result)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        previewResultsAdapter = SearchPreviewAdapter()
-        recyclerView.adapter = previewResultsAdapter
+        val resultsAdapter = SearchResultsAdapter()
+        recyclerView.adapter = resultsAdapter
 
-        viewModel.results.observe(viewLifecycleOwner) { previewResults ->
-            previewResultsAdapter.submitListToFlatten(previewResults)
-        }
+        viewModel.results.observe(viewLifecycleOwner, resultsAdapter::submitList)
 
         return view
     }

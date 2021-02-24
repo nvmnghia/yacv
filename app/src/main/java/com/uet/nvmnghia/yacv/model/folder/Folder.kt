@@ -4,9 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.Metadata
 
 
 /**
@@ -18,7 +17,7 @@ data class Folder(
     val uri: String,
     @ColumnInfo(name = COLUMN_FOLDER_NAME)
     val name: String,
-) : SearchableMetadata {
+) : Metadata {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_FOLDER_ID)
@@ -28,7 +27,7 @@ data class Folder(
 
     override fun getLabel(): String = name
 
-    override fun getGroupID(): Int = METADATA_GROUP_ID
+    override fun getType(): Int = METADATA_GROUP_ID
 
     companion object {
         const val COLUMN_FOLDER_ID = "FolderID"

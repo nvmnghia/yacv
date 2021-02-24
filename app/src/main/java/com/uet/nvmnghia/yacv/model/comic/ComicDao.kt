@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.author.Role
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
+import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
 /**
@@ -16,7 +15,7 @@ import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
  */
 
 @Dao
-abstract class ComicDao(private val appDb: AppDatabase) : SearchableMetadataDao<ComicMini> {
+abstract class ComicDao(private val appDb: AppDatabase) : MetadataDao<ComicMini> {
     /**
      * Save without checking for foreign keys.
      * Only suitable for internal use.

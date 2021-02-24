@@ -1,7 +1,7 @@
 package com.uet.nvmnghia.yacv
 
 import android.app.Application
-import com.uet.nvmnghia.yacv.ui.search.preview.initialize
+import com.uet.nvmnghia.yacv.ui.search.initialize
 import dagger.hilt.android.HiltAndroidApp
 
 

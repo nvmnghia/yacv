@@ -9,29 +9,37 @@ import com.uet.nvmnghia.yacv.model.series.Series
 
 
 /**
- * Interface for all searchable metadata:
+ * Interface for all searchable metadata types/categories:
  * Author, Character, Comic, Folder, Genre, Series
  */
-interface SearchableMetadata {
+interface Metadata {
+    /**
+     * ID of the metadata, should be unique among its type.
+     */
     fun getID(): Long
 
+    /**
+     * Label of the metadata, for display purposes.
+     */
     fun getLabel(): String
 
-    fun getGroupID(): Int
+    /**
+     * Type number is also the display precedence of the type.
+     */
+    fun getType(): Int
 }
 
 
 /**
  * Interface for all searchable metadata DAO.
  */
-interface SearchableMetadataDao<T : SearchableMetadata> {
-    // TODO: convert to suspend and check if it is cancellable
+interface MetadataDao<T : Metadata> {
     fun search(name: String, limit: Int = Int.MAX_VALUE): List<T>    // Covariant shit
 }
 
 
 // Metadata display precedence in search preview, doubles as group ID
 // Currently not used
-val sortedMetadata =
-    listOf(ComicMini::class, Series::class, Folder::class, Character::class, Author::class, Genre::class)
-val METADATA_PRECEDENCE = sortedMetadata.mapIndexed { idx, kclass -> kclass to idx }.toMap()
+val SORTED_METADATA = listOf(
+    ComicMini::class, Series::class, Folder::class, Character::class, Author::class, Genre::class)
+val METADATA_PRECEDENCE = SORTED_METADATA.mapIndexed { idx, kclass -> kclass to idx }.toMap()

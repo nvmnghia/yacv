@@ -1,5 +1,6 @@
-package com.uet.nvmnghia.yacv.ui.search.preview
+package com.uet.nvmnghia.yacv.ui.search
 
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +15,13 @@ import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
+import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.series.Series
 
 
 /**
  * Given a 2D list of search results via [submitListToFlatten], display it.
- * This adapter is used in [SearchPreviewFragment], which means it only display the preview.
+ * This adapter is used in [SearchFragment], which means it only display the preview.
  * The 2D list has at most 5 elements (5 result groups correspond to 5 search
  * categories), and can be empty.
  * Each result group is guarantee to have from 1 to
@@ -29,8 +30,8 @@ import com.uet.nvmnghia.yacv.model.series.Series
  * If the fourth result is included, "See more..." is displayed, but the result
  * itself is not shown.
  */
-class SearchPreviewAdapter :
-    ListAdapter<SearchableMetadata, SearchPreviewAdapter.ResultViewHolder>(DIFF_CALLBACK) {
+open class SearchResultsAdapter :
+    ListAdapter<Metadata, SearchResultsAdapter.ResultViewHolder>(DIFF_CALLBACK) {
 
     // ListAdapter manages the list, so no list here, and always use getItem()
 //    // Flattened result list
@@ -68,7 +69,7 @@ class SearchPreviewAdapter :
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
-        return when (item.getGroupID()) {
+        return when (item.getType()) {
             ResultGroupPlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_GROUP
             ComicMini.METADATA_GROUP_ID              -> VIEW_TYPE_COMIC
             Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID,
@@ -76,33 +77,6 @@ class SearchPreviewAdapter :
             SeeMorePlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }
-    }
-
-    /**
-     * Given a list of result groups, flatten it then submit.
-     * The flattened list includes:
-     * - [ResultGroupViewHolder] as the first item in a group
-     * - All group's item
-     * - [SeeMorePlaceholder] if needed
-     * - Repeat the above for all groups
-     */
-    fun submitListToFlatten(previewResults: List<List<SearchableMetadata>>) {
-        val flattened = mutableListOf<SearchableMetadata>()
-
-        previewResults.forEach { group ->
-            // Group title
-            flattened.add(ResultGroupPlaceholder(group[0]))
-
-            // Group results
-            flattened.addAll(group)
-
-            // See More if needed
-            if (group.size == MetadataSearchHandler.NUM_PREVIEW_MATCH + 1) {
-                flattened[flattened.lastIndex] = SeeMorePlaceholder(group[0])
-            }
-        }
-
-        submitList(flattened)
     }
 
 
@@ -122,7 +96,7 @@ class SearchPreviewAdapter :
 
         abstract fun setLabel(label: String)
 
-        fun setLabel(metadata: SearchableMetadata) {
+        fun setLabel(metadata: Metadata) {
             setLabel(metadata.getLabel())
         }
 
@@ -184,13 +158,13 @@ class SearchPreviewAdapter :
         const val VIEW_TYPE_METADATA = 3
         const val VIEW_TYPE_SEEMORE  = 4
 
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<SearchableMetadata> = object : DiffUtil.ItemCallback<SearchableMetadata>() {
-            override fun areItemsTheSame(old: SearchableMetadata, new: SearchableMetadata): Boolean {
-                return old.getGroupID() == new.getGroupID() && old.getID() == new.getID()
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<Metadata> = object : DiffUtil.ItemCallback<Metadata>() {
+            override fun areItemsTheSame(old: Metadata, aNew: Metadata): Boolean {
+                return old.getType() == aNew.getType() && old.getID() == aNew.getID()
             }
 
-            override fun areContentsTheSame(old: SearchableMetadata, new: SearchableMetadata): Boolean {
-                return old.getLabel() == new.getLabel()    // This method is called only if areItemsTheSame returns true
+            override fun areContentsTheSame(old: Metadata, aNew: Metadata): Boolean {
+                return old.getLabel() == aNew.getLabel()    // This method is called only if areItemsTheSame returns true
             }
         }
     }

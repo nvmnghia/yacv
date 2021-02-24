@@ -3,12 +3,11 @@ package com.uet.nvmnghia.yacv.model.genre
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadata
-import com.uet.nvmnghia.yacv.model.search.SearchableMetadataDao
+import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
 @Dao
-abstract class GenreDao : SearchableMetadataDao<Genre> {
+abstract class GenreDao : MetadataDao<Genre> {
     /**
      * Save without checking duplicate.
      * Only suitable for internal use.

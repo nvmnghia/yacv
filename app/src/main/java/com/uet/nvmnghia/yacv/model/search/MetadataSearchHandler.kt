@@ -5,12 +5,9 @@ import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 
 /**
@@ -31,7 +28,7 @@ class MetadataSearchHandler @Inject constructor(
      * If [preview] is set, only returns the first [NUM_PREVIEW_MATCH] + 1 results.
      */
     suspend fun search(term: String, preview: Boolean = false):
-            LiveData<List<List<SearchableMetadata>>> = liveData(timeoutInMs = 3000) {
+            LiveData<List<List<Metadata>>> = liveData(timeoutInMs = 3000) {
 
         // Some advantages over manual coroutine + channel:
         // - Incremental update of result list
@@ -52,7 +49,7 @@ class MetadataSearchHandler @Inject constructor(
         val limit =
             if (preview) NUM_PREVIEW_MATCH + 1    // Preview 3 matches, the 4th one is used to check
             else Int.MAX_VALUE                    // if there's more
-        val lists = mutableListOf<List<SearchableMetadata>>()
+        val lists = mutableListOf<List<Metadata>>()
 
         withContext(Dispatchers.IO) {
             searchableMetadataDaos.parallelForEach { dao ->
@@ -61,7 +58,7 @@ class MetadataSearchHandler @Inject constructor(
                 synchronized(lists) {
                     if (list.isNotEmpty()) {
                         lists.add(list)
-                        lists.sortBy { li -> li[0].getGroupID() }
+                        lists.sortBy { li -> li[0].getType() }
                     }
                 }
 

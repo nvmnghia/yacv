@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchFragment">
+    tools:context=".ui.search.detail.SearchDetailFragment">
 
-    <!-- TODO: what if this is the single outer view? -->
-    <!-- ?android:attr is for style attribute, not hard-coded resource -->
+    <!-- TODO: Update blank fragment layout -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_list_preview_result"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
