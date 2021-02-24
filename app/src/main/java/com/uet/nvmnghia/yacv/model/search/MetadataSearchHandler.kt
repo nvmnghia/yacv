@@ -3,8 +3,10 @@ package com.uet.nvmnghia.yacv.model.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
+import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,15 +54,14 @@ class MetadataSearchHandler @Inject constructor(
             else Int.MAX_VALUE                    // if there's more
         val lists = mutableListOf<List<SearchableMetadata>>()
 
-        searchableMetadataDaos.map { dao ->
-            withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
+            searchableMetadataDaos.parallelForEach { dao ->
                 val list = dao.search(term, limit)
-                delay((Random.nextFloat() * 1000).toLong())    // TODO: delete after checking that this works
 
                 synchronized(lists) {
                     if (list.isNotEmpty()) {
                         lists.add(list)
-                        lists.sortBy { li -> METADATA_PRECEDENCE[li[0]::class] }
+                        lists.sortBy { li -> li[0].getGroupID() }
                     }
                 }
 
