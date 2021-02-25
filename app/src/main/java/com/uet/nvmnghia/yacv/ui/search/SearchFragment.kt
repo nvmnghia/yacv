@@ -31,7 +31,7 @@ class SearchFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.search_list_preview_result)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        val resultsAdapter = SearchResultsAdapter()
+        val resultsAdapter = SearchResultsAdapter(recyclerView)
         recyclerView.adapter = resultsAdapter
 
         viewModel.results.observe(viewLifecycleOwner, resultsAdapter::submitList)

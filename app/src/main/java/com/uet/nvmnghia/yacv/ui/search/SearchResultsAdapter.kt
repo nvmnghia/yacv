@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,8 +31,9 @@ import com.uet.nvmnghia.yacv.model.series.Series
  * If the fourth result is included, "See more..." is displayed, but the result
  * itself is not shown.
  */
-open class SearchResultsAdapter :
-    ListAdapter<Metadata, SearchResultsAdapter.ResultViewHolder>(DIFF_CALLBACK) {
+class SearchResultsAdapter(
+    private val recyclerView: RecyclerView
+) : ListAdapter<Metadata, SearchResultsAdapter.ResultViewHolder>(DIFF_CALLBACK) {
 
     // ListAdapter manages the list, so no list here, and always use getItem()
 //    // Flattened result list
@@ -47,10 +49,18 @@ open class SearchResultsAdapter :
         val inflate: (Int) -> View = { layoutID -> inflater.inflate(layoutID, parent, false) }
 
         return when (viewType) {
-            VIEW_TYPE_GROUP    -> ResultGroupViewHolder(inflate(R.layout.search_list_group))
-            VIEW_TYPE_COMIC    -> ComicResultViewHolder(inflate(R.layout.search_list_item_comic))
-            VIEW_TYPE_METADATA -> MetadataResultViewHolder(inflate(R.layout.search_list_item_metadata))
-            VIEW_TYPE_SEEMORE  -> SeeMoreViewHolder(inflate(R.layout.search_list_item_see_more))
+            VIEW_TYPE_GROUP    -> inflate(R.layout.search_list_group)
+                .apply { setOnClickListener(clickListener) }
+                .let { ResultGroupViewHolder(it) }
+            VIEW_TYPE_COMIC    -> inflate(R.layout.search_list_item_comic)
+                .apply { setOnClickListener(clickListener) }
+                .let { ComicResultViewHolder(it) }
+            VIEW_TYPE_METADATA -> inflate(R.layout.search_list_item_metadata)
+                .apply { setOnClickListener(clickListener) }
+                .let { MetadataResultViewHolder(it) }
+            VIEW_TYPE_SEEMORE  -> inflate(R.layout.search_list_item_see_more)
+                .apply { setOnClickListener(clickListener) }
+                .let { SeeMoreViewHolder(it) }
             else -> throw IllegalStateException("Unexpected view type: $viewType")
         }
     }
@@ -77,6 +87,17 @@ open class SearchResultsAdapter :
             SeeMorePlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }
+    }
+
+
+    //================================================================================
+    // View Holders
+    //================================================================================
+
+    private val clickListener = View.OnClickListener {
+        val position = recyclerView.getChildLayoutPosition(it)
+        val item = getItem(position)
+        Toast.makeText(it.context, item.getLabel(), Toast.LENGTH_SHORT).show()
     }
 
 
