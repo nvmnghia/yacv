@@ -1,11 +1,9 @@
 package com.uet.nvmnghia.yacv.ui.search
 
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +30,7 @@ import com.uet.nvmnghia.yacv.model.series.Series
  * itself is not shown.
  */
 class SearchResultsAdapter(
-    private val recyclerView: RecyclerView
+    private val clickListener: View.OnClickListener
 ) : ListAdapter<Metadata, SearchResultsAdapter.ResultViewHolder>(DIFF_CALLBACK) {
 
     // ListAdapter manages the list, so no list here, and always use getItem()
@@ -89,16 +87,7 @@ class SearchResultsAdapter(
         }
     }
 
-
-    //================================================================================
-    // View Holders
-    //================================================================================
-
-    private val clickListener = View.OnClickListener {
-        val position = recyclerView.getChildLayoutPosition(it)
-        val item = getItem(position)
-        Toast.makeText(it.context, item.getLabel(), Toast.LENGTH_SHORT).show()
-    }
+    fun publicGetItem(position: Int): Metadata = super.getItem(position)
 
 
     //================================================================================

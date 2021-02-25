@@ -5,7 +5,6 @@ import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
@@ -21,10 +20,9 @@ class MetadataSearchHandler @Inject constructor(
     appDb: AppDatabase,
 ) {
 
-    private var daos: List<MetadataDao<out Metadata>> = appDb.run {
-        listOf(authorDao(), characterDao(), comicDao(), genreDao(), seriesDao(), folderDao())
-            .sortedBy { dao -> DAO_PRECEDENCE[dao::class] }
-    }
+    private var daos: MutableList<MetadataDao<out Metadata>> = appDb
+        .run { mutableListOf(authorDao(), characterDao(), comicDao(), genreDao(), seriesDao(), folderDao()) }
+        .apply { sortBy { dao -> DAO_PRECEDENCE.entries.first { (key, _) -> key.isInstance(dao) }.value } }
 
 
     /**

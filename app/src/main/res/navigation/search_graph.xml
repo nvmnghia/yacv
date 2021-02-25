@@ -10,10 +10,14 @@
         android:name="com.uet.nvmnghia.yacv.ui.search.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search_preview" >
-        <argument android:name="@string/query_single_type"
-            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType" />
-        <argument android:name="@string/query_multiple_types"
-            app:argType="com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes" />
+        <argument android:name="query_single_type"
+            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument android:name="query_multiple_types"
+            app:argType="com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes"
+            app:nullable="true"
+            android:defaultValue="@null" />
         <action
             android:id="@+id/action_searchFragment_self"
             app:destination="@id/searchFragment" />

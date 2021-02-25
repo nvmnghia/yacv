@@ -1,6 +1,7 @@
 package com.uet.nvmnghia.yacv.model.search
 
 import android.os.Parcelable
+import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
 import kotlinx.parcelize.Parcelize
 
 
@@ -34,3 +35,6 @@ data class QueryMultipleTypes(
 
 fun queryAllTypes(query: String, preview: Boolean = false): QueryMultipleTypes =
     QueryMultipleTypes(query, List(SORTED_METADATA_DAO.size) { it }, preview)
+
+fun queryFromSeeMore(seeMore: SeeMorePlaceholder, preview: Boolean = false): QuerySingleType =
+    QuerySingleType(seeMore.getLabel(), seeMore.getID().toInt(), preview)

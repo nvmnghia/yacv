@@ -41,6 +41,9 @@ abstract class MetadataPlaceholder(sample: Metadata) :
 }
 
 
+/**
+ * Label of result group is the group title.
+ */
 class ResultGroupPlaceholder(sample: Metadata) : MetadataPlaceholder(sample) {
 
     private var title: String = MAP_GROUP_ID_2_TITLE[id.toInt()]
@@ -57,9 +60,12 @@ class ResultGroupPlaceholder(sample: Metadata) : MetadataPlaceholder(sample) {
 }
 
 
-class SeeMorePlaceholder(sample: Metadata) : MetadataPlaceholder(sample) {
+/**
+ * Label of See More is the query string.
+ */
+class SeeMorePlaceholder(sample: Metadata, private val query: String) : MetadataPlaceholder(sample) {
 
-    override fun getLabel(): String = "SeeMore"
+    override fun getLabel(): String = query
 
     override fun getType(): Int = METADATA_GROUP_ID
 

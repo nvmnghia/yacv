@@ -12,7 +12,6 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.genre.GenreDao
 import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.model.series.SeriesDao
-import kotlin.reflect.KClass
 
 
 /**
