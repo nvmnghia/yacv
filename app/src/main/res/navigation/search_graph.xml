@@ -3,23 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_graph"
-    app:startDestination="@id/searchFragment">
+    app:startDestination="@id/searchPreviewFragment">
 
     <fragment
-        android:id="@+id/searchFragment"
-        android:name="com.uet.nvmnghia.yacv.ui.search.SearchFragment"
+        android:id="@+id/searchPreviewFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.search.preview.SearchPreviewFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search_preview" >
-        <argument android:name="query_single_type"
-            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
-            app:nullable="true"
-            android:defaultValue="@null" />
-        <argument android:name="query_multiple_types"
+        tools:layout="@layout/fragment_search" >
+        <argument android:name="query"
             app:argType="com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes"
             app:nullable="true"
             android:defaultValue="@null" />
         <action
-            android:id="@+id/action_searchFragment_self"
-            app:destination="@id/searchFragment" />
+            android:id="@+id/action_searchPreviewFragment_to_searchDetailFragment"
+            app:destination="@id/searchDetailFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/searchDetailFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.search.detail.SearchDetailFragment"
+        android:label="SearchDetailFragment" >
+        <argument android:name="query"
+            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
 </navigation>

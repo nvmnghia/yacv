@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.search
+package com.uet.nvmnghia.yacv.ui.search.detail
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,39 +6,48 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.search.queryFromSeeMore
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.ui.search.SearchResultsAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.IllegalStateException
 
 
 /**
- * Fragment containing search result preview.
- * The results are displayed in ExpandableListView, grouped by their types.
- * Only the first 3 results in each group are displayed.
+ * Fragment containing result detail.
+ * The full results of the selected category is displayed.
+ * Only categories without cover (viewType in ViewHolder is
+ * [SearchResultsAdapter.VIEW_TYPE_METADATA]) are displayed.
+ * The one with cover is handled separately.
  */
 @AndroidEntryPoint
-class SearchFragment : Fragment() {
+class SearchDetailFragment : Fragment() {
 
-    val viewModel: SearchViewModel by viewModels()
+    val viewModel: SearchDetailViewModel by viewModels()
 
-    val args: SearchFragmentArgs by navArgs()    // NOT THE SAME AS savedStateHandle
+    val args: SearchDetailFragmentArgs by navArgs()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var resultsAdapter: SearchResultsAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val query = args.query
+            ?: throw IllegalArgumentException("Cannot get any query.")
+        viewModel.setQuery(query)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_search_preview, container, false)
+        val view = inflater.inflate(R.layout.fragment_search, container, false)
 
-        viewModel.triggerSearch(args.querySingleType, args.queryMultipleTypes)
-
-        recyclerView = view.findViewById(R.id.search_list_preview_result)
+        recyclerView = view.findViewById(R.id.search_list_result)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         resultsAdapter = SearchResultsAdapter(clickListener)
@@ -54,10 +63,7 @@ class SearchFragment : Fragment() {
         val item = resultsAdapter.publicGetItem(position)
 
         when (item.getType()) {
-            SeeMorePlaceholder.METADATA_GROUP_ID ->
-                SearchFragmentDirections
-                    .actionSearchFragmentSelf(queryFromSeeMore(item as SeeMorePlaceholder), null)
-                    .let { findNavController().navigate(it) }
+            ComicMini.METADATA_GROUP_ID -> throw IllegalStateException("Unexpected comic results.")
         }
     }
 

@@ -6,6 +6,11 @@ import kotlinx.parcelize.Parcelize
 
 
 /**
+ * Mother of all queries.
+ */
+interface Query : Parcelable
+
+/**
  * Wrapper for query of a single type/category/table.
  *
  * [query]: the query string itself

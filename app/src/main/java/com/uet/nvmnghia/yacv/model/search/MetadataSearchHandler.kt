@@ -5,6 +5,7 @@ import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
@@ -84,7 +85,7 @@ class MetadataSearchHandler @Inject constructor(
      * Same as the above, but for [QuerySingleType].
      * Given a [query], search the database for it, and return a 1D list of results.
      */
-    suspend fun search(query: QuerySingleType): LiveData<List<Metadata>> = liveData(timeoutInMs = 3000) {
+    suspend fun search(query: QuerySingleType): LiveData<List<Metadata>> = liveData(timeoutInMs = 5000) {
         val requiredDao = daos[query.type]
         val limit =
             if (query.preview) NUM_PREVIEW_MATCH + 1

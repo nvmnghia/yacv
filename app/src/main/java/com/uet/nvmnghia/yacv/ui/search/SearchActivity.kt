@@ -32,7 +32,7 @@ class SearchActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val queryWrapper = Bundle()
-        queryWrapper.putParcelable(resources.getString(R.string.query_multiple_types), query)
+        queryWrapper.putParcelable("query", query)
 
         val mNavController = Navigation.findNavController(this, R.id.search_nav_host_fragment)
         mNavController.setGraph(R.navigation.search_graph, queryWrapper)
