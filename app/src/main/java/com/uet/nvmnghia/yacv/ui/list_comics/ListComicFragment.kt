@@ -104,8 +104,8 @@ class ListComicFragment: Fragment() {
      * Currently only moves to [ReaderFragment].
      */
     private fun onItemClick(position: Int) {
-        val fileUri = comicAdapter.currentList[position].fileUri
-        val action = ListComicFragmentDirections.actionNavFragmentBrowseFolderToReaderFragment(fileUri)
+        val comicID = comicAdapter.currentList[position].id
+        val action = ListComicFragmentDirections.actionNavFragmentBrowseFolderToReaderFragment(comicID)
         findNavController().navigate(action)
     }
 

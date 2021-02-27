@@ -1,7 +1,7 @@
 package com.uet.nvmnghia.yacv
 
 import android.app.Application
-import com.uet.nvmnghia.yacv.ui.search.initialize
+import com.uet.nvmnghia.yacv.ui.search.initializeMetadataTitle
 import dagger.hilt.android.HiltAndroidApp
 
 
@@ -13,6 +13,6 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        initialize(this)
+        initializeMetadataTitle(this)
     }
 }

@@ -12,12 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,15 +33,6 @@ class ReaderFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     private lateinit var comicPageAdapter: ComicPageAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        fileUri = Uri.parse(requireArguments().getString("fileUri"))
-        parser = ComicParserFactory.create(requireContext(), fileUri)!!
-
-        comicPageAdapter = ComicPageAdapter(this, parser)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,10 +41,18 @@ class ReaderFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_reader, container, false)
 
         viewPager = view.findViewById(R.id.comic_viewpager)
-        viewPager.adapter = comicPageAdapter
 
-        viewModel.fileName.observe(viewLifecycleOwner,
-            { (requireActivity() as AppCompatActivity).supportActionBar?.title = it })
+        viewModel.comic.observe(viewLifecycleOwner) { comic ->
+            fileUri = Uri.parse(comic.fileUri)
+            parser = ComicParserFactory.create(requireContext(), fileUri)!!
+
+            comicPageAdapter = ComicPageAdapter(this, parser)
+
+            viewPager.adapter = comicPageAdapter
+        }
+
+        viewModel.fileName.observe(viewLifecycleOwner)
+            { fileName -> (requireActivity() as AppCompatActivity).supportActionBar?.title = fileName }
 
         return view
     }
@@ -86,13 +83,16 @@ class ReaderFragment : Fragment() {
 
 class ReaderViewModel @ViewModelInject constructor(
     @Assisted savedStateHandle: SavedStateHandle,
+    comicRepo: ComicRepository
 ) : ViewModel() {
 
-    private val fileUri: String = savedStateHandle.get<String>("fileUri")
-        ?: throw IllegalArgumentException("Missing file URI when reading comic")
+    val comicID = savedStateHandle.get<Long>("comicID")
+        ?: throw IllegalArgumentException("Missing ComicID when reading comic.")
 
-    private val _fileName = MutableLiveData(URI(fileUri).path.substringAfterLast('/'))
-    val fileName: LiveData<String>
-        get() = _fileName
+    val comic = comicRepo.getComic(comicID)
+
+    val fileName = Transformations.map(comic) { comic ->
+        Uri.parse(comic.fileUri).path?.substringAfterLast('/')
+    }
 
 }

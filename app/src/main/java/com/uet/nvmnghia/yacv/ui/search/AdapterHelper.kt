@@ -90,7 +90,7 @@ lateinit var MAP_GROUP_ID_2_TITLE: Map<Int, String>
 /**
  * Initialize [MAP_GROUP_ID_2_TITLE]. Should be called in MainApplication
  */
-fun initialize(context: Context) {
+fun initializeMetadataTitle(context: Context) {
     // If initialized, returns
     if (::MAP_GROUP_ID_2_TITLE.isInitialized) return
 

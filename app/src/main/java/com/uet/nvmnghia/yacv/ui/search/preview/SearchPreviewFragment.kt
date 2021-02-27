@@ -11,7 +11,9 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.search.queryFromSeeMore
+import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SearchResultsAdapter
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,11 +65,28 @@ class SearchPreviewFragment : Fragment() {
         val item = resultsAdapter.publicGetItem(position)
 
         when (item.getType()) {
-            SeeMorePlaceholder.METADATA_GROUP_ID ->
-                SearchPreviewFragmentDirections
-                    .actionSearchPreviewFragmentToSearchDetailFragment(queryFromSeeMore(item as SeeMorePlaceholder))
-                    .let { findNavController().navigate(it) }
+            ResultGroupPlaceholder.METADATA_GROUP_ID -> null
+            ComicMini.METADATA_GROUP_ID -> toReader(item as ComicMini)
+            SeeMorePlaceholder.METADATA_GROUP_ID -> toSearchDetail(item as SeeMorePlaceholder)
         }
+    }
+
+    /**
+     * Handle comic click.
+     */
+    private fun toReader(comic: ComicMini) {
+        val action = SearchPreviewFragmentDirections
+            .actionSearchPreviewFragmentToReaderFragment(comic.getID())
+        findNavController().navigate(action)
+    }
+
+    /**
+     * Handle See More click.
+     */
+    private fun toSearchDetail(seeMore: SeeMorePlaceholder) {
+        val action = SearchPreviewFragmentDirections
+            .actionSearchPreviewFragmentToSearchDetailFragment(queryFromSeeMore(seeMore))
+        findNavController().navigate(action)
     }
 
 }

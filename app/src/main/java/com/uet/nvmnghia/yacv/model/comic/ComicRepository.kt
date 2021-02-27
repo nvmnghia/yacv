@@ -36,6 +36,13 @@ class ComicRepository
     }
 
     /**
+     * Given a [comicID], get a single [Comic] of the given ID.
+     */
+    fun getComic(comicID: Long): LiveData<Comic> {
+        return comicDao.get(comicID)
+    }
+
+    /**
      * Given the folder URI, returns the comics inside that folders.
      */
     fun getComicsInFolder(folderUri: String): LiveData<List<Comic>> {

@@ -37,7 +37,7 @@
         android:id="@+id/nav_fragment_reader"
         android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment" >
         <argument
-            android:name="fileUri"
-            app:argType="string" />
+            android:name="comicID"
+            app:argType="long" />
     </fragment>
 </navigation>
