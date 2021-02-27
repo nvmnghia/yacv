@@ -253,9 +253,9 @@ class LibraryFragment : Fragment() {
      * Callback when a folder is clicked.
      */
     private fun onItemClick(position: Int) {
-        val folderUri = folderAdapter.currentList[position].uri
-        val action =
-            LibraryFragmentDirections.actionNavFragmentLibraryToListComicFragment(folderUri)
+        val comic = folderAdapter.currentList[position]
+        val action = LibraryFragmentDirections
+            .actionNavFragmentLibraryToListComicFragment(comic)
         findNavController().navigate(action)
     }
 

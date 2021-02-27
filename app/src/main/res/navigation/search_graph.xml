@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_searchPreviewFragment_to_readerFragment"
             app:destination="@id/readerFragment" />
+        <action
+            android:id="@+id/action_searchPreviewFragment_to_listComicFragment"
+            app:destination="@id/listComicFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchDetailFragment"
@@ -29,6 +32,9 @@
             app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_searchDetailFragment_to_listComicFragment"
+            app:destination="@id/listComicFragment" />
     </fragment>
     <fragment
         android:id="@+id/readerFragment"
@@ -36,6 +42,17 @@
         android:label="ReaderFragment" >
         <argument android:name="comicID"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/listComicFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment"
+        android:label="ListComicFragment" >
+        <action
+            android:id="@+id/action_listComicFragment_to_readerFragment"
+            app:destination="@id/readerFragment" />
+        <argument
+            android:name="metadataToQuery"
+            app:argType="com.uet.nvmnghia.yacv.model.search.Metadata" />
     </fragment>
 
 </navigation>

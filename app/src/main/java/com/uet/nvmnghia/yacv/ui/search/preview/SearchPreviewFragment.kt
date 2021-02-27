@@ -11,13 +11,20 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.model.author.Author
+import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
+import com.uet.nvmnghia.yacv.model.folder.Folder
+import com.uet.nvmnghia.yacv.model.genre.Genre
+import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.search.queryFromSeeMore
+import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SearchResultsAdapter
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 
 /**
@@ -64,15 +71,23 @@ class SearchPreviewFragment : Fragment() {
         val position = recyclerView.getChildLayoutPosition(view)
         val item = resultsAdapter.publicGetItem(position)
 
+        // @formatter:off
         when (item.getType()) {
-            ResultGroupPlaceholder.METADATA_GROUP_ID -> null
-            ComicMini.METADATA_GROUP_ID -> toReader(item as ComicMini)
-            SeeMorePlaceholder.METADATA_GROUP_ID -> toSearchDetail(item as SeeMorePlaceholder)
+            ResultGroupPlaceholder.METADATA_GROUP_ID
+                -> null
+            ComicMini.METADATA_GROUP_ID
+                -> toReader(item as ComicMini)
+            Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID, Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID
+                -> toListComic(item)
+            SeeMorePlaceholder.METADATA_GROUP_ID
+                -> toSearchDetail(item as SeeMorePlaceholder)
+            else -> throw IllegalStateException("Unexpected item type ${item.getType()}")
         }
+        // @formatter:on
     }
 
     /**
-     * Handle comic click.
+     * Move to [com.uet.nvmnghia.yacv.ui.reader.ReaderFragment].
      */
     private fun toReader(comic: ComicMini) {
         val action = SearchPreviewFragmentDirections
@@ -81,11 +96,20 @@ class SearchPreviewFragment : Fragment() {
     }
 
     /**
-     * Handle See More click.
+     * Move to [com.uet.nvmnghia.yacv.ui.search.detail.SearchDetailFragment].
      */
     private fun toSearchDetail(seeMore: SeeMorePlaceholder) {
         val action = SearchPreviewFragmentDirections
             .actionSearchPreviewFragmentToSearchDetailFragment(queryFromSeeMore(seeMore))
+        findNavController().navigate(action)
+    }
+
+    /**
+     * Move to [com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment].
+     */
+    private fun toListComic(metadata: Metadata) {
+        val action = SearchPreviewFragmentDirections
+            .actionSearchPreviewFragmentToListComicFragment(metadata)
         findNavController().navigate(action)
     }
 

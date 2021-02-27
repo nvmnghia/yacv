@@ -5,11 +5,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.Metadata
+import kotlinx.parcelize.Parcelize
 
 
 /**
  * A comic character.
  */
+@Parcelize
 @Entity
 data class Character(
     @ColumnInfo(name = COLUMN_CHARACTER_NAME)

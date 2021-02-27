@@ -5,8 +5,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.Metadata
+import kotlinx.parcelize.Parcelize
 
 
+@Parcelize
 @Entity
 data class Series(
     @ColumnInfo(name = COLUMN_SERIES_NAME)

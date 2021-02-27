@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.model.author.Role
+import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
@@ -127,13 +128,16 @@ abstract class ComicDao(private val appDb: AppDatabase) : MetadataDao<ComicMini>
     // This query is valid, but can't be parsed:
     // SELECT Comic.* FROM Comic INNER JOIN ComicFts Fts ON Comic.ComicID = Fts.docid WHERE Fts MATCH :name LIMIT :limit
     // Fts.docid is recognised, but not Fts MATCH
-    @Query("SELECT Comic.ComicID, Comic.Title FROM Comic INNER JOIN ComicFts ON Comic.ComicID = ComicFts.docid WHERE ComicFts MATCH :name LIMIT :limit")
+    @Query("SELECT Comic.ComicID, Comic.Title, Comic.FileUri FROM Comic INNER JOIN ComicFts ON Comic.ComicID = ComicFts.docid WHERE ComicFts MATCH :name LIMIT :limit")
     abstract fun searchEverything(name: String, limit: Int): List<ComicMini>
 
     override fun search(name: String, limit: Int): List<ComicMini> {
         // TODO: convert all of these to single-expression function
         return searchEverything(name, limit)
     }
+
+    @Query("SELECT ComicID, Title, FileUri FROM Comic WHERE ComicID = :id")
+    abstract override fun searchComic(id: Long): List<ComicMini>
 
     @Query("DELETE FROM Comic")
     abstract fun truncate()

@@ -6,11 +6,13 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.Metadata
+import kotlinx.parcelize.Parcelize
 
 
 /**
  * Folder containing comic files.
  */
+@Parcelize
 @Entity(indices = [Index(value = [Folder.COLUMN_FOLDER_URI], unique = true)])
 data class Folder(
     @ColumnInfo(name = COLUMN_FOLDER_URI)

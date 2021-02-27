@@ -3,27 +3,29 @@ package com.uet.nvmnghia.yacv.ui.list_comics
 import android.app.Application
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.*
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
+import com.uet.nvmnghia.yacv.model.search.Metadata
+import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
+import com.uet.nvmnghia.yacv.model.search.QuerySingleType
+import kotlinx.coroutines.launch
 import java.net.URI
 
 
 class ListComicViewModel @ViewModelInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,    // Access Fragment/Activity args
-    application: Application,
-    comicRepo: ComicRepository,
-): AndroidViewModel(application) {
+    @Assisted private val savedStateHandle: SavedStateHandle,    // Access Fragment/Activity args
+    private val searchHandler: MetadataSearchHandler
+): ViewModel() {
 
-    private val folderUri: String = savedStateHandle.get<String>("folderUri")
-        ?: throw IllegalArgumentException("Missing folder URI when browsing comics in folder")
+    lateinit var comics: LiveData<List<ComicMini>>
+    lateinit var title: String
 
-    private val _folderName = MutableLiveData(URI(folderUri).path.substringAfterLast('/'))
-    val folderName: LiveData<String>
-        get() = _folderName
-
-    val comics = comicRepo.getComicsInFolder(folderUri)
+    fun setMetadata(metadata: Metadata) {
+        title = metadata.getLabel()
+        viewModelScope.launch {
+            comics = searchHandler.searchComics(metadata)
+        }
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.model.search
 
+import android.os.Parcelable
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.author.AuthorDao
 import com.uet.nvmnghia.yacv.model.character.Character
@@ -18,7 +19,7 @@ import com.uet.nvmnghia.yacv.model.series.SeriesDao
  * Interface for all searchable metadata types/categories:
  * Author, Character, Comic, Folder, Genre, Series
  */
-interface Metadata {
+interface Metadata : Parcelable {
     /**
      * ID of the metadata, should be unique among its type.
      */
@@ -40,7 +41,15 @@ interface Metadata {
  * Interface for all searchable metadata DAO.
  */
 interface MetadataDao<T : Metadata> {
+    /**
+     * Given a search query [name], search for a match metadata record.
+     */
     fun search(name: String, limit: Int = Int.MAX_VALUE): List<T>    // Covariant shit
+
+    /**
+     * Given a [id] of a metadata, search for comics with that metadata record.
+     */
+    fun searchComic(id: Long): List<ComicMini>
 }
 
 

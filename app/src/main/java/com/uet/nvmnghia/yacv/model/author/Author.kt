@@ -5,12 +5,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.Metadata
+import kotlinx.parcelize.Parcelize
 
 
 /**
  * An author could have multiple roles:
  * writer/penciller/inker/colorist/letterer/editor.
  */
+@Parcelize
 @Entity
 data class Author(
     @ColumnInfo(name = COLUMN_AUTHOR_NAME)

@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.model.genre
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
@@ -53,6 +54,9 @@ abstract class GenreDao : MetadataDao<Genre> {
     override fun search(name: String, limit: Int): List<Genre> {
         return searchByName(name, limit)
     }
+
+    @Query("SELECT Comic.ComicID, Comic.Title, Comic.FileUri FROM Comic JOIN ComicGenreJoin ON Comic.ComicID = ComicGenreJoin.ComicID WHERE ComicGenreJoin.GenreID = :id")
+    abstract override fun searchComic(id: Long): List<ComicMini>
 
     @Query("DELETE FROM Genre")
     abstract fun truncate()

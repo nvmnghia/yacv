@@ -5,6 +5,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
@@ -93,6 +95,9 @@ interface FolderDao : MetadataDao<Folder> {
     fun searchByName(name: String, limit: Int): List<Folder>
 
     override fun search(name: String, limit: Int): List<Folder> = searchByName(name, limit)
+
+    @Query("SELECT Comic.ComicID, Comic.Title, Comic.FileUri FROM Comic WHERE Comic.FolderID = :id")
+    override fun searchComic(id: Long): List<ComicMini>
 
     @Query("DELETE FROM Folder")
     fun truncate()

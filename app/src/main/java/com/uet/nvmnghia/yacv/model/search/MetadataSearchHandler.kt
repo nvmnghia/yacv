@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.model.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.utils.parallelForEach
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -13,8 +14,8 @@ import javax.inject.Singleton
 
 
 /**
- * This class is very similar to a repository.
- * Is it a good design then?
+ * This class is a wrapper for search functionalities defined in [MetadataDao].
+ * It is very similar to a repository. Is it a good design then?
  */
 @Singleton
 class MetadataSearchHandler @Inject constructor(
@@ -93,6 +94,17 @@ class MetadataSearchHandler @Inject constructor(
 
         withContext(Dispatchers.IO) {
             emit(requiredDao.search(query.query, limit))
+        }
+    }
+
+    /**
+     * Given a [metadata], search for comics with that metadata record.
+     */
+    suspend fun searchComics(metadata: Metadata): LiveData<List<ComicMini>> = liveData(timeoutInMs = 5000) {
+        val requiredDao = daos[metadata.getType()]
+
+        withContext(Dispatchers.IO) {
+            emit(requiredDao.searchComic(metadata.getID()))
         }
     }
 

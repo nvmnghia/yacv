@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.glide.TopCrop
-import com.uet.nvmnghia.yacv.model.comic.Comic
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 
 class ComicAdapter(
     private val glide: RequestManager,
-) : ListAdapter<Comic, ComicAdapter.ViewHolder>(DIFF_CALLBACK) {
+) : ListAdapter<ComicMini, ComicAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private lateinit var context: Context
 
@@ -67,13 +67,13 @@ class ComicAdapter(
     }
 
     companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<Comic> = object : DiffUtil.ItemCallback<Comic>() {
-            override fun areContentsTheSame(oldItem: Comic, newItem: Comic): Boolean {
-                return oldItem.fileUri == newItem.fileUri
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<ComicMini> = object : DiffUtil.ItemCallback<ComicMini>() {
+            override fun areItemsTheSame(old: ComicMini, new: ComicMini): Boolean {
+                return old.fileUri == new.fileUri
             }
 
-            override fun areItemsTheSame(oldItem: Comic, newItem: Comic): Boolean {
-                return oldItem.fileUri == newItem.fileUri
+            override fun areContentsTheSame(old: ComicMini, new: ComicMini): Boolean {
+                return old.fileUri == new.fileUri
             }
         }
     }

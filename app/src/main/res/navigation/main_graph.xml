@@ -22,20 +22,23 @@
         tools:layout="@layout/fragment_library" >
         <action
             android:id="@+id/action_nav_fragment_library_to_listComicFragment"
-            app:destination="@id/nav_fragment_browse_folder" />
+            app:destination="@id/listComicFragment" />
     </fragment>
     <fragment
-        android:id="@+id/nav_fragment_browse_folder"
-        android:name="com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment" >
-        <argument android:name="folderUri"
-            app:argType="string" />
+        android:id="@+id/listComicFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.list_comics.ListComicFragment"
+        android:label="ListComicFragment" >
         <action
-            android:id="@+id/action_nav_fragment_browse_folder_to_readerFragment"
-            app:destination="@id/nav_fragment_reader" />
+            android:id="@+id/action_listComicFragment_to_readerFragment"
+            app:destination="@id/readerFragment" />
+        <argument
+            android:name="metadataToQuery"
+            app:argType="com.uet.nvmnghia.yacv.model.search.Metadata" />
     </fragment>
     <fragment
-        android:id="@+id/nav_fragment_reader"
-        android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment" >
+        android:id="@+id/readerFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment"
+        android:label="ReaderFragment" >
         <argument
             android:name="comicID"
             app:argType="long" />

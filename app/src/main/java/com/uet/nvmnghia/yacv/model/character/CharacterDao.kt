@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.uet.nvmnghia.yacv.model.comic.ComicMini
 import com.uet.nvmnghia.yacv.model.search.MetadataDao
 
 
@@ -77,6 +78,9 @@ abstract class CharacterDao : MetadataDao<Character> {
     override fun search(name: String, limit: Int): List<Character> {
         return searchByName(name, limit)
     }
+
+    @Query("SELECT Comic.ComicID, Comic.Title, Comic.FileUri FROM Comic INNER JOIN ComicCharacterJoin ON Comic.ComicID = ComicCharacterJoin.ComicID WHERE ComicCharacterJoin.CharacterID = :id")
+    abstract override fun searchComic(id: Long): List<ComicMini>
 
     @Query("DELETE FROM Character")
     abstract fun truncate()

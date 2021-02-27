@@ -10,6 +10,8 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.METADATA_PRECEDENCE
 import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.series.Series
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 
 //================================================================================
@@ -21,16 +23,14 @@ import com.uet.nvmnghia.yacv.model.series.Series
  * The ID of the placeholders is the group ID of the corresponding group,
  * i.e. METADATA_GROUP_ID of the other [Metadata] classes.
  */
-abstract class MetadataPlaceholder(sample: Metadata) :
-    Metadata {
+abstract class MetadataPlaceholder(protected open var id: Long) : Metadata {
 
-    protected var id: Long
-
-    init {
-        val kclass = sample::class
-        id = MAP_CLASS_2_GROUP_ID[kclass]?.toLong()
-            ?: throw IllegalStateException("Unexpected metadata of type $kclass")
-    }
+    constructor(sample: Metadata) : this(    // Glorious isn't it?
+        sample::class.let { kclass ->
+            METADATA_PRECEDENCE[kclass]?.toLong()
+                ?: throw IllegalStateException("Unexpected metadata class $kclass")
+        }
+    )
 
     override fun getID(): Long = id
 
@@ -44,8 +44,12 @@ abstract class MetadataPlaceholder(sample: Metadata) :
 /**
  * Label of result group is the group title.
  */
-class ResultGroupPlaceholder(sample: Metadata) : MetadataPlaceholder(sample) {
+@Parcelize
+class ResultGroupPlaceholder(override var id: Long) : MetadataPlaceholder(id) {
 
+    constructor(sample: Metadata) : this(sample.getType().toLong())
+
+    @IgnoredOnParcel
     private var title: String = MAP_GROUP_ID_2_TITLE[id.toInt()]
         ?: throw IllegalStateException("Unexpected metadata of ID $id")
 
@@ -63,7 +67,10 @@ class ResultGroupPlaceholder(sample: Metadata) : MetadataPlaceholder(sample) {
 /**
  * Label of See More is the query string.
  */
-class SeeMorePlaceholder(sample: Metadata, private val query: String) : MetadataPlaceholder(sample) {
+@Parcelize
+class SeeMorePlaceholder(override var id: Long, private val query: String) : MetadataPlaceholder(id) {
+
+    constructor(sample: Metadata, query: String) : this(sample.getID(), query)
 
     override fun getLabel(): String = query
 

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -28,6 +29,8 @@ class ListComicFragment: Fragment() {
 
     val viewModel: ListComicViewModel by viewModels()
 
+    private val args: ListComicFragmentArgs by navArgs()
+
     private lateinit var glide: RequestManager
 
     /**
@@ -35,7 +38,6 @@ class ListComicFragment: Fragment() {
      */
     private lateinit var listComicsInFolder: RecyclerView
     private lateinit var comicAdapter: ComicAdapter
-    private lateinit var listComicsInFolderObserver: Observer<List<Comic>>
 
     /**
      * Number of columns for [listComicsInFolder],
@@ -50,6 +52,9 @@ class ListComicFragment: Fragment() {
 
         comicAdapter = ComicAdapter(glide)
         NUM_COL = calculateNumberOfColumns()
+
+        val metadata = args.metadataToQuery
+        viewModel.setMetadata(metadata)
     }
 
     override fun onCreateView(
@@ -61,13 +66,11 @@ class ListComicFragment: Fragment() {
 
         setupListComicFolders(view)
 
-        listComicsInFolderObserver = Observer { comicAdapter.submitList(it) }
-        viewModel.comics.observe(viewLifecycleOwner, listComicsInFolderObserver)
+        viewModel.comics.observe(viewLifecycleOwner) { comicAdapter.submitList(it) }
 
         // This one won't survive a rotate!
         // (requireActivity() as AppCompatActivity).supportActionBar?.title = arguments?.getString("folderUri")
-        viewModel.folderName.observe(viewLifecycleOwner,
-             { (requireActivity() as AppCompatActivity).supportActionBar?.title = it })
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = viewModel.title
 
         return view
     }
@@ -105,7 +108,8 @@ class ListComicFragment: Fragment() {
      */
     private fun onItemClick(position: Int) {
         val comicID = comicAdapter.currentList[position].id
-        val action = ListComicFragmentDirections.actionNavFragmentBrowseFolderToReaderFragment(comicID)
+        val action = ListComicFragmentDirections
+            .actionListComicFragmentToReaderFragment(comicID)
         findNavController().navigate(action)
     }
 
