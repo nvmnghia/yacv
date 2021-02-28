@@ -21,16 +21,9 @@ import kotlinx.parcelize.Parcelize
 /**
  * Class for placeholders: group title and See More.
  * The ID of the placeholders is the group ID of the corresponding group,
- * i.e. METADATA_GROUP_ID of the other [Metadata] classes.
+ * i.e. METADATA_TYPE of the other [Metadata] classes.
  */
 abstract class MetadataPlaceholder(protected open var id: Long) : Metadata {
-
-    constructor(sample: Metadata) : this(    // Glorious isn't it?
-        sample::class.let { kclass ->
-            METADATA_PRECEDENCE[kclass]?.toLong()
-                ?: throw IllegalStateException("Unexpected metadata class $kclass")
-        }
-    )
 
     override fun getID(): Long = id
 
@@ -45,20 +38,20 @@ abstract class MetadataPlaceholder(protected open var id: Long) : Metadata {
  * Label of result group is the group title.
  */
 @Parcelize
-class ResultGroupPlaceholder(override var id: Long) : MetadataPlaceholder(id) {
+class ResultGroupHeaderPlaceholder(override var id: Long) : MetadataPlaceholder(id) {
 
     constructor(sample: Metadata) : this(sample.getType().toLong())
 
     @IgnoredOnParcel
-    private var title: String = MAP_GROUP_ID_2_TITLE[id.toInt()]
+    private var title: String = MAP_METADATA_TYPE_2_TITLE[id.toInt()]
         ?: throw IllegalStateException("Unexpected metadata of ID $id")
 
     override fun getLabel(): String = title
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getType(): Int = METADATA_TYPE
 
     companion object {
-        const val METADATA_GROUP_ID: Int = -1
+        const val METADATA_TYPE: Int = -1
     }
 
 }
@@ -74,10 +67,10 @@ class SeeMorePlaceholder(override var id: Long, private val query: String) : Met
 
     override fun getLabel(): String = query
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getType(): Int = METADATA_TYPE
 
     companion object {
-        const val METADATA_GROUP_ID = -2
+        const val METADATA_TYPE = -2
     }
 
 }
@@ -87,21 +80,18 @@ class SeeMorePlaceholder(override var id: Long, private val query: String) : Met
 // KClass to ID to title
 //================================================================================
 
-// Map class to group ID
-val MAP_CLASS_2_GROUP_ID = METADATA_PRECEDENCE
-
 // Map class to group title
-lateinit var MAP_GROUP_ID_2_TITLE: Map<Int, String>
+lateinit var MAP_METADATA_TYPE_2_TITLE: Map<Int, String>
 
 
 /**
- * Initialize [MAP_GROUP_ID_2_TITLE]. Should be called in MainApplication
+ * Initialize [MAP_METADATA_TYPE_2_TITLE]. Should be called in MainApplication
  */
 fun initializeMetadataTitle(context: Context) {
     // If initialized, returns
-    if (::MAP_GROUP_ID_2_TITLE.isInitialized) return
+    if (::MAP_METADATA_TYPE_2_TITLE.isInitialized) return
 
-    MAP_GROUP_ID_2_TITLE = METADATA_PRECEDENCE.entries.associate { (kclass, groupID) ->
+    MAP_METADATA_TYPE_2_TITLE = METADATA_PRECEDENCE.entries.associate { (kclass, groupID) ->
         groupID to when (kclass) {
             ComicMini::class -> context.resources.getString(R.string.comic)
             Series::class    -> context.resources.getString(R.string.series)

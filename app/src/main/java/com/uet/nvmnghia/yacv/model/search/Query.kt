@@ -7,35 +7,39 @@ import kotlinx.parcelize.Parcelize
 
 /**
  * Mother of all queries.
+ *
+ * [query]: the query string itself
+ * [preview]: preview query or not (see [MetadataSearchHandler.search]), default to false
  */
-interface Query : Parcelable
+abstract class Query(
+    open val query: String,
+    open val preview: Boolean = false
+) : Parcelable
 
 /**
  * Wrapper for query of a single type/category/table.
  *
- * [query]: the query string itself
  * [type]: the type/category queried
- * [preview]: preview query or not (see [MetadataSearchHandler.search]), default to false
  */
 @Parcelize
 data class QuerySingleType(
-    val query: String,
+    override val query: String,
     val type: Int,
-    val preview: Boolean = false,
-) : Parcelable
+    override val preview: Boolean = false,
+) : Query(query, preview)
 
 
 /**
- * The same as [QuerySingleType], but:
- * - for several types, and
- * - [preview] default to true.
+ * The same as [QuerySingleType], but for several types.
+ *
+ * [types]: the type/category queried
  */
 @Parcelize
 data class QueryMultipleTypes(
-    val query: String,
+    override val query: String,
     val types: List<Int>,
-    val preview: Boolean = false,
-) : Parcelable
+    override val preview: Boolean = false,
+) : Query(query, preview)
 
 
 fun queryAllTypes(query: String, preview: Boolean = false): QueryMultipleTypes =

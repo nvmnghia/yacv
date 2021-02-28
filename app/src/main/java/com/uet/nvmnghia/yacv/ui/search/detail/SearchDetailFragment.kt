@@ -18,10 +18,10 @@ import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.series.Series
-import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
+import com.uet.nvmnghia.yacv.ui.search.MAP_METADATA_TYPE_2_TITLE
+import com.uet.nvmnghia.yacv.ui.search.ResultGroupHeaderPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SearchResultsAdapter
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
-import com.uet.nvmnghia.yacv.ui.search.preview.SearchPreviewFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.IllegalStateException
 
@@ -59,6 +59,7 @@ class SearchDetailFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.search_list_result)
         recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.setHasFixedSize(true)
 
         resultsAdapter = SearchResultsAdapter(clickListener)
         recyclerView.adapter = resultsAdapter
@@ -74,10 +75,11 @@ class SearchDetailFragment : Fragment() {
 
         // @formatter:off
         when (val type = item.getType()) {
-            Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID, Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID
+            Series.METADATA_TYPE, Folder.METADATA_TYPE, Character.METADATA_TYPE, Author.METADATA_TYPE, Genre.METADATA_TYPE
                 -> toListComic(item)
-            ResultGroupPlaceholder.METADATA_GROUP_ID, ComicMini.METADATA_GROUP_ID, SeeMorePlaceholder.METADATA_GROUP_ID
-                -> throw IllegalStateException("Unexpected metadata type $type, which should be handled separately.")
+            ResultGroupHeaderPlaceholder.METADATA_TYPE, ComicMini.METADATA_TYPE, SeeMorePlaceholder.METADATA_TYPE
+                -> throw IllegalStateException("Unexpected metadata type $type (${MAP_METADATA_TYPE_2_TITLE[type]}), " +
+                    "which should be handled separately.")
             else -> throw IllegalStateException("Unexpected item type $type.")
         }
         // @formatter:on

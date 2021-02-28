@@ -4,10 +4,9 @@ import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.uet.nvmnghia.yacv.model.search.*
-import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
+import com.uet.nvmnghia.yacv.ui.search.ResultGroupHeaderPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
 import kotlinx.coroutines.launch
-import java.lang.IllegalArgumentException
 
 
 class SearchPreviewViewModel @ViewModelInject constructor(
@@ -27,10 +26,10 @@ class SearchPreviewViewModel @ViewModelInject constructor(
 
     companion object {
         /**
-         * Given a list of result groups, flatten it then submit.
+         * Given a 2D list of results (grouped by metadata type), flatten it.
          * [query] string is needed for [Metadata].
          * The flattened list includes:
-         * - [ResultGroupPlaceholder] as the first item in a group
+         * - [ResultGroupHeaderPlaceholder] as the first item in a group
          * - All group's item
          * - [Metadata] if needed
          * - Repeat the above for all groups
@@ -40,7 +39,7 @@ class SearchPreviewViewModel @ViewModelInject constructor(
 
             previewResults.forEach { group ->
                 // Group title
-                flattened.add(ResultGroupPlaceholder(group[0]))
+                flattened.add(ResultGroupHeaderPlaceholder(group[0]))
 
                 // Group results
                 flattened.addAll(group)

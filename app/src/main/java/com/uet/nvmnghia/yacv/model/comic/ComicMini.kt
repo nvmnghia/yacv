@@ -20,9 +20,9 @@ class ComicMini(
 
     override fun getLabel(): String = title
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getType(): Int = METADATA_TYPE
 
     companion object {
-        val METADATA_GROUP_ID: Int = METADATA_PRECEDENCE[ComicMini::class]!!
+        val METADATA_TYPE: Int = METADATA_PRECEDENCE[ComicMini::class]!!
     }
 }

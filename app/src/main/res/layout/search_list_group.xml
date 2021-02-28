@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search_list_group_title"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingHorizontal="?android:attr/expandableListPreferredItemPaddingLeft"
-    android:paddingVertical="10dp"
-    android:textColor="@android:color/black"
-    android:background="@color/white"/>

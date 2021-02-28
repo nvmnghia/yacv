@@ -27,14 +27,14 @@ data class Author(
 
     override fun getLabel() = name
 
-    override fun getType(): Int = METADATA_GROUP_ID
+    override fun getType(): Int = METADATA_TYPE
 
     companion object {
         const val COLUMN_AUTHOR_ID = "AuthorID"
 
         internal const val COLUMN_AUTHOR_NAME = "Name"
 
-        val METADATA_GROUP_ID: Int = METADATA_PRECEDENCE[Author::class]!!
+        val METADATA_TYPE: Int = METADATA_PRECEDENCE[Author::class]!!
     }
 
 }

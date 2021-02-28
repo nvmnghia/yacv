@@ -19,15 +19,14 @@ import com.uet.nvmnghia.yacv.model.series.Series
 
 
 /**
- * Given a 2D list of search results via [submitListToFlatten], display it.
- * This adapter is used in [SearchFragment], which means it only display the preview.
- * The 2D list has at most 5 elements (5 result groups correspond to 5 search
- * categories), and can be empty.
- * Each result group is guarantee to have from 1 to
- * [MetadataSearchHandler.NUM_PREVIEW_MATCH] + 1 = 4 elements.
+ * Given a 2D list of search results, display it.
+ * This adapter is used in both [com.uet.nvmnghia.yacv.ui.search.preview.SearchPreviewFragment]
+ * and [com.uet.nvmnghia.yacv.ui.search.detail.SearchDetailFragment].
+ * The 2D list has at most 6 sublists (6 result groups correspond to 6 search categories/metadata types),
+ * and can be empty.
+ * Each result group is guarantee to have from 1 to [MetadataSearchHandler.NUM_PREVIEW_MATCH] + 1 = 4 elements.
  * However, at most 3 results are displayed per category.
- * If the fourth result is included, "See more..." is displayed, but the result
- * itself is not shown.
+ * If the fourth result is included, "See More..." is displayed instead.
  */
 class SearchResultsAdapter(
     private val clickListener: View.OnClickListener
@@ -47,9 +46,9 @@ class SearchResultsAdapter(
         val inflate: (Int) -> View = { layoutID -> inflater.inflate(layoutID, parent, false) }
 
         return when (viewType) {
-            VIEW_TYPE_GROUP    -> inflate(R.layout.search_list_group)
+            VIEW_TYPE_GROUP_HEADER    -> inflate(R.layout.search_list_group_header)
                 .apply { setOnClickListener(clickListener) }
-                .let { ResultGroupViewHolder(it) }
+                .let { ResultGroupHeaderViewHolder(it) }
             VIEW_TYPE_COMIC    -> inflate(R.layout.search_list_item_comic)
                 .apply { setOnClickListener(clickListener) }
                 .let { ComicResultViewHolder(it) }
@@ -67,7 +66,7 @@ class SearchResultsAdapter(
         val item = getItem(position)    // Don't access the list directly
 
         when (val viewType = holder.itemViewType) {
-            VIEW_TYPE_GROUP    -> (holder as ResultGroupViewHolder).setTitle(item.getLabel())
+            VIEW_TYPE_GROUP_HEADER    -> (holder as ResultGroupHeaderViewHolder).setTitle(item.getLabel())
             VIEW_TYPE_COMIC    -> (holder as ComicResultViewHolder).setLabel(item)
             VIEW_TYPE_METADATA -> (holder as MetadataResultViewHolder).setLabel(item)
             VIEW_TYPE_SEEMORE  -> null
@@ -78,11 +77,11 @@ class SearchResultsAdapter(
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
         return when (item.getType()) {
-            ResultGroupPlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_GROUP
-            ComicMini.METADATA_GROUP_ID              -> VIEW_TYPE_COMIC
-            Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID,
-                    Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID -> VIEW_TYPE_METADATA
-            SeeMorePlaceholder.METADATA_GROUP_ID -> VIEW_TYPE_SEEMORE
+            ResultGroupHeaderPlaceholder.METADATA_TYPE -> VIEW_TYPE_GROUP_HEADER
+            ComicMini.METADATA_TYPE              -> VIEW_TYPE_COMIC
+            Series.METADATA_TYPE, Folder.METADATA_TYPE, Character.METADATA_TYPE,
+                    Author.METADATA_TYPE, Genre.METADATA_TYPE -> VIEW_TYPE_METADATA
+            SeeMorePlaceholder.METADATA_TYPE -> VIEW_TYPE_SEEMORE
             else -> throw IllegalStateException("Unexpected metadata of type ${item::class}")
         }
     }
@@ -113,20 +112,21 @@ class SearchResultsAdapter(
     }
 
     /**
-     * View holder for group title
+     * View holder for group header.
      */
-    class ResultGroupViewHolder(groupView: View) : ResultViewHolder(groupView) {
+    class ResultGroupHeaderViewHolder(groupView: View) : ResultViewHolder(groupView) {
 
-        private var groupTitle: TextView = groupView.findViewById(R.id.search_list_group_title)
+        private var headerTitle: TextView = groupView.findViewById(R.id.search_list_header_title)
 
         fun setTitle(title: String) {
-            groupTitle.text = title
+            headerTitle.text = title
         }
 
     }
 
     /**
      * View holder specific to comic results.
+     * Comic result has preview but metadata result doesn't.
      */
     class ComicResultViewHolder(itemView: View) : LabelledResultViewHolder(itemView) {
 
@@ -140,6 +140,7 @@ class SearchResultsAdapter(
 
     /**
      * ViewHolder for non-comic results.
+     * Comic result has preview but metadata result doesn't.
      */
     class MetadataResultViewHolder(itemView: View) : LabelledResultViewHolder(itemView) {
 
@@ -163,18 +164,18 @@ class SearchResultsAdapter(
 
     companion object {
         // Item view types
-        const val VIEW_TYPE_GROUP    = 1
-        const val VIEW_TYPE_COMIC    = 2
-        const val VIEW_TYPE_METADATA = 3
-        const val VIEW_TYPE_SEEMORE  = 4
+        const val VIEW_TYPE_GROUP_HEADER = 1
+        const val VIEW_TYPE_COMIC        = 2
+        const val VIEW_TYPE_METADATA     = 3
+        const val VIEW_TYPE_SEEMORE      = 4
 
         val DIFF_CALLBACK: DiffUtil.ItemCallback<Metadata> = object : DiffUtil.ItemCallback<Metadata>() {
-            override fun areItemsTheSame(old: Metadata, aNew: Metadata): Boolean {
-                return old.getType() == aNew.getType() && old.getID() == aNew.getID()
+            override fun areItemsTheSame(old: Metadata, new: Metadata): Boolean {
+                return old.getType() == new.getType() && old.getID() == new.getID()
             }
 
-            override fun areContentsTheSame(old: Metadata, aNew: Metadata): Boolean {
-                return old.getLabel() == aNew.getLabel()    // This method is called only if areItemsTheSame returns true
+            override fun areContentsTheSame(old: Metadata, new: Metadata): Boolean {
+                return old.getLabel() == new.getLabel()    // This method is called only if areItemsTheSame returns true
             }
         }
     }

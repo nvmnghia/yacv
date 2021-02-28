@@ -36,6 +36,10 @@
             android:id="@+id/action_searchDetailFragment_to_listComicFragment"
             app:destination="@id/listComicFragment" />
     </fragment>
+
+    <!-- Jetpack navigation sucks -->
+    <!-- https://issuetracker.google.com/issues/109505019 -->
+    <!-- https://issuetracker.google.com/issues/118997479 -->
     <fragment
         android:id="@+id/readerFragment"
         android:name="com.uet.nvmnghia.yacv.ui.reader.ReaderFragment"

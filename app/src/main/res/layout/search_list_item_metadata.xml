@@ -2,5 +2,8 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search_list_item_metadata_label"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@color/white"/>
+    android:layout_height="80dp"
+    android:paddingHorizontal="@dimen/header_horizontal_padding"
+    android:gravity="center_vertical"
+    android:textSize="18sp"
+    android:background="?android:attr/selectableItemBackground"/>

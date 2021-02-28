@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 /**
  * Copypasta from
  * https://stackoverflow.com/a/26196831/5959593
+ * TODO: Currently both 2 top answers are implemented:
+ *   - This one used in LibraryFragment & ListComicFragment
+ *   - The other one used in search fragments
  */
 class RecyclerItemClickListener(
     context: Context?, recyclerView: RecyclerView,
@@ -23,7 +26,18 @@ class RecyclerItemClickListener(
         fun onLongItemClick(view: View?, position: Int)
     }
 
-    private var mGestureDetector: GestureDetector
+    private var mGestureDetector: GestureDetector = GestureDetector(context, object : SimpleOnGestureListener() {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            return true
+        }
+
+        override fun onLongPress(e: MotionEvent) {
+            val child: View? = recyclerView.findChildViewUnder(e.x, e.y)
+            if (child != null && mListener != null) {
+                mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child))
+            }
+        }
+    })
 
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView: View? = view.findChildViewUnder(e.x, e.y)
@@ -38,18 +52,4 @@ class RecyclerItemClickListener(
 
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 
-    init {
-        mGestureDetector = GestureDetector(context, object : SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                return true
-            }
-
-            override fun onLongPress(e: MotionEvent) {
-                val child: View? = recyclerView.findChildViewUnder(e.x, e.y)
-                if (child != null && mListener != null) {
-                    mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child))
-                }
-            }
-        })
-    }
 }

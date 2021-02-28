@@ -4,4 +4,6 @@
     <dimen name="library_item_folder_column_width">250dp</dimen>
     <dimen name="library_item_folder_spacing">10dp</dimen>
     <dimen name="browse_folder_item_comic_column_width">150dp</dimen>
+    <dimen name="header_horizontal_padding">15dp</dimen>
+    <dimen name="list_header_text">16sp</dimen>
 </resources>

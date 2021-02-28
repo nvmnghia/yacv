@@ -19,7 +19,7 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.search.queryFromSeeMore
 import com.uet.nvmnghia.yacv.model.series.Series
-import com.uet.nvmnghia.yacv.ui.search.ResultGroupPlaceholder
+import com.uet.nvmnghia.yacv.ui.search.ResultGroupHeaderPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SearchResultsAdapter
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +31,7 @@ import java.lang.IllegalStateException
  * Fragment containing search result preview.
  * The results are displayed in ExpandableListView, grouped by their types.
  * Only the first 3 results in each group are displayed.
+ * See [SearchResultsAdapter] comment for more information.
  */
 @AndroidEntryPoint
 class SearchPreviewFragment : Fragment() {
@@ -73,13 +74,13 @@ class SearchPreviewFragment : Fragment() {
 
         // @formatter:off
         when (item.getType()) {
-            ResultGroupPlaceholder.METADATA_GROUP_ID
+            ResultGroupHeaderPlaceholder.METADATA_TYPE
                 -> null
-            ComicMini.METADATA_GROUP_ID
+            ComicMini.METADATA_TYPE
                 -> toReader(item as ComicMini)
-            Series.METADATA_GROUP_ID, Folder.METADATA_GROUP_ID, Character.METADATA_GROUP_ID, Author.METADATA_GROUP_ID, Genre.METADATA_GROUP_ID
+            Series.METADATA_TYPE, Folder.METADATA_TYPE, Character.METADATA_TYPE, Author.METADATA_TYPE, Genre.METADATA_TYPE
                 -> toListComic(item)
-            SeeMorePlaceholder.METADATA_GROUP_ID
+            SeeMorePlaceholder.METADATA_TYPE
                 -> toSearchDetail(item as SeeMorePlaceholder)
             else -> throw IllegalStateException("Unexpected item type ${item.getType()}")
         }

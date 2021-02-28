@@ -17,7 +17,13 @@ import com.uet.nvmnghia.yacv.model.series.SeriesDao
 
 /**
  * Interface for all searchable metadata types/categories:
- * Author, Character, Comic, Folder, Genre, Series
+ * Author, Character, Comic, Folder, Genre, Series.
+ * There are 2 special metadata classes called placeholders
+ * that eases the rendering of search results:
+ * - [com.uet.nvmnghia.yacv.ui.search.ResultGroupHeaderPlaceholder]:
+ *   placeholder for result group header
+ * - [com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder]:
+ *   placeholder for See More button
  */
 interface Metadata : Parcelable {
     /**
@@ -32,6 +38,9 @@ interface Metadata : Parcelable {
 
     /**
      * Type number is also the display precedence of the type.
+     * Each metadata type has a fixed type number.
+     * This should be a static/companion object method, but currently
+     * there's no way to enforce that in interface.
      */
     fun getType(): Int
 }
