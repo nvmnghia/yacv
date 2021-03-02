@@ -1,18 +1,28 @@
 package com.uet.nvmnghia.yacv.ui.library
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.ObjectKey
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.covercache.CoverCache
 import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
@@ -25,7 +35,8 @@ import kotlinx.coroutines.withContext
 
 class FolderAdapter(
     private val glide: RequestManager,
-    private val comicDao: ComicDao
+    private val comicDao: ComicDao,
+//    private val coverCache: CoverCache
 ) : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private lateinit var context: Context
@@ -62,10 +73,21 @@ class FolderAdapter(
             val parser = ComicParser(context, firstComic.fileUri)
             val coverRequest = parser.requestCover()
 
+            val setup = glide.load(coverRequest)    // Off UI anyway
+                .transform(TopCrop())               // Off UI anyway
+//                .listener(object : RequestListener<Drawable> {
+//                    override fun onLoadFailed(e: GlideException?, model: Any?,
+//                        target: Target<Drawable>?, isFirstResource: Boolean): Boolean = false
+//
+//                    override fun onResourceReady(resource: Drawable?, model: Any?,
+//                        target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+//                        cacheLowRes(coverRequest)
+//                        return false
+//                    }
+//
+//                })
             withContext(Dispatchers.Main) {
-                glide.load(coverRequest)
-                    .transform(TopCrop())
-                    .into(holder.folderCover)
+                setup.into(holder.folderCover)      // Must be on UI
             }
         }
     }
@@ -83,6 +105,20 @@ class FolderAdapter(
         val folderName: TextView = view.findViewById(R.id.library_item_folder_name)
         val folderCover: ImageView = view.findViewById(R.id.library_item_folder_cover)
     }
+
+
+    //================================================================================
+    // Misc
+    //================================================================================
+
+//    fun cacheLowRes(coverRequest: ComicParser.PageRequest) {
+//        val glideCache = glide.asFile()
+//            .load(coverRequest)
+//            .transform(TopCrop())
+//            .submit()
+//            .get()
+//        coverCache.cache()
+//    }
 
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {

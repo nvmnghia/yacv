@@ -112,4 +112,7 @@ dependencies {
 
     // Compression library
 //    implementation 'com.hzy:libp7zip:1.7.0'
+
+    // Image compression library
+    implementation 'id.zelory:compressor:3.0.1'
 }
