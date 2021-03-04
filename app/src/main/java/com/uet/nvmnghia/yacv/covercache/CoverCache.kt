@@ -2,12 +2,14 @@ package com.uet.nvmnghia.yacv.covercache
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default
 import id.zelory.compressor.constraint.destination
 import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.resolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,8 +51,8 @@ class CoverCache @Inject constructor(
      */
     private val MAX_CACHE_SIZE = 50 * 1024 * 1024
 
-    private val MAX_WIDTH = context.resources.displayMetrics.widthPixels / 3
-    private val MAX_QUALITY = 75
+    private val MAX_WIDTH = context.resources.displayMetrics.widthPixels / 8
+    private val MAX_QUALITY = 60
 
     /**
      * The main LRU cache.
@@ -84,13 +86,13 @@ class CoverCache @Inject constructor(
 
     /**
      * Cache a cover if not already cached.
-     * [glideCache] is the cache file in Glide.
+     * This function opportunistically takes advantage of [glideCache] - the newly cache file in Glide.
      * Note that the [File] returned is NOT GUARANTEED to be ready.
      * This method will compress it, and write output to that file,
      * just not immediately.
      */
     fun cache(comicID: Long, glideCache: File): File? {
-        val toBeCached = File(lowResCoverFolder, "$comicID.jpg")
+        val toBeCached = getCacheEvenIfNotReady(comicID)
         if (toBeCached.exists()) {
             return toBeCached
         }
@@ -101,8 +103,9 @@ class CoverCache @Inject constructor(
         }
 
         CoroutineScope(Dispatchers.IO).launch {
+            // TODO: Not always available
             Compressor.compress(context, glideCache) {
-                default(width = MAX_WIDTH)
+                resolution(MAX_WIDTH, MAX_WIDTH)    // Major fuck up: https://github.com/zetbaitsu/Compressor/issues/121#issuecomment-488012718
                 quality(MAX_QUALITY)
                 destination(toBeCached)
             }
@@ -110,6 +113,9 @@ class CoverCache @Inject constructor(
 
         return null
     }
+
+    fun getCacheEvenIfNotReady(comicID: Long): File =
+        File(lowResCoverFolder, "$comicID.jpg")
 
     /**
      * Get the width of the original file.

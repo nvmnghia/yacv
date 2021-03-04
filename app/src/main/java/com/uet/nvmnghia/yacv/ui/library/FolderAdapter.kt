@@ -36,7 +36,7 @@ import kotlinx.coroutines.withContext
 class FolderAdapter(
     private val glide: RequestManager,
     private val comicDao: ComicDao,
-//    private val coverCache: CoverCache
+    private val coverCache: CoverCache
 ) : ListAdapter<Folder, FolderAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private lateinit var context: Context
@@ -73,19 +73,12 @@ class FolderAdapter(
             val parser = ComicParser(context, firstComic.fileUri)
             val coverRequest = parser.requestCover()
 
-            val setup = glide.load(coverRequest)    // Off UI anyway
-                .transform(TopCrop())               // Off UI anyway
-//                .listener(object : RequestListener<Drawable> {
-//                    override fun onLoadFailed(e: GlideException?, model: Any?,
-//                        target: Target<Drawable>?, isFirstResource: Boolean): Boolean = false
-//
-//                    override fun onResourceReady(resource: Drawable?, model: Any?,
-//                        target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-//                        cacheLowRes(coverRequest)
-//                        return false
-//                    }
-//
-//                })
+            // Off UI anyway
+            val setup = glide.load(coverRequest)
+                .transform(TopCrop())
+                .thumbnail(loadThumbnail(coverRequest))
+                .listener(getGlideLoadListener(coverRequest, firstComic.id))
+
             withContext(Dispatchers.Main) {
                 setup.into(holder.folderCover)      // Must be on UI
             }
@@ -111,14 +104,35 @@ class FolderAdapter(
     // Misc
     //================================================================================
 
-//    fun cacheLowRes(coverRequest: ComicParser.PageRequest) {
-//        val glideCache = glide.asFile()
-//            .load(coverRequest)
-//            .transform(TopCrop())
-//            .submit()
-//            .get()
-//        coverCache.cache()
-//    }
+    private fun loadThumbnail(coverRequest: ComicParser.PageRequest) =
+        glide.load(coverRequest).transform(TopCrop())
+
+    /**
+     * Get [RequestListener] to cache low res cover.
+     */
+    private fun getGlideLoadListener(coverRequest: ComicParser.PageRequest, comicId: Long) = object : RequestListener<Drawable> {
+        override fun onLoadFailed(e: GlideException?, model: Any?,
+            target: Target<Drawable>?, isFirstResource: Boolean): Boolean = false
+
+        override fun onResourceReady(resource: Drawable?, model: Any?,
+            target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+            cacheLowRes(coverRequest, comicId)
+            return false
+        }
+    }
+
+    /**
+     * Cache low res cover.
+     */
+    private fun cacheLowRes(coverRequest: ComicParser.PageRequest, comicId: Long) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val glideCache = glide.downloadOnly()
+                .load(coverRequest)
+                .submit()
+                .get()
+            coverCache.cache(comicId, glideCache)
+        }
+    }
 
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<Folder> = object : DiffUtil.ItemCallback<Folder>() {
