@@ -1,18 +1,17 @@
 package com.uet.nvmnghia.yacv.covercache
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.default
-import id.zelory.compressor.constraint.destination
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.resolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.shouheng.compress.Compress
+import me.shouheng.compress.naming.CacheNameFactory
+import me.shouheng.compress.strategy.Strategies
+import me.shouheng.compress.strategy.config.ScaleMode
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,7 +50,7 @@ class CoverCache @Inject constructor(
      */
     private val MAX_CACHE_SIZE = 50 * 1024 * 1024
 
-    private val MAX_WIDTH = context.resources.displayMetrics.widthPixels / 8
+    private val MAX_WIDTH = context.resources.displayMetrics.widthPixels.toFloat() / 3
     private val MAX_QUALITY = 60
 
     /**
@@ -86,13 +85,12 @@ class CoverCache @Inject constructor(
 
     /**
      * Cache a cover if not already cached.
-     * This function opportunistically takes advantage of [glideCache] - the newly cache file in Glide.
-     * Note that the [File] returned is NOT GUARANTEED to be ready.
-     * This method will compress it, and write output to that file,
-     * just not immediately.
+     * This function opportunistically takes advantage of [glideCache] - the newly cached file in Glide.
+     * Note that the [File] returned is GUARANTEED to be ready, otherwise it just returns null.
+     * TODO: glideCache is not always available
      */
     fun cache(comicID: Long, glideCache: File): File? {
-        val toBeCached = getCacheEvenIfNotReady(comicID)
+        val toBeCached = File(lowResCoverFolder, getCacheFileName(comicID))
         if (toBeCached.exists()) {
             return toBeCached
         }
@@ -103,19 +101,29 @@ class CoverCache @Inject constructor(
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            // TODO: Not always available
-            Compressor.compress(context, glideCache) {
-                resolution(MAX_WIDTH, MAX_WIDTH)    // Major fuck up: https://github.com/zetbaitsu/Compressor/issues/121#issuecomment-488012718
-                quality(MAX_QUALITY)
-                destination(toBeCached)
-            }
+            Compress.with(context, glideCache)
+                .setTargetDir(lowResCoverFolder.canonicalPath)
+                .setCacheNameFactory(getCacheNameFactory(comicID))
+                .setQuality(MAX_QUALITY)
+                .strategy(Strategies.compressor())
+                .setMaxWidth(MAX_WIDTH)
+                .setScaleMode(ScaleMode.SCALE_WIDTH)
+                .get(Dispatchers.IO)
         }
 
         return null
     }
 
-    fun getCacheEvenIfNotReady(comicID: Long): File =
-        File(lowResCoverFolder, "$comicID.jpg")
+    private fun getCacheFileName(comicID: Long): String =
+        "$comicID.jpg"
+
+    private fun getCacheNameFactory(comicID: Long) = object : CacheNameFactory {
+        override fun getFileName(format: Bitmap.CompressFormat): String =
+            when (format) {
+                Bitmap.CompressFormat.JPEG -> getCacheFileName(comicID)
+                else -> throw IllegalStateException("JPEG cache only.")
+            }
+    }
 
     /**
      * Get the width of the original file.

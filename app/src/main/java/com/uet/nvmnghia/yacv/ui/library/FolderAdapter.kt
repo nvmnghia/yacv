@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 
 class FolderAdapter(
@@ -105,7 +106,7 @@ class FolderAdapter(
     //================================================================================
 
     private fun loadThumbnail(coverRequest: ComicParser.PageRequest) =
-        glide.load(coverRequest).transform(TopCrop())
+        glide.load(File("")).transform(TopCrop())
 
     /**
      * Get [RequestListener] to cache low res cover.

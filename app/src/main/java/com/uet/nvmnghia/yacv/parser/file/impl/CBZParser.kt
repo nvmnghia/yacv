@@ -60,7 +60,7 @@ class CBZParser(
                         throw NoSuchElementException("CBZParser iterator already reached its end")
                     }
 
-                    return ZipEntry(currentEntry!!.name, IOUtils.toInputStream(zipIS))
+                    return ZipEntry(currentEntry!!.name, currentEntry!!.size, IOUtils.toInputStream(zipIS))
                 }
 
                 override fun close() {
@@ -84,6 +84,7 @@ class CBZParser(
 
     class ZipEntry(
         override val path: String,
+        override val size: Long,
         override val inputStream: InputStream,
     ) : ArchiveParser.ArchiveEntry
 

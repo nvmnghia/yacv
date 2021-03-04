@@ -35,6 +35,11 @@ interface ArchiveParser {
         val path: String
 
         /**
+         * Uncompressed size of the entry.
+         */
+        val size: Long
+
+        /**
          * [InputStream] of the archive entry.
          */
         val inputStream: InputStream
