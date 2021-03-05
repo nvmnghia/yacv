@@ -4,7 +4,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import com.uet.nvmnghia.yacv.model.AppDatabase
 import com.uet.nvmnghia.yacv.parser.ComicScanner
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
@@ -82,7 +82,7 @@ class ComicRepository
                 val comics = documents
                     .filterNotNull()
                     .mapNotNull { document ->
-                        ComicParserFactory.create(comicScanner.context, document)?.info }
+                        ComicParser(comicScanner.context, document).metadata }
                 comicDao.saveIfAbsent(comics)
             }
         }

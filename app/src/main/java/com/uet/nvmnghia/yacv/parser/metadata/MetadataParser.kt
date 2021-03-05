@@ -17,14 +17,14 @@ class MetadataParser {
         /**
          * Given a file name, check if the file is parsable by any parser.
          */
-        fun checkParsableByName(metadataFilename: String?): Boolean {
+        fun isParsableByName(metadataFilename: String?): Boolean {
             if (metadataFilename == null) {
                 return false
             }
 
             val metadataFilenameLowercase = metadataFilename.toLowerCase(Locale.ROOT)
             for (parser in PARSERS) {
-                if (parser.checkParsableByName(metadataFilenameLowercase, true)) {
+                if (parser.isParsableByName(metadataFilenameLowercase, true)) {
                     return true
                 }
             }
@@ -42,7 +42,7 @@ class MetadataParser {
             val metadataFilenameLowercase = metadataFilename?.toLowerCase(Locale.ROOT)
             mis?.let {
                 for (parser in PARSERS) {
-                    if (parser.checkParsableByName(metadataFilenameLowercase, true)) {
+                    if (parser.isParsableByName(metadataFilenameLowercase, true)) {
                         parser.parse(it, comic)
                         break
                     }

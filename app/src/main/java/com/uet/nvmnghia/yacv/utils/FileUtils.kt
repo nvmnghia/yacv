@@ -2,7 +2,12 @@ package com.uet.nvmnghia.yacv.utils
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.FileUtils
 import androidx.documentfile.provider.DocumentFile
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.*
 
 
@@ -34,6 +39,19 @@ class FileUtils {
         }
 
         /**
+         * Get [Uri] extension, if exist, in lowercase.
+         */
+        fun getExtension(uri: Uri): String? {
+            val extension = uri.schemeSpecificPart
+                .substringAfterLast('.', "")
+            return if (extension.isEmpty()) {
+                null
+            } else {
+                extension.toLowerCase(Locale.ROOT)
+            }
+        }
+
+        /**
          * Check if the given Uri exist.
          */
         fun isTreeExist(context: Context, uri: Uri): Boolean {
@@ -54,8 +72,8 @@ class FileUtils {
             return filePath
                 .split('/')
                 .firstOrNull { segment ->
-                    segment.startsWith('.') &&
-                            !(segment == "." || segment == "..")
+                    segment == "__MACOSX" ||
+                    (segment.startsWith('.') && !(segment == "." || segment == ".."))
                 } != null
         }
 
@@ -71,5 +89,25 @@ class FileUtils {
 
             return uri.schemeSpecificPart.substringAfterLast('/')
         }
+
+        /**
+         * Copy [File] from [src] to [dst].
+         */
+        fun copy(src: File, dst: File) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(src.inputStream().fd, dst.outputStream().fd)
+            } else {
+                FileInputStream(src).use { input ->
+                    FileOutputStream(dst).use { output ->
+                        val buf = ByteArray(1024)
+                        var len: Int
+                        while (input.read(buf).also { len = it } > 0) {
+                            output.write(buf, 0, len)
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

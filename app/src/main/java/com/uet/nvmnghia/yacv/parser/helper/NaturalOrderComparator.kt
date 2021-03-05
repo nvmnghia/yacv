@@ -67,7 +67,7 @@ open class NaturalOrderComparator<T> : Comparator<T> {
         }
     }
 
-    fun compareString(s1: String, s2: String): Int {
+    private fun compareString(s1: String, s2: String): Int {
         var ia = 0; var ib = 0        // Current index
         var nza: Int; var nzb: Int    // Number of zero counter until current index
         var ca: Char; var cb: Char    // Character at current index

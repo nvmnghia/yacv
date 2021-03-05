@@ -24,7 +24,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.request.RequestOptions
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.covercache.CoverCache
 import com.uet.nvmnghia.yacv.model.comic.ComicDao
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.ui.helper.RecyclerItemClickListener
@@ -42,6 +45,9 @@ class LibraryFragment : Fragment() {
     // TODO: Move it into viewModel?
     @Inject
     lateinit var comicDao: ComicDao
+
+    @Inject
+    lateinit var coverCache: CoverCache
 
     // Use ViewModelProvider to create ViewModel
     // https://developer.android.com/codelabs/kotlin-android-training-view-model#4
@@ -92,8 +98,11 @@ class LibraryFragment : Fragment() {
 
         // TODO: Inject this shit
         glide = Glide.with(this)
+            .setDefaultRequestOptions(
+                RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)    // In this fragment, Glide only loads cover
+            )
 
-        folderAdapter = FolderAdapter(glide, comicDao)
+        folderAdapter = FolderAdapter(glide, comicDao, coverCache)
         NUM_COL = calculateNumberOfColumns()
 
         HandleNoListTextView.SPAN_TEXT_COLOR = ThemeUtils.getPrimaryColor(requireContext())

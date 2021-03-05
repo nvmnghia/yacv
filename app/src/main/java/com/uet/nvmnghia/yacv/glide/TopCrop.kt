@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.os.Looper
+import android.util.Log
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -21,7 +23,6 @@ class TopCrop : BitmapTransformation() {
         private const val ID = "com.uet.nvmnghia.yacv.glide"
         private val ID_BYTES = ID.toByteArray(Charset.forName("UTF-8"))
         private val DEFAULT_PAINT = Paint(TransformationUtils.PAINT_FLAGS)
-
     }
 
     /**
@@ -56,6 +57,9 @@ class TopCrop : BitmapTransformation() {
         outWidth: Int,
         outHeight: Int,
     ): Bitmap {
+        val onUI = Looper.myLooper() == Looper.getMainLooper()
+        Log.d("yacvui", if (onUI) "Transform on UI" else "Transform off UI")
+
         if (toTransform.width == outWidth && toTransform.height == outHeight) {
             return toTransform
         }

@@ -13,7 +13,7 @@ interface INonGenericMetadataParser {
      * Given a file name, check if the file is parsable by this parser.
      * If [lowered] is set, no string lowercasing is performed. Default to false.
      */
-    fun checkParsableByName(metadataFilename: String?, lowered: Boolean = false): Boolean
+    fun isParsableByName(metadataFilename: String?, lowered: Boolean = false): Boolean
 
     /**
      * Parse metadata from [mis] into [comic].

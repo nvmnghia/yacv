@@ -17,7 +17,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import com.uet.nvmnghia.yacv.parser.file.ComicParserFactory
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URI
 
@@ -44,7 +43,7 @@ class ReaderFragment : Fragment() {
 
         viewModel.comic.observe(viewLifecycleOwner) { comic ->
             fileUri = Uri.parse(comic.fileUri)
-            parser = ComicParserFactory.create(requireContext(), fileUri)!!
+            parser = ComicParser(requireContext(), fileUri)
 
             comicPageAdapter = ComicPageAdapter(this, parser)
 

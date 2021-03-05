@@ -22,10 +22,31 @@ class StringUtils {
 
         /**
          * Given a path-like string (containing '/'), return the name of the file.
-         * Note that it doesn't work with folder name, which may end with '/'.
          */
-        inline fun fileNameFromPath(path: String?): String? {
-            return path?.substringAfterLast('/')
+        fun nameFromPath(path: String): String {
+            return if (path.endsWith('/')) {
+                path.substringBeforeLast('/')
+                    .substringAfterLast('/')
+            } else {
+                path.substringAfterLast('/')
+            }
+        }
+
+        /**
+         * Check string equality, but work backward.
+         */
+        fun equalBackward(s1: String, s2: String): Boolean {
+            if (s1.length != s2.length) {
+                return false
+            }
+
+            for (i in s1.indices.reversed()) {
+                if (s1[i] != s2[i]) {
+                    return false
+                }
+            }
+
+            return true
         }
     }
 }
