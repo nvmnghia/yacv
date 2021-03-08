@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.reader
+package com.uet.nvmnghia.yacv.ui.reader.comicpage
 
 import android.app.Application
 import androidx.hilt.Assisted
@@ -6,10 +6,6 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class ComicPageViewerViewModel @ViewModelInject constructor(

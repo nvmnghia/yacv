@@ -10,15 +10,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.ui.reader.comicpage.ComicPageAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import java.net.URI
 
 
 @AndroidEntryPoint
@@ -75,23 +72,6 @@ class ReaderFragment : Fragment() {
         title.isFocusable = true
         title.isFocusableInTouchMode = true
         title.requestFocus()
-    }
-
-}
-
-
-class ReaderViewModel @ViewModelInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
-    comicRepo: ComicRepository
-) : ViewModel() {
-
-    val comicID = savedStateHandle.get<Long>("comicID")
-        ?: throw IllegalArgumentException("Missing ComicID when reading comic.")
-
-    val comic = comicRepo.getComic(comicID)
-
-    val fileName = Transformations.map(comic) { comic ->
-        Uri.parse(comic.fileUri).path?.substringAfterLast('/')
     }
 
 }
