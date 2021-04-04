@@ -2,6 +2,7 @@ package com.uet.nvmnghia.yacv.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -60,4 +61,5 @@ class MainActivity : AppCompatActivity() {
         return NavigationUI.navigateUp(mNavController, mAppBarConfiguration)
                 || super.onSupportNavigateUp()
     }
+
 }

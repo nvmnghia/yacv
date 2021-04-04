@@ -42,5 +42,16 @@
         <argument
             android:name="comicID"
             app:argType="long" />
+        <action
+            android:id="@+id/action_readerFragment_to_metadataFragment"
+            app:destination="@id/metadataFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/metadataFragment"
+        android:name="com.uet.nvmnghia.yacv.ui.metadata.MetadataFragment"
+        android:label="fragment_metadata"
+        tools:layout="@layout/fragment_metadata" >
+        <argument android:name="comicID"
+            app:argType="long" />
     </fragment>
 </navigation>
