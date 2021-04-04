@@ -85,7 +85,7 @@ class MetadataFragment : Fragment() {
         return view
     }
 
-    fun setupViews(root: View) {
+    private fun setupViews(root: View) {
         coverImg      = root.findViewById(R.id.metadata_cover)
         fileNameTxt   = root.findViewById(R.id.metadata_filename)
         folderPathTxt = root.findViewById(R.id.metadata_folder_path)
@@ -99,7 +99,7 @@ class MetadataFragment : Fragment() {
         summaryTxt    = root.findViewById(R.id.metadata_summary)
     }
 
-    fun showMetadata(comic: Comic) {
+    private fun showMetadata(comic: Comic) {
         val unknownPlaceholder = resources.getString(R.string.unknown)
         val pathPart = Uri.parse(comic.fileUri).path!!
 
@@ -107,13 +107,13 @@ class MetadataFragment : Fragment() {
         fileNameTxt.text   = StringUtils.nameFromPath(pathPart)
         folderPathTxt.text = "Kileko"
         readCountTxt.text  = readCountText(comic.readCount)
-//        loveImg          =    TODO: implement this after merge
+        setLove(comic.love)
         titleTxt.text      = comic.title
         numberTxt.text     = comic.number?.toString() ?: unknownPlaceholder
         summaryTxt.text    = comic.summary ?: unknownPlaceholder
     }
 
-    fun loadCover(fileUri: String) {
+    private fun loadCover(fileUri: String) {
         // Copypasta from ComicAdapter
         CoroutineScope(Dispatchers.IO).launch {
             val parser = ComicParser(requireContext(), fileUri)
@@ -127,12 +127,17 @@ class MetadataFragment : Fragment() {
         }
     }
 
-    fun readCountText(readCount: Int): String =
+    private fun readCountText(readCount: Int): String =
         when  {
             readCount < 0  -> throw IllegalArgumentException("readCount = $readCount < 0")
             readCount == 0 -> resources.getString(R.string.read_0)
             readCount < 10 -> resources.getString(R.string.read_some, readCount)
             else -> resources.getString(R.string.read_many)
         }
+
+    private fun setLove(love: Boolean) =
+        loveImg.setImageResource(
+            if (love) R.drawable.ic_baseline_favorite_24
+            else R.drawable.ic_baseline_favorite_border_24)
 
 }
