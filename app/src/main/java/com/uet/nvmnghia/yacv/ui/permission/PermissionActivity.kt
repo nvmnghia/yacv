@@ -34,7 +34,8 @@ class PermissionActivity : AppCompatActivity() {
 
     private lateinit var sharedPref: SharedPreferences
 
-    private lateinit var exitTxt:  TextView
+    private lateinit var rationaleTxt: TextView
+    private lateinit var exitTxt: TextView
     private lateinit var allowTxt: TextView
 
     private lateinit var requestReadPermissionLauncher: ActivityResultLauncher<String>
@@ -51,9 +52,9 @@ class PermissionActivity : AppCompatActivity() {
         // Launchers have to be setup before onResume()
         setupActivityLaunchers()
 
+        rationaleTxt = findViewById(R.id.permission_rationale)
         exitTxt = findViewById(R.id.permission_exit)
         exitTxt.setOnClickListener { exit() }
-
         allowTxt = findViewById(R.id.permission_allow)
 
         viewModel.readPermissionState.observe(this) { state -> updateView(state) }
@@ -96,6 +97,8 @@ class PermissionActivity : AppCompatActivity() {
                     // This set is needed only if the current state is NOT initial
                     setReadPermissionDeniedForever(true)
                 }
+
+                rationaleTxt.text = resources.getText(R.string.rationale_settings)
 
                 allowTxt.text = resources.getString(R.string.settings)
                 allowTxt.setOnClickListener { launchAppSettings() }

@@ -15,8 +15,6 @@
     <string name="no_root_span_part">Folder icon</string>
     <string name="have_root_no_permission">yacv is not allowed to read 😿. Click here to allow yacv!</string>
     <string name="have_root_no_permission_span_part">here</string>
-    <!--    <string name="no_root_no_read_permission">yacv is not allowed to read 😿. Click here to allow yacv!</string>-->
-    <!--    <string name="no_root_no_read_permission_span_part">Click here</string>-->
     <string name="no_comic">Looks like it\'s empty here. Consider adding more comics, or click the Folder icon to pick another one for yacv.</string>
     <string name="no_comic_span_part">Folder icon</string>
     <string name="deny">Deny</string>
@@ -41,4 +39,5 @@
     <string name="allow_yacv">Allow yacv</string>
     <string name="rationale">yacv needs to access your phone storage to read comics.</string>
     <string name="settings">Settings</string>
+    <string name="rationale_settings">Without permission, yacv cannot proceed any further. Click Settings and enable the Read Storage under Permission menu.</string>
 </resources>

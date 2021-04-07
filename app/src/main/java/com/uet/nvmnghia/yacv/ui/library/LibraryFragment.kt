@@ -1,21 +1,15 @@
 package com.uet.nvmnghia.yacv.ui.library
 
-import android.Manifest
-import android.app.AlertDialog
 import android.app.SearchManager
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -262,19 +256,6 @@ class LibraryFragment : Fragment() {
      */
     private fun changeRootScanFolder() =
         launchFolderPicker()
-
-    /**
-     * Show a dialog explaining why yacv needs storage permission.
-     */
-//    private fun explainStoragePermission() {
-//        val builder = AlertDialog.Builder(requireActivity())
-//        builder
-//            .setTitle(R.string.yacv_needs_storage)
-//            .setMessage(R.string.yacv_explain_storage)
-//            .setPositiveButton(R.string.ok_allow) { _, _ -> launchRequestReadPermission() }
-//            .setNegativeButton(R.string.deny) { _, _ -> }
-//        builder.create().show()
-//    }
 
     /**
      * Launch folder picker.

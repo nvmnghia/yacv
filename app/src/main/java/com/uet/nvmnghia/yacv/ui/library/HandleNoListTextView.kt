@@ -24,30 +24,6 @@ class HandleNoListTextView {
             )
         }
 
-        fun haveRootNoPermission(res: Resources, clickCallback: () -> Any): SpannableString {
-            return oneSpannableText(
-                res.getString(R.string.have_root_no_permission),
-                res.getString(R.string.have_root_no_permission_span_part),
-                clickCallback
-            )
-        }
-
-        fun haveRootNotExist(res: Resources, clickCallback: () -> Any): SpannableString {
-            return oneSpannableText(
-                res.getString(R.string.have_root_not_exist),
-                res.getString(R.string.have_root_not_exist_span_part),
-                clickCallback
-            )
-        }
-
-        fun noReadPermissionForever(res: Resources, clickCallback: () -> Any): SpannableString {
-            return oneSpannableText(
-                res.getString(R.string.no_read_permission_forever),
-                res.getString(R.string.no_read_permission_forever_span_part),
-                clickCallback
-            )
-        }
-
         fun noComic(res: Resources, clickCallback: () -> Any): SpannableString {
             return oneSpannableText(
                 res.getString(R.string.no_comic),
