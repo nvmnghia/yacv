@@ -25,7 +25,8 @@ import com.uet.nvmnghia.yacv.ui.permission.PermissionViewModel.ReadPermissionSta
  * Educate and ask permission upfront.
  * TODO: Make this a fragment in main_graph, right after
  *   LibraryFragment, and cycles back to it if granted.
- *   The hard part is making the ActionBar goes away.
+ *   The hard part is making the ActionBar goes away,
+ *   while matches the status bar color with the background.
  */
 class PermissionActivity : AppCompatActivity() {
 
@@ -124,35 +125,16 @@ class PermissionActivity : AppCompatActivity() {
             .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
     /**
-     * Exit the app.
-     */
-    private fun exit() = this.finishAffinity()
-
-    /**
      * Ask for [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
      */
-    private fun launchRequestReadPermission() {
+    private fun launchRequestReadPermission() =
         requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-    }
 
     /**
      * Callback to handle [Manifest.permission.READ_EXTERNAL_STORAGE] request result.
      * If [granted] is set, move to [com.uet.nvmnghia.yacv.ui.MainActivity].
      */
     private fun handleRequestReadPermissionResult(granted: Boolean) {
-//        if (granted) {
-//            viewModel.setState(ReadPermissionState.GRANTED)
-//        } else {
-//            // Check if deny forever (deny with Never ask again)
-//            if (!ActivityCompat.shouldShowRequestPermissionRationale(
-//                    this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-//                viewModel.setState(ReadPermissionState.DENIED_FOREVER)
-//            } else {
-//                // Normal deny, so nothing changes
-//                Constants.pass
-//            }
-//        }
-
         val isDeniedForever = { ! ActivityCompat.shouldShowRequestPermissionRationale(
             this, Manifest.permission.READ_EXTERNAL_STORAGE) }
 
@@ -177,6 +159,11 @@ class PermissionActivity : AppCompatActivity() {
     }
 
     /**
+     * Exit the app.
+     */
+    private fun exit() = this.finishAffinity()
+
+    /**
      * Move to [com.uet.nvmnghia.yacv.ui.MainActivity], which in turn launches
      * [com.uet.nvmnghia.yacv.ui.library.LibraryFragment], AND pop backstack
      * to avoid going back here.
@@ -198,11 +185,11 @@ class PermissionActivity : AppCompatActivity() {
     private fun setupActivityLaunchers() {
         requestReadPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission())
-        { granted -> handleRequestReadPermissionResult(granted) }
+            { granted -> handleRequestReadPermissionResult(granted) }
 
         appSettingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult())
-        { handleRequestReadPermissionResult(isReadPermissionGranted()) }
+            { handleRequestReadPermissionResult(isReadPermissionGranted()) }
     }
 
 }

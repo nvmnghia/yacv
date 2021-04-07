@@ -1,12 +1,8 @@
 package com.uet.nvmnghia.yacv.ui.library
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
@@ -17,7 +13,6 @@ import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 import com.uet.nvmnghia.yacv.utils.Constants
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 
 
 /**
@@ -63,68 +58,17 @@ class LibraryViewModel @ViewModelInject constructor(
     //================================================================================
 
     /**
-     * Whether the read permission is granted.
-     */
-    var readPermissionGranted: Boolean = false    // Meaningless initial value to use var with custom setter
-        // A custom getter can guarantee to be always correct by checking directly
-        // but it seems to be expensive
-        // Manually check & set seems to be a reasonable choice
-        // TODO: compare with custom getter
-        set(granted) {
-            if (granted) {
-                readPermissionDeniedForever = false
-
-                when {
-                    !rootFolderSelected -> textState.value = TextState.NO_ROOT
-                    !rootFolderExists -> textState.value = TextState.HAVE_ROOT_NOT_EXIST
-//                    folders.value?.isEmpty() == true -> TextState.NO_COMIC
-//                    else -> TextState.NO_TEXT
-                    else -> {
-                        if (field != granted) {
-                            rescanComics(false)
-                            Log.w("yacv", "Rescan triggered by flip readPermissionGranted to true")
-                        }
-                    }
-                }
-            } else {
-                if (rootFolderExists) {
-                    textState.value = TextState.HAVE_ROOT_NO_PERMISSION
-                }
-            }
-
-            field = granted
-        }
-
-    /**
-     * Whether the Never ask again box is checked.
-     * As there's no reliable way to check this, it is persisted.
-     */
-    var readPermissionDeniedForever: Boolean = sharedPref.getBoolean(Constants.SHPREF_READ_PERMISSION_DENIED_FOREVER, false)
-        set(deniedForever) {
-            field = deniedForever
-
-            with(sharedPref.edit()) {
-                putBoolean(Constants.SHPREF_READ_PERMISSION_DENIED_FOREVER, deniedForever)
-                apply()
-            }
-
-            if (deniedForever) {
-                textState.value = TextState.NO_READ_PERMISSION_FOREVER
-            }
-        }
-
-    /**
      * Whether a folder is selected as root.
      */
     private var rootFolderSelected: Boolean = false    // Meaningless initial value to use var with custom setter
         set(selected) {
             field = selected
 
-            if (!selected && !readPermissionDeniedForever) {
+            if (!selected) {
                 textState.value = TextState.NO_ROOT
+            } else {
+                rootFolderExists = true
             }
-
-            rootFolderExists = true
         }
 
     /**
@@ -134,8 +78,8 @@ class LibraryViewModel @ViewModelInject constructor(
         set(exist) {
             field = exist
 
-            if (!exist && rootFolderSelected && readPermissionGranted) {
-                textState.value = TextState.HAVE_ROOT_NOT_EXIST
+            if (!exist && rootFolderSelected) {
+                textState.value = TextState.ROOT_NOT_FOUND
             }
         }
 
@@ -146,11 +90,9 @@ class LibraryViewModel @ViewModelInject constructor(
         // List displayed normally
         NO_TEXT,
 
-        // List is not displayed, and text is
+        // List is not displayed, but text is
         NO_ROOT,
-        HAVE_ROOT_NO_PERMISSION,       // Had root folder, but cannot read due to revoked permission
-        HAVE_ROOT_NOT_EXIST,           // Had root folder, but cannot find it anymore
-        NO_READ_PERMISSION_FOREVER,    // No more asking
+        ROOT_NOT_FOUND,    // Had root folder, but cannot find it anymore
         NO_COMIC
     }
 
@@ -164,11 +106,8 @@ class LibraryViewModel @ViewModelInject constructor(
         val documentFile = rootFolderUri?.let { DocumentFile.fromTreeUri(getApplication(), it) }
         rootFolderExists = documentFile?.exists() ?: false
 
-        readPermissionGranted = ContextCompat.checkSelfPermission(getApplication(),
-            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-
         textState.addSource(folders) { newListFolders ->
-            if (readPermissionGranted && rootFolderExists) {
+            if (rootFolderExists) {
                 textState.value = if (newListFolders.isEmpty()) TextState.NO_COMIC
                     else TextState.NO_TEXT
             }

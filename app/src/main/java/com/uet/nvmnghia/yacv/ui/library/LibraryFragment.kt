@@ -84,9 +84,6 @@ class LibraryFragment : Fragment() {
      * Activity launchers
      */
     private lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
-    private lateinit var requestReadPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var appSettingsLauncher: ActivityResultLauncher<Intent>
-    private lateinit var APP_SETTING_INTENT: Intent
 
 
     //================================================================================
@@ -131,18 +128,6 @@ class LibraryFragment : Fragment() {
         folderPickerLauncher = registerForActivityResult(
             ActivityResultContracts.OpenDocumentTree(),
             this::handleFolderPickerResult)
-
-        requestReadPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission(),
-            this::handleRequestReadPermissionResult)
-
-        appSettingsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {
-            if (isReadPermissionGranted()) {
-                viewModel.rescanComics(false)
-            }
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -185,18 +170,6 @@ class LibraryFragment : Fragment() {
             NO_ROOT -> {
                 HandleNoListTextView.noRoot(
                     resources, this::changeRootScanFolder)
-            }
-            HAVE_ROOT_NO_PERMISSION -> {
-                HandleNoListTextView.haveRootNoPermission(
-                    resources, this::launchAppSettings)    // If possible, use the normal dialog
-            }
-            HAVE_ROOT_NOT_EXIST -> {
-                HandleNoListTextView.haveRootNotExist(
-                    resources, this::changeRootScanFolder)
-            }
-            NO_READ_PERMISSION_FOREVER -> {
-                HandleNoListTextView.noReadPermissionForever(
-                    resources, this::launchAppSettings)
             }
             NO_COMIC -> {
                 HandleNoListTextView.noComic(
@@ -285,99 +258,36 @@ class LibraryFragment : Fragment() {
     //================================================================================
 
     /**
-     * Check if READ_EXTERNAL_STORAGE is granted.
-     */
-    private fun isReadPermissionGranted(): Boolean {
-        viewModel.readPermissionGranted = ContextCompat.checkSelfPermission(requireActivity(),
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-
-        return viewModel.readPermissionGranted
-    }
-
-
-    /**
      * Select a root folder. If not granted, ask for READ_EXTERNAL_STORAGE.
      */
-    private fun changeRootScanFolder() {
-        when {
-            isReadPermissionGranted() -> {
-                launchFolderPicker()
-            }
-            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                explainStoragePermission()
-            }
-            else -> {
-                launchRequestReadPermission()
-            }
-        }
-    }
+    private fun changeRootScanFolder() =
+        launchFolderPicker()
 
     /**
      * Show a dialog explaining why yacv needs storage permission.
      */
-    private fun explainStoragePermission() {
-        val builder = AlertDialog.Builder(requireActivity())
-        builder
-            .setTitle(R.string.yacv_needs_storage)
-            .setMessage(R.string.yacv_explain_storage)
-            .setPositiveButton(R.string.ok_allow) { _, _ -> launchRequestReadPermission() }
-            .setNegativeButton(R.string.deny) { _, _ -> }
-        builder.create().show()
-    }
-
-    /**
-     * Ask for READ_EXTERNAL_STORAGE permission.
-     */
-    private fun launchRequestReadPermission() {
-        requestReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-    }
-
-    /**
-     * Callback to handle READ_EXTERNAL_STORAGE request result.
-     * If [granted] is set, launch a folder picker.
-     * Otherwise, check if Never ask again is ticked. If so, call [viewModel].
-     */
-    private fun handleRequestReadPermissionResult(granted: Boolean) {
-        viewModel.readPermissionGranted = granted
-
-        if (granted) {
-            launchFolderPicker()
-        } else {
-            // Check if deny with Never ask again
-            if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                viewModel.readPermissionDeniedForever = true
-            }
-        }
-    }
+//    private fun explainStoragePermission() {
+//        val builder = AlertDialog.Builder(requireActivity())
+//        builder
+//            .setTitle(R.string.yacv_needs_storage)
+//            .setMessage(R.string.yacv_explain_storage)
+//            .setPositiveButton(R.string.ok_allow) { _, _ -> launchRequestReadPermission() }
+//            .setNegativeButton(R.string.deny) { _, _ -> }
+//        builder.create().show()
+//    }
 
     /**
      * Launch folder picker.
      * If a specific location needs to be opened first, pass its URI to the function.
      */
-    private fun launchFolderPicker(suggestedUri: Uri? = null) {
+    private fun launchFolderPicker(suggestedUri: Uri? = null) =
         folderPickerLauncher.launch(suggestedUri)
-    }
 
     /**
      * Callback to handle folder picker result.
      * Given the [folderUri] from the picker, pass it to [viewModel].
      */
-    private fun handleFolderPickerResult(folderUri: Uri?) {
+    private fun handleFolderPickerResult(folderUri: Uri?) =
         folderUri?.let { viewModel.rootFolderUri = it }
-    }
-
-    /**
-     * Launch app settings.
-     */
-    private fun launchAppSettings() {
-        if (!this::APP_SETTING_INTENT.isInitialized) {
-            APP_SETTING_INTENT = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            APP_SETTING_INTENT.data = Uri.fromParts(
-                "package", requireContext().packageName, null)
-        }
-
-        appSettingsLauncher.launch(APP_SETTING_INTENT)
-    }
 
 }
