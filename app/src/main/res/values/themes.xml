@@ -12,11 +12,13 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="statusBarColorWhenNoActionBar">@color/gray_400</item>
     </style>
 
     <style name="Theme.Yacv.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/gray_600</item>
     </style>
 
     <style name="Theme.Yacv.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

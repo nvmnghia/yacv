@@ -37,4 +37,8 @@
     <string name="folder">Folder</string>
     <string name="query_single_type">query_single_type</string>
     <string name="query_multiple_types">query_multiple_types</string>
+    <string name="exit">Exit</string>
+    <string name="allow_yacv">Allow yacv</string>
+    <string name="rationale">yacv needs to access your phone storage to read comics.</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -12,7 +12,16 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="statusBarColorWhenNoActionBar">?android:attr/colorBackground</item>
     </style>
+
+    <style name="Theme.Yacv.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Theme.Yacv.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <!-- Long night -->
     <!-- https://www.murrayc.com/permalink/2014/10/28/android-changing-the-toolbars-text-color-and-overflow-icon-color/ -->

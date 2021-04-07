@@ -10,9 +10,10 @@
 
     <!-- This is a NavHost -->
     <!-- android:name: Implementation of NavHost -->
-    <!-- app:defaultNavHost: This NavHost is the default (can handle Back), there's only 1 default  -->
-    <!-- android:navGraph: Graph for this NavHost, currently there's nothing
-         as the drawer is about sibling views instead of some hierarchy-->
+    <!-- app:defaultNavHost: This NavHost is the default (can handle Back), there's only 1 default -->
+    <!-- android:navGraph: Graph for this NavHost, currently NOT set to
+         implement conditional startDestination. Instead, the graph is manually
+         inflated and configured in MainActivity. -->
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -20,7 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        app:navGraph="@navigation/main_graph"
         app:defaultNavHost="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

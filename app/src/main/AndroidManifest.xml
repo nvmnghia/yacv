@@ -12,26 +12,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Yacv">
-
-        <activity
-            android:name=".ui.search.SearchActivity"
-            android:theme="@style/Theme.Yacv.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
-        </activity>
-
-        <activity
-            android:name=".ui.MainActivity"
+        <activity android:name=".ui.permission.PermissionActivity"
             android:theme="@style/Theme.Yacv.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable"
+        </activity>
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:theme="@style/Theme.Yacv.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <!-- Declare that this activity is a search activity -->
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:theme="@style/Theme.Yacv.NoActionBar">
+
+            <!-- Declare which activity will be used as search activity -->
+            <meta-data
+                android:name="android.app.default_searchable"
                 android:value=".ui.search.SearchActivity" />
         </activity>
     </application>
