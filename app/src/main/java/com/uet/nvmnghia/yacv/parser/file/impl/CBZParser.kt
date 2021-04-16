@@ -33,17 +33,32 @@ class CBZParser(
             return object : CloseableIterator<ArchiveParser.ArchiveEntry> {
                 private val zipIS = ZipInputStream(context.contentResolver.openInputStream(uri))
 
-                private var start = true
-
+                /**
+                 * Current internal ZIP entry.
+                 */
                 private var currentEntry: java.util.zip.ZipEntry? = null
 
+                /**
+                 * Check if [currentEntry] is [next]ed (consumed) yet.
+                 * - If true, [currentEntry] must be returned in the next [next].
+                 * - If false, [currentEntry] must be updated in the next [next].
+                 */
                 private var nexted = false
 
+                /**
+                 * Check if the next entry is the first entry,
+                 * i.e. [currentEntry] is a non-entry
+                 * i.e. [currentEntry] is still at initialization value (null).
+                 */
+                private var nextEntryIsFirst = true
+
                 override fun hasNext(): Boolean {
-                    if (nexted || start) {
+                    // If currentEntry has been nexted, get a new one, and set nexted to false
+                    // If currentEntry is a non-entry, get a new one, and set
+                    if (nexted || nextEntryIsFirst) {
                         currentEntry = skipExtra(zipIS)
                         nexted = false
-                        start = false
+                        nextEntryIsFirst = false
                     }
 
                     return currentEntry != null
@@ -54,6 +69,7 @@ class CBZParser(
                         nexted = true
                     } else {
                         currentEntry = skipExtra(zipIS)
+                        nextEntryIsFirst = false
                     }
 
                     if (currentEntry == null) {
