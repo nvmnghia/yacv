@@ -103,16 +103,18 @@ class ComicParser(
         } else {
             var coverEntry: ArchiveParser.ArchiveEntry? = null
 
-            for (entry in archiveParser.entries) {
-                if (!FileUtils.isImage(entry.path)) {
-                    continue
-                }
+            archiveParser.getEntryIterator().use { entries ->
+                for (entry in entries) {
+                    if (!FileUtils.isImage(entry.path)) {
+                        continue
+                    }
 
-                if (coverEntry == null) {
-                    coverEntry = entry
-                } else {
-                    if (PATH_COMPARATOR.compare(coverEntry.path, entry.path) > 0) {
+                    if (coverEntry == null) {
                         coverEntry = entry
+                    } else {
+                        if (PATH_COMPARATOR.compare(coverEntry!!.path, entry.path) > 0) {
+                            coverEntry = entry
+                        }
                     }
                 }
             }
@@ -140,9 +142,11 @@ class ComicParser(
      * Given a page path, return an [InputStream] to read that page.
      */
     fun readPage(pagePath: String): InputStream? {
-        for (entry in archiveParser.entries) {
-            if (StringUtils.equalBackward(entry.path, pagePath)) {    // Most of the time paths differ at the end.
-                return entry.inputStream
+        archiveParser.getEntryIterator().use { entries ->
+            for (entry in entries) {
+                if (StringUtils.equalBackward(entry.path, pagePath)) {    // Most of the time paths differ at the end.
+                    return entry.inputStream
+                }
             }
         }
 
@@ -157,7 +161,7 @@ class ComicParser(
     private fun scanPages() {
         val pageEntryPaths = mutableListOf<String>()
 
-        archiveParser.entries.use { entries ->
+        archiveParser.getEntryIterator().use { entries ->
             for (entry in entries) {
                 if (FileUtils.isImage(entry.path)) {
                     pageEntryPaths.add(entry.path)
@@ -180,7 +184,7 @@ class ComicParser(
         val comic = Comic(document)
         var parsed = false
 
-        archiveParser.entries.use { entries ->
+        archiveParser.getEntryIterator().use { entries ->
             for (entry in entries) {
                 if (parsed && isCorrupted != null) {
                     break
