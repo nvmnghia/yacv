@@ -2,6 +2,7 @@ package com.uet.nvmnghia.yacv.parser.file.impl
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser.ArchiveEntryIterator
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser.ArchiveEntry
@@ -10,6 +11,7 @@ import com.uet.nvmnghia.yacv.utils.FileUtils
 import com.uet.nvmnghia.yacv.utils.IOUtils
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
 import kotlin.properties.Delegates
@@ -32,7 +34,10 @@ class CBZParser(
 
     override fun getEntryIterator(): ArchiveEntryIterator<ArchiveEntry> = object : ArchiveEntryIterator<ArchiveEntry> {
 
-        private val zipIS = ZipArchiveInputStream(context.contentResolver.openInputStream(uri))
+        // https://commons.apache.org/proper/commons-compress/examples.html#Buffering
+        private val buffIS = BufferedInputStream(context.contentResolver.openInputStream(uri), 8192)
+
+        private val zipIS = ZipArchiveInputStream(buffIS)
 
         /**
          * Current internal ZIP entry.
@@ -59,11 +64,6 @@ class CBZParser(
          */
         private var nextEntryIsFirst = true
 
-        /**
-         * Offset of [currentEntry].
-         */
-        private var currentEntryOffset by Delegates.notNull<Long>()
-
         override fun hasNext(): Boolean {
             if (nexted || nextEntryIsFirst) {
                 currentEntry = skipExtra(zipIS)
@@ -80,6 +80,8 @@ class CBZParser(
             if (currentEntry == null) {
                 throw NoSuchElementException("CBZParser iterator already reached its end")
             }
+
+            Log.d("yacvwtf", currentEntry!!.name)
 
             return ZipEntry(currentEntry!!.name, currentEntry!!.size, IOUtils.toInputStream(zipIS))
         }
