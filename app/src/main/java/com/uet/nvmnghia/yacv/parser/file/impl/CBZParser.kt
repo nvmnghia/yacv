@@ -14,6 +14,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import kotlin.properties.Delegates
 
 
@@ -35,6 +37,7 @@ class CBZParser(
     override fun getEntryIterator(): ArchiveEntryIterator<ArchiveEntry> = object : ArchiveEntryIterator<ArchiveEntry> {
 
         // https://commons.apache.org/proper/commons-compress/examples.html#Buffering
+        // https://developer.android.com/training/data-storage/shared/documents-files#input_stream
         private val buffIS = BufferedInputStream(context.contentResolver.openInputStream(uri), 8192)
 
         private val zipIS = ZipArchiveInputStream(buffIS)
