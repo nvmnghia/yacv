@@ -5,11 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.request.RequestOptions
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.character.Character
@@ -40,6 +45,8 @@ class SearchDetailFragment : Fragment() {
 
     val args: SearchDetailFragmentArgs by navArgs()
 
+    private lateinit var glide: RequestManager
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var resultsAdapter: SearchResultsAdapter
 
@@ -49,6 +56,11 @@ class SearchDetailFragment : Fragment() {
         val query = args.query
             ?: throw IllegalArgumentException("Cannot get any query.")
         viewModel.setQuery(query)
+
+        glide = Glide.with(this)
+            .setDefaultRequestOptions(
+                RequestOptions.formatOf(DecodeFormat.PREFER_RGB_565)    // In this fragment, Glide only loads cover
+            )
     }
 
     override fun onCreateView(
@@ -57,11 +69,14 @@ class SearchDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
+        viewModel.query.observe(viewLifecycleOwner)
+            { title -> (requireActivity() as AppCompatActivity).supportActionBar?.title = "Results for: $title" }
+
         recyclerView = view.findViewById(R.id.search_list_result)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.setHasFixedSize(true)
 
-        resultsAdapter = SearchResultsAdapter(clickListener)
+        resultsAdapter = SearchResultsAdapter(glide, clickListener)
         recyclerView.adapter = resultsAdapter
 
         viewModel.results.observe(viewLifecycleOwner, resultsAdapter::submitList)

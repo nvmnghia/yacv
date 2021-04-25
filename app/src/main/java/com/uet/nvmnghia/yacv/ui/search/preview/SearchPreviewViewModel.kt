@@ -15,6 +15,8 @@ class SearchPreviewViewModel @ViewModelInject constructor(
 ) : ViewModel() {
 
     lateinit var results: LiveData<List<Metadata>>
+    val query: LiveData<String> = Transformations.map(
+        savedStateHandle.getLiveData<Query>("query")) { query -> query.query }
 
     fun setQuery(query: QueryMultipleTypes) {
         savedStateHandle["query"] = query
@@ -22,7 +24,6 @@ class SearchPreviewViewModel @ViewModelInject constructor(
             results = Transformations.map(searchHandler.search(query)) { flattenResults(it, query.query) }
         }
     }
-
 
     companion object {
         /**
