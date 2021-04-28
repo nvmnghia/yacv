@@ -12,7 +12,9 @@ import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.folder.FolderRepository
 import com.uet.nvmnghia.yacv.utils.Constants
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import javax.inject.Inject
 
 
 /**
@@ -25,8 +27,8 @@ import kotlinx.coroutines.Job
  *   BUT NOT anything referencing views
  */
 
-
-class LibraryViewModel @ViewModelInject constructor(
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
     private val folderRepo: FolderRepository, application: Application,
 ) : AndroidViewModel(application) {
 

@@ -1,16 +1,19 @@
 package com.uet.nvmnghia.yacv.ui.search.preview
 
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import com.uet.nvmnghia.yacv.model.search.*
+import com.uet.nvmnghia.yacv.model.search.Metadata
+import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
+import com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes
 import com.uet.nvmnghia.yacv.ui.search.ResultGroupHeaderPlaceholder
 import com.uet.nvmnghia.yacv.ui.search.SeeMorePlaceholder
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class SearchPreviewViewModel @ViewModelInject constructor(
-    @Assisted private val savedStateHandle: SavedStateHandle,    // Access Fragment/Activity args
+@HiltViewModel
+class SearchPreviewViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,    // Access Fragment/Activity args
     private val searchHandler: MetadataSearchHandler
 ) : ViewModel() {
 

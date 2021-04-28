@@ -10,15 +10,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.observe
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
 import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import dagger.hilt.android.AndroidEntryPoint
-import java.net.URI
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -80,8 +82,9 @@ class ReaderFragment : Fragment() {
 }
 
 
-class ReaderViewModel @ViewModelInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+@HiltViewModel
+class ReaderViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     comicRepo: ComicRepository
 ) : ViewModel() {
 

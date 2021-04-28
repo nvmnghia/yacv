@@ -28,13 +28,12 @@
         android:id="@+id/searchDetailFragment"
         android:name="com.uet.nvmnghia.yacv.ui.search.detail.SearchDetailFragment"
         android:label="SearchDetailFragment" >
-        <argument android:name="query"
-            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
-            app:nullable="true"
-            android:defaultValue="@null" />
         <action
             android:id="@+id/action_searchDetailFragment_to_listComicFragment"
             app:destination="@id/listComicFragment" />
+        <argument android:name="query"
+            app:argType="com.uet.nvmnghia.yacv.model.search.QuerySingleType"
+            app:nullable="true" />
     </fragment>
 
     <!-- Jetpack navigation sucks -->
