@@ -79,6 +79,7 @@ class FileUtils {
 
         /**
          * Given a URI denoting a path, return the name of the resource.
+         * TODO: remove this, and use SAF correctly.
          */
         inline fun folderNameFromPathUri(pathUri: String): String {
             val uri = if (pathUri.endsWith('/')) {

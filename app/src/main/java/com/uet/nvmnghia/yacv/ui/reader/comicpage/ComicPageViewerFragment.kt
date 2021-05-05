@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.reader
+package com.uet.nvmnghia.yacv.ui.reader.comicpage
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +10,7 @@ import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 
 @AndroidEntryPoint

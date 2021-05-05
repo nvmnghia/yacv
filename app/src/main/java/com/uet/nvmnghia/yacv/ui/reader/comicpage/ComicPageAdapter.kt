@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.reader
+package com.uet.nvmnghia.yacv.ui.reader.comicpage
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

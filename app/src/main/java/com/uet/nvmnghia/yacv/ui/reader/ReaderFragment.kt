@@ -3,24 +3,18 @@ package com.uet.nvmnghia.yacv.ui.reader
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.comic.ComicRepository
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.ui.reader.comicpage.ComicPageAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -34,12 +28,15 @@ class ReaderFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     private lateinit var comicPageAdapter: ComicPageAdapter
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_reader, container, false)
+
+        setHasOptionsMenu(true)
 
         viewPager = view.findViewById(R.id.comic_viewpager)
 
@@ -56,6 +53,21 @@ class ReaderFragment : Fragment() {
             { fileName -> (requireActivity() as AppCompatActivity).supportActionBar?.title = fileName }
 
         return view
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.reader_toolbar, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.reader_toolbar_info -> viewModel.comic.value!!.let {
+                val action = ReaderFragmentDirections.actionReaderFragmentToMetadataFragment(it.id)
+                findNavController().navigate(action)
+            }
+        }
+
+        return true
     }
 
     /**
@@ -77,24 +89,6 @@ class ReaderFragment : Fragment() {
         title.isFocusable = true
         title.isFocusableInTouchMode = true
         title.requestFocus()
-    }
-
-}
-
-
-@HiltViewModel
-class ReaderViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    comicRepo: ComicRepository
-) : ViewModel() {
-
-    val comicID = savedStateHandle.get<Long>("comicID")
-        ?: throw IllegalArgumentException("Missing ComicID when reading comic.")
-
-    val comic = comicRepo.getComic(comicID)
-
-    val fileName = Transformations.map(comic) { comic ->
-        Uri.parse(comic.fileUri).path?.substringAfterLast('/')
     }
 
 }

@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.ui.reader
+package com.uet.nvmnghia.yacv.ui.reader.comicpage
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

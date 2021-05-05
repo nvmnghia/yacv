@@ -40,4 +40,18 @@
     <string name="rationale">yacv needs to access your phone storage to read comics.</string>
     <string name="settings">Settings</string>
     <string name="rationale_settings">Without permission, yacv cannot proceed any further. Click Settings and enable the Read Storage under Permission menu.</string>
+    <string name="comic_info">Info</string>
+    <string name="file_name">File name</string>
+    <string name="folder_path">Folder path</string>
+    <string name="title">Title</string>
+    <string name="unknown">Unknown</string>
+    <string name="chap_num">Chap/No</string>
+    <string name="volume">Volume</string>
+    <string name="summary">Summary</string>
+    <string name="cover">Cover</string>
+    <string name="authors">Authors</string>
+    <string name="read_0">Haven\'t read</string>
+    <string name="read_some">Read %1$d times</string>
+    <string name="read_many">Read more than 10 times</string>
+    <string name="metadata">Metadata</string>
 </resources>
