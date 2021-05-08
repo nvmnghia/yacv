@@ -1,4 +1,4 @@
-package com.uet.nvmnghia.yacv.parser.file.impl
+package com.uet.nvmnghia.yacv.parser.file.impl.cbz
 
 import android.content.Context
 import android.net.Uri
@@ -14,9 +14,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import kotlin.properties.Delegates
 
 
 /**

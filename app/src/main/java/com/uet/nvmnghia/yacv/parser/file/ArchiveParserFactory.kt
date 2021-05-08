@@ -3,7 +3,7 @@ package com.uet.nvmnghia.yacv.parser.file
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.uet.nvmnghia.yacv.parser.file.impl.CBZParser
+import com.uet.nvmnghia.yacv.parser.file.impl.cbz.CBZParser
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import java.lang.IllegalStateException
 
