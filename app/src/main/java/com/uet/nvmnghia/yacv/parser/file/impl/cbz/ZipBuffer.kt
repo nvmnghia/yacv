@@ -1,7 +1,5 @@
 package com.uet.nvmnghia.yacv.parser.file.impl.cbz
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.uet.nvmnghia.yacv.parser.helper.InputStreamGenerator
 import com.uet.nvmnghia.yacv.utils.IOUtils
 import org.apache.commons.compress.utils.CountingInputStream
@@ -13,12 +11,13 @@ import java.nio.channels.SeekableByteChannel
 
 
 /**
- * The buffer emulating a file for Apache Commons Compress ZipFile.
+ * The buffer emulating a file for Apache Commons Compress
+ * [org.apache.commons.compress.archivers.zip.ZipFile].
  * The buffer tries to read some part at the start and end so that when
- * ZipFile constructor is invoked, nothing fails.
+ * ZipFile constructor is invoked, nothing fails, and the number of [InputStream]
+ * created is kept minimum.
  * If fails, increase (say double) endBufferSize and do it again (and again...).
  */
-@RequiresApi(Build.VERSION_CODES.N)
 class ZipBuffer(
     private val generator: InputStreamGenerator,
     endBufferSize: Int = DEFAULT_END_BUFFER_SIZE
@@ -26,6 +25,7 @@ class ZipBuffer(
 
     private var secondChance: InputStream
     private var secondChancePosition = 0
+    private val secondChanceStatistics = mutableListOf<Int>()
 
     /**
      * Buffer for the whole file if possible.
@@ -35,7 +35,7 @@ class ZipBuffer(
     private var wholeFile: ByteArray? = null
 
     /**
-     * Buffer for the start part, size is fixed at START_BUFFER_SIZE.
+     * Buffer for the start part, size is fixed at [START_BUFFER_SIZE].
      * Exist only if wholeFile is null.
      */
     private var startBuf: ByteArray? = null
@@ -51,6 +51,11 @@ class ZipBuffer(
     private var position = 0
 
     private var isOpen = true
+
+
+    //================================================================================
+    // Constructor
+    //================================================================================
 
     init {
         require(endBufferSize >= MIN_END_BUFFER_SIZE) {
@@ -116,11 +121,15 @@ class ZipBuffer(
     }
 
 
+    //================================================================================
+    // Override methods
+    //================================================================================
+
     override fun read(dst: ByteBuffer): Int {
         checkPositionAndThrow()
 
         if (position >= size) {
-            return -1 // EOF
+            return -1    // EOF
         }
 
         val bufferToRead: ByteArray?
@@ -182,10 +191,20 @@ class ZipBuffer(
 
     override fun isOpen(): Boolean = isOpen
 
+
+    //================================================================================
+    // Helpers
+    //================================================================================
+
     /**
-     * Generate another [secondChance] [InputStream].
+     * Set position of [secondChance].
+     * Generate another [secondChance] [InputStream] if needed.
      */
     private fun askForSecondChance(position: Int) {
+        if (secondChancePosition == position) {
+            return
+        }
+
         var toSkip: Int
         if (secondChancePosition < position) {
             toSkip = position - secondChancePosition
@@ -193,6 +212,8 @@ class ZipBuffer(
             secondChance.close()
             secondChance = generator.generate()
             toSkip = position
+
+            secondChanceStatistics.add(position)
         }
 
         var actuallySkipped: Int
@@ -203,6 +224,11 @@ class ZipBuffer(
 
         secondChancePosition = position
     }
+
+    /**
+     * Get the positions that makes [secondChance] to be generated again.
+     */
+    fun getInputStreamStatistic(): List<Int> = secondChanceStatistics
 
     /**
      * Check the position.

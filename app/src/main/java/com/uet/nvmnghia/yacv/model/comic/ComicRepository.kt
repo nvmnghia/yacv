@@ -82,7 +82,7 @@ class ComicRepository
                 val comics = documents
                     .filterNotNull()
                     .mapNotNull { document ->
-                        ComicParser(comicScanner.context, document).metadata }
+                        ComicParser(comicScanner.context, document.uri).metadata }
                 comicDao.saveIfAbsent(comics)
             }
         }

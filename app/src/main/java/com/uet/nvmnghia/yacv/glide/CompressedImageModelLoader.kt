@@ -1,6 +1,7 @@
 package com.uet.nvmnghia.yacv.glide
 
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
@@ -9,6 +10,7 @@ import com.bumptech.glide.signature.ObjectKey
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
 import java.io.IOException
 import java.io.InputStream
+import java.lang.Exception
 
 
 class CompressedImageModelLoader : ModelLoader<ComicParser.PageRequest, InputStream> {
@@ -17,9 +19,9 @@ class CompressedImageModelLoader : ModelLoader<ComicParser.PageRequest, InputStr
      */
     override fun handles(model: ComicParser.PageRequest): Boolean {
         return try {
-            model.document.canRead()
-        } catch (ioe: IOException) {
-            Log.w("yacv", ioe)
+            DocumentFile.fromSingleUri(model.context, model.uri)!!.canRead()
+        } catch (e: Exception) {
+            Log.w("yacv", e)
             false
         }
     }

@@ -2,15 +2,13 @@ package com.uet.nvmnghia.yacv.parser.file.impl.cbz
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.uet.nvmnghia.yacv.parser.file.ArchiveParser
-import com.uet.nvmnghia.yacv.parser.file.ArchiveParser.ArchiveEntryIterator
-import com.uet.nvmnghia.yacv.parser.file.ArchiveParser.ArchiveEntry
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import com.uet.nvmnghia.yacv.parser.helper.InputStreamGenerator
 import com.uet.nvmnghia.yacv.utils.FileUtils
-import com.uet.nvmnghia.yacv.utils.IOUtils
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
+import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
@@ -22,7 +20,11 @@ import java.io.InputStream
 class CBZParser(
     private val context: Context,
     private val uri: Uri,
+    private val layout: Map<String, Int>    // Map entry name/internal path to offset
 ) : ArchiveParser {
+
+    constructor(context: Context, uri: Uri) :
+            this(context, uri, createMapEntryToOffset(context, uri))
 
     override fun extractTo(folder: File) {
         TODO("Not yet implemented")
@@ -31,86 +33,36 @@ class CBZParser(
     override fun getType(): ComicParser.ComicFileType =
         ComicParser.ComicFileType.CBZ
 
-    override fun getEntryIterator(): ArchiveEntryIterator<ArchiveEntry> = object : ArchiveEntryIterator<ArchiveEntry> {
+    override fun getEntryNames(): List<String> = layout.keys.toList()
 
-        // https://commons.apache.org/proper/commons-compress/examples.html#Buffering
-        // https://developer.android.com/training/data-storage/shared/documents-files#input_stream
-        private val buffIS = BufferedInputStream(context.contentResolver.openInputStream(uri), 8192)
-
-        private val zipIS = ZipArchiveInputStream(buffIS)
-
-        /**
-         * Current internal ZIP entry.
-         */
-        private var currentEntry: ZipArchiveEntry? = null
-            set(value) {
-                field = value
-
-                nextEntryIsFirst = false
-            }
-
-        /**
-         * Check if [currentEntry] is [next]ed (consumed) yet.
-         * - If true, [currentEntry] must be returned in the next [next].
-         * - If false, [currentEntry] must be updated in the next [next].
-         */
-        private var nexted = false
-
-        /**
-         * Check if the next entry is the first entry,
-         * i.e. [currentEntry] is a non-entry
-         * i.e. [currentEntry] is still at initialization value (null).
-         * It is set to false whenever [currentEntry] is reassigned.
-         */
-        private var nextEntryIsFirst = true
-
-        override fun hasNext(): Boolean {
-            if (nexted || nextEntryIsFirst) {
-                currentEntry = skipExtra(zipIS)
-                nexted = false
-            }
-
-            return currentEntry != null
-        }
-
-        override fun next(): ZipEntry {
-            if (!nexted) nexted = true
-            else currentEntry = skipExtra(zipIS)
-
-            if (currentEntry == null) {
-                throw NoSuchElementException("CBZParser iterator already reached its end")
-            }
-
-            Log.d("yacvwtf", currentEntry!!.name)
-
-            return ZipEntry(currentEntry!!.name, currentEntry!!.size, IOUtils.toInputStream(zipIS))
-        }
-
-        override fun close() =
-            zipIS.close()
-
-        override fun currentEntryOffset(): Long =
-            currentEntry?.localHeaderOffset ?: 0
-
+    override fun getInputStream(entryName: String): InputStream {
+        val offset = layout[entryName]!!
+        val input = ComicParser.getFileInputStream(context, uri)
+        input.skip(offset.toLong())
+        return ZipArchiveInputStream(input)
     }
 
-    /**
-     * Skip folder & hidden file entries.
-     */
-    private fun skipExtra(zis: ZipArchiveInputStream): ZipArchiveEntry? {
-        do {
-            val fileEntry = zis.nextZipEntry ?: return null
+    override fun getLayout(): Map<String, Int> = layout
 
-            if (!(fileEntry.isDirectory || FileUtils.naiveIsHidden(fileEntry.name))) {
-                return fileEntry
+    companion object {
+        fun createMapEntryToOffset(context: Context, uri: Uri) : Map<String, Int> {
+            val genIS = InputStreamGenerator {
+                BufferedInputStream(context.contentResolver.openInputStream(uri), 8192)
             }
-        } while (true)
-    }
+            val zb = ZipBuffer(genIS)
+            val zf = ZipFile(zb)
+            val entryToOffset = mutableMapOf<String, Int>()
 
-    class ZipEntry(
-        override val path: String,
-        override val size: Long,
-        override val inputStream: InputStream,
-    ) : ArchiveEntry
+            for (entry: ZipArchiveEntry in zf.entries) {
+                if (entry.isDirectory || FileUtils.naiveIsHidden(entry.name)) {
+                    continue
+                }
+
+                entryToOffset[entry.name] = entry.localHeaderOffset.toInt()
+            }
+
+            return entryToOffset
+        }
+    }
 
 }

@@ -19,42 +19,20 @@ interface ArchiveParser {
     fun getType(): ComicParser.ComicFileType
 
     /**
-     * Get an iterator for entries of the archive.
-     * Each call creates a NEW iterator.
+     * Get list of entry names.
      * Child classes must guarantee that the iterator skips folders and hidden files.
      */
-    fun getEntryIterator(): ArchiveEntryIterator<ArchiveEntry>
+    fun getEntryNames(): List<String>
 
     /**
-     * Wrapper interface for archive entry.
+     * Given an [entryName], get its [InputStream].
+     * The [InputStream] must be created anew in each call.
      */
-    interface ArchiveEntry {
-        /**
-         * Path of the entry in the archive.
-         */
-        val path: String
-
-        /**
-         * Uncompressed size of the entry.
-         */
-        val size: Long
-
-        /**
-         * [InputStream] of the archive entry.
-         */
-        val inputStream: InputStream
-    }
+    fun getInputStream(entryName: String): InputStream
 
     /**
-     * Interface for array entry iterator.
+     * Get the map of entry name/internal path to offset.
      */
-    interface ArchiveEntryIterator<T> : Iterator<T>, AutoCloseable {
-
-        /**
-         * Offset of the current entry.
-         */
-        fun currentEntryOffset(): Long
-
-    }
+    fun getLayout(): Map<String, Int>
 
 }
