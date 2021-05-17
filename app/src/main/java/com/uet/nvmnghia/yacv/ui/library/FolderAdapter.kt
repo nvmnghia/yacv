@@ -77,7 +77,7 @@ class FolderAdapter(
             // Off UI anyway
             val setup = glide.load(coverRequest)
                 .transform(TopCrop())
-                .thumbnail(loadThumbnail(coverRequest))
+//                .thumbnail(loadThumbnail(coverRequest))
                 .listener(getGlideLoadListener(coverRequest, firstComic.id))
 
             withContext(Dispatchers.Main) {

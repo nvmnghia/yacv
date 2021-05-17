@@ -1,5 +1,6 @@
 package com.uet.nvmnghia.yacv.glide
 
+import android.util.Log
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
@@ -15,13 +16,21 @@ class CompressedImageDataFetcher(
     private val pageRequest: ComicParser.PageRequest
 ) : DataFetcher<InputStream> {
 
+    private lateinit var zis: ZipInputStream
+
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
         val input = ComicParser.getFileInputStream(pageRequest.context, pageRequest.uri)
         input.skip(pageRequest.offset.toLong())
-        callback.onDataReady(ZipInputStream(input))
+
+        zis = ZipInputStream(input)
+        zis.nextEntry
+
+        callback.onDataReady(zis as InputStream)
     }
 
-    override fun cleanup() {}
+    override fun cleanup() {
+        zis.close()
+    }
 
     override fun cancel() {
         // Load to death!
