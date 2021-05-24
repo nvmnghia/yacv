@@ -9,7 +9,6 @@ import com.uet.nvmnghia.yacv.utils.FileUtils
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
-import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
 
@@ -20,7 +19,7 @@ import java.io.InputStream
 class CBZParser(
     private val context: Context,
     private val uri: Uri,
-    private val layout: Map<String, Int>    // Map entry name/internal path to offset
+    private val layout: Map<String, Int>,    // Map entry name/internal path to offset
 ) : ArchiveParser {
 
     constructor(context: Context, uri: Uri) :
@@ -45,20 +44,19 @@ class CBZParser(
     override fun getLayout(): Map<String, Int> = layout
 
     companion object {
-        fun createMapEntryToOffset(context: Context, uri: Uri) : Map<String, Int> {
-            val genIS = InputStreamGenerator {
-                BufferedInputStream(context.contentResolver.openInputStream(uri), 8192)
-            }
-            val zb = ZipBuffer(genIS)
-            val zf = ZipFile(zb)
+        fun createMapEntryToOffset(context: Context, uri: Uri): Map<String, Int> {
             val entryToOffset = mutableMapOf<String, Int>()
 
-            for (entry: ZipArchiveEntry in zf.entries) {
-                if (entry.isDirectory || FileUtils.naiveIsHidden(entry.name)) {
-                    continue
-                }
+            val genIS = InputStreamGenerator { ComicParser.getFileInputStream(context, uri) }
+            val zb = ZipBuffer(genIS)
+            ZipFile(zb).use { zf ->
+                for (entry: ZipArchiveEntry in zf.entries) {
+                    if (entry.isDirectory || FileUtils.naiveIsHidden(entry.name)) {
+                        continue
+                    }
 
-                entryToOffset[entry.name] = entry.localHeaderOffset.toInt()
+                    entryToOffset[entry.name] = entry.localHeaderOffset.toInt()
+                }
             }
 
             return entryToOffset

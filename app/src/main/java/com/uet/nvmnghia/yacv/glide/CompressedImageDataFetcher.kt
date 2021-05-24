@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.glide
 
-import android.util.Log
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
@@ -13,7 +12,7 @@ import java.util.zip.ZipInputStream
  * Each model will have its own DataFetcher, instead of a generic one.
  */
 class CompressedImageDataFetcher(
-    private val pageRequest: ComicParser.PageRequest
+    private val pageRequest: ComicParser.PageRequest,
 ) : DataFetcher<InputStream> {
 
     private lateinit var zis: ZipInputStream
@@ -25,7 +24,7 @@ class CompressedImageDataFetcher(
         zis = ZipInputStream(input)
         zis.nextEntry
 
-        callback.onDataReady(zis as InputStream)
+        callback.onDataReady(zis)
     }
 
     override fun cleanup() {
