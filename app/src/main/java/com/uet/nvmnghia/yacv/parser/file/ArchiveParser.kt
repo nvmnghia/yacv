@@ -1,6 +1,5 @@
 package com.uet.nvmnghia.yacv.parser.file
 
-import com.uet.nvmnghia.yacv.parser.helper.CloseableIterator
 import java.io.File
 import java.io.InputStream
 
@@ -20,28 +19,20 @@ interface ArchiveParser {
     fun getType(): ComicParser.ComicFileType
 
     /**
-     * Get the iterator for entries of the archive.
-     * Child class must guarantee that the iterator skips folders and hidden files.
+     * Get list of entry names.
+     * Child classes must guarantee that the iterator skips folders and hidden files.
      */
-    val entries: CloseableIterator<ArchiveEntry>
+    fun getEntryNames(): List<String>
 
     /**
-     * Wrapper interface for archive entry.
+     * Given an [entryName], get its [InputStream].
+     * The [InputStream] must be created anew in each call.
      */
-    interface ArchiveEntry {
-        /**
-         * Path of the entry in the archive.
-         */
-        val path: String
+    fun getInputStream(entryName: String): InputStream
 
-        /**
-         * Uncompressed size of the entry.
-         */
-        val size: Long
+    /**
+     * Get the map of entry name/internal path to offset.
+     */
+    fun getLayout(): Map<String, Int>
 
-        /**
-         * [InputStream] of the archive entry.
-         */
-        val inputStream: InputStream
-    }
 }

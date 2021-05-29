@@ -6,6 +6,7 @@ import androidx.room.*
 import com.uet.nvmnghia.yacv.model.folder.Folder
 import com.uet.nvmnghia.yacv.model.series.Series
 import com.uet.nvmnghia.yacv.parser.metadata.GenericMetadataParser
+import com.uet.nvmnghia.yacv.utils.FileUtils
 import java.util.*
 
 /**
@@ -82,15 +83,12 @@ class Comic(
     val fileUri: String,
 ) {
 
+    constructor(document: DocumentFile) : this(document.uri.toString())
+
+
     //================================================================================
     // Room fields - Metadata
     //================================================================================
-
-    constructor(document: DocumentFile) : this(document.uri.toString()) {
-        val parentFile = document.parentFile!!
-        tmpFolderUri = parentFile.uri.toString()
-        tmpFolderName = parentFile.name!!
-    }
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_COMIC_ID)
@@ -183,7 +181,7 @@ class Comic(
      * So it's best to save folder name in [Folder].
      */
     @Ignore
-    lateinit var tmpFolderName: String
+    var tmpFolderName: String
 
     /**
      * Check if the comic is non-generically parsed.
@@ -191,6 +189,12 @@ class Comic(
      */
     @Ignore
     var nonGenericallyParsed = false
+
+
+    init {
+        tmpFolderUri = Uri.decode(fileUri).substringBeforeLast('/')
+        tmpFolderName = Uri.decode(fileUri).substringAfterLast(':').substringBeforeLast('/')
+    }
 
 
     companion object {

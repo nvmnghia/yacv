@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId "com.uet.nvmnghia.yacv"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -145,5 +145,8 @@ dependencies {
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.3.0'
+//    implementation 'commons-io:commons-io:2.8.0'
+//    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
+    implementation files('libs/commons-compress.jar')
 
 }

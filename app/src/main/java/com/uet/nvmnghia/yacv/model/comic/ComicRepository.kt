@@ -79,10 +79,11 @@ class ComicRepository
             }
 
             comicScanner.scan(rootFolder, this).collect { documents ->
+                // TODO: this one always parse metadata, maybe unnecessarily
                 val comics = documents
                     .filterNotNull()
                     .mapNotNull { document ->
-                        ComicParser(comicScanner.context, document).metadata }
+                        ComicParser(comicScanner.context, document.uri).metadata }
                 comicDao.saveIfAbsent(comics)
             }
         }

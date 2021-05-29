@@ -1,6 +1,7 @@
 package com.uet.nvmnghia.yacv.parser
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.uet.nvmnghia.yacv.parser.file.ComicParser
@@ -43,11 +44,13 @@ class ComicScanner @Inject constructor(val context: Context) {
 
             rootFolder.walkTopDown().forEach { document ->
                 if (! coroutineScope.isActive) {
-                    Log.w("yacv", "Cancel scanning!")
+                    Log.w("yacvwtf", "Cancel scanning!")
                     return@flow
                 }
 
                 if (isComic(document)) {
+                    Log.d("yacv", Uri.decode(document.uri.toString()))
+
                     if (emitImmediate) {
                         if (counter < IMMEDIATE_LIMIT) {
                             emit(arrayOf(document) as Array<DocumentFile?>)    // https://issuetracker.google.com/issues/175457638

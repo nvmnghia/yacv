@@ -36,11 +36,11 @@ class MetadataParser {
          * Given a metadata input stream [mis], its name, and a [Comic] instance [comic],
          * parse metadata into [comic].
          */
-        fun parseByFilename(metadataFilename: String?, mis: InputStream?, comic: Comic) {
+        fun parseByFilename(comic: Comic, metadataFilename: String, mis: InputStream) {
             GenericMetadataParser.parse(comic)
 
-            val metadataFilenameLowercase = metadataFilename?.toLowerCase(Locale.ROOT)
-            mis?.let {
+            val metadataFilenameLowercase = metadataFilename.toLowerCase(Locale.ROOT)
+            mis.let {
                 for (parser in PARSERS) {
                     if (parser.isParsableByName(metadataFilenameLowercase, true)) {
                         parser.parse(it, comic)

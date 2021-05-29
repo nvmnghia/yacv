@@ -43,7 +43,7 @@ abstract class ComicDao(private val appDb: AppDatabase) : MetadataDao<ComicMini>
 
         // Insert into tables that Comic refers to
         comic.folderId = appDb.folderDao().saveIfAbsent(comic.tmpFolderUri, comic.tmpFolderName)
-        comic.seriesId = appDb.seriesDao().saveIfAbsent(comic.tmpSeries!!)
+        comic.tmpSeries?.let { comic.seriesId = appDb.seriesDao().saveIfAbsent(it) }
 
         // Insert into Comic
         val comicId = saveUnsafe(comic)
