@@ -3,6 +3,7 @@ package com.uet.nvmnghia.yacv.covercache
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.uet.nvmnghia.yacv.utils.FileUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -50,8 +51,8 @@ class CoverCache @Inject constructor(
      */
     private val MAX_CACHE_SIZE = 50 * 1024 * 1024
 
-    private val MAX_WIDTH = context.resources.displayMetrics.widthPixels.toFloat() / 3
-    private val MAX_QUALITY = 60
+    private val WIDTH = context.resources.displayMetrics.widthPixels.toFloat() / 5
+    private val QUALITY = 60
 
     /**
      * The main LRU cache.
@@ -89,24 +90,30 @@ class CoverCache @Inject constructor(
      * Note that the [File] returned is GUARANTEED to be ready, otherwise it just returns null.
      * TODO: glideCache is not always available
      */
-    fun cache(comicID: Long, glideCache: File): File? {
+    fun cache(comicID: Long, glideCache: File? = null): File? {
         val toBeCached = File(lowResCoverFolder, getCacheFileName(comicID))
         if (toBeCached.exists()) {
             return toBeCached
         }
 
-        if (getOriginalWidth(glideCache) <= MAX_WIDTH) {
+        if (glideCache == null) {
+            return null
+        }
+
+        if (getOriginalWidth(glideCache) <= WIDTH) {
             FileUtils.copy(glideCache, toBeCached)
             return toBeCached
         }
+
+        Log.d("yacvwtf", "Caching low res for comicID = $comicID")
 
         CoroutineScope(Dispatchers.IO).launch {
             Compress.with(context, glideCache)
                 .setTargetDir(lowResCoverFolder.canonicalPath)
                 .setCacheNameFactory(getCacheNameFactory(comicID))
-                .setQuality(MAX_QUALITY)
+                .setQuality(QUALITY)
                 .strategy(Strategies.compressor())
-                .setMaxWidth(MAX_WIDTH)
+                .setMaxWidth(WIDTH)
                 .setScaleMode(ScaleMode.SCALE_WIDTH)
                 .get(Dispatchers.IO)
         }
@@ -137,6 +144,8 @@ class CoverCache @Inject constructor(
 
         return options.outWidth
     }
+
+    fun getLowResCacheFolder() = lowResCoverFolder
 
     /**
      * Get cover cache directory. Create if not exists.

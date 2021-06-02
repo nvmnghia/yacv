@@ -77,7 +77,7 @@ class FolderAdapter(
             // Off UI anyway
             val setup = glide.load(coverRequest)
                 .transform(TopCrop())
-//                .thumbnail(loadThumbnail(coverRequest))
+                .thumbnail(loadThumbnail(firstComic.id))
                 .listener(getGlideLoadListener(coverRequest, firstComic.id))
 
             withContext(Dispatchers.Main) {
@@ -105,8 +105,8 @@ class FolderAdapter(
     // Misc
     //================================================================================
 
-    private fun loadThumbnail(coverRequest: ComicParser.PageRequest) =
-        glide.load(File("")).transform(TopCrop())
+    private fun loadThumbnail(comicId: Long) =
+        glide.load(coverCache.cache(comicId)).transform(TopCrop())
 
     /**
      * Get [RequestListener] to cache low res cover.
