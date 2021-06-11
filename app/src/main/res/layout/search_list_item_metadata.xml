@@ -6,4 +6,5 @@
     android:paddingHorizontal="@dimen/header_horizontal_padding"
     android:gravity="center_vertical"
     android:textSize="18sp"
-    android:background="?android:attr/selectableItemBackground"/>
+    android:background="?android:attr/selectableItemBackground"
+    android:textColor="@color/black"/>

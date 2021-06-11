@@ -1,13 +1,17 @@
 package com.uet.nvmnghia.yacv.ui.search
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 import com.uet.nvmnghia.yacv.R
+import com.uet.nvmnghia.yacv.glide.TopCrop
 import com.uet.nvmnghia.yacv.model.author.Author
 import com.uet.nvmnghia.yacv.model.character.Character
 import com.uet.nvmnghia.yacv.model.comic.ComicMini
@@ -16,6 +20,11 @@ import com.uet.nvmnghia.yacv.model.genre.Genre
 import com.uet.nvmnghia.yacv.model.search.MetadataSearchHandler
 import com.uet.nvmnghia.yacv.model.search.Metadata
 import com.uet.nvmnghia.yacv.model.series.Series
+import com.uet.nvmnghia.yacv.parser.file.ComicParser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -29,12 +38,21 @@ import com.uet.nvmnghia.yacv.model.series.Series
  * If the fourth result is included, "See More..." is displayed instead.
  */
 class SearchResultsAdapter(
+    private val glide: RequestManager,
     private val clickListener: View.OnClickListener
 ) : ListAdapter<Metadata, SearchResultsAdapter.ResultViewHolder>(DIFF_CALLBACK) {
 
     // ListAdapter manages the list, so no list here, and always use getItem()
 //    // Flattened result list
 //    private lateinit var flatPreviewResults: MutableList<SearchableMetadata>
+
+
+    private lateinit var context: Context
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        context = recyclerView.context
+    }
 
 
     //================================================================================
@@ -67,7 +85,12 @@ class SearchResultsAdapter(
 
         when (val viewType = holder.itemViewType) {
             VIEW_TYPE_GROUP_HEADER    -> (holder as ResultGroupHeaderViewHolder).setTitle(item.getLabel())
-            VIEW_TYPE_COMIC    -> (holder as ComicResultViewHolder).setLabel(item)
+            VIEW_TYPE_COMIC    -> {
+                (holder as ComicResultViewHolder).run {
+                    setLabel(item.getLabel())
+                    setCover(glide, context, (item as ComicMini).fileUri)
+                }
+            }
             VIEW_TYPE_METADATA -> (holder as MetadataResultViewHolder).setLabel(item)
             VIEW_TYPE_SEEMORE  -> null
             else -> throw IllegalStateException("Unexpected view type: $viewType")
@@ -131,9 +154,23 @@ class SearchResultsAdapter(
     class ComicResultViewHolder(itemView: View) : LabelledResultViewHolder(itemView) {
 
         private var itemLabel: TextView = itemView.findViewById(R.id.search_list_item_comic_label)
+        private var itemCover: ImageView = itemView.findViewById(R.id.search_list_item_comic_cover)
 
         override fun setLabel(label: String) {
             itemLabel.text = label
+        }
+
+        fun setCover(glide: RequestManager, context: Context, fileUri: String) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val parser = ComicParser(context, fileUri)
+                val coverRequest = parser.requestCover()
+
+                withContext(Dispatchers.Main) {
+                    glide.load(coverRequest)
+                        .transform(TopCrop())
+                        .into(itemCover)
+                }
+            }
         }
 
     }
