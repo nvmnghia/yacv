@@ -32,6 +32,15 @@ android {
             arguments {
                 arg("room.schemaLocation", "$projectDir/schemas".toString())
             }
+
+            javacOptions {
+                // These options are normally set automatically via the Hilt Gradle plugin, but we
+                // set them manually to workaround a bug in the Kotlin 1.5.20
+                // Should be fixed in 1.5.21
+                // https://github.com/google/dagger/issues/2684#issuecomment-860250964
+                option("-Adagger.fastInit=ENABLED")
+                option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
+            }
         }
     }
 
