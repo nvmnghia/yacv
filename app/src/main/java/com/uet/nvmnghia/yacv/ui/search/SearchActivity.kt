@@ -3,16 +3,13 @@ package com.uet.nvmnghia.yacv.ui.search
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.Navigation
-import com.google.android.material.navigation.NavigationView
 import com.uet.nvmnghia.yacv.R
-import com.uet.nvmnghia.yacv.model.search.QueryMultipleTypes
 import com.uet.nvmnghia.yacv.model.search.queryAllTypes
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.IllegalStateException
 
 
 @AndroidEntryPoint
@@ -30,6 +27,7 @@ class SearchActivity : AppCompatActivity() {
 
         val toolbar: Toolbar = findViewById(R.id.toolbar_search)
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val queryWrapper = Bundle()
         queryWrapper.putParcelable("query", query)
@@ -37,6 +35,16 @@ class SearchActivity : AppCompatActivity() {
         val mNavController = Navigation.findNavController(this, R.id.search_nav_host_fragment)
         mNavController.setGraph(R.navigation.search_graph, queryWrapper)
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }
