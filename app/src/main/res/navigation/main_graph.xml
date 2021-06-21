@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_nav_fragment_library_to_listComicFragment"
             app:destination="@id/listComicFragment" />
+        <action
+            android:id="@+id/action_nav_fragment_library_to_search_graph"
+            app:destination="@id/search_graph" />
     </fragment>
     <fragment
         android:id="@+id/listComicFragment"
@@ -43,4 +46,5 @@
             android:name="comicID"
             app:argType="long" />
     </fragment>
+    <include app:graph="@navigation/search_graph" />
 </navigation>
