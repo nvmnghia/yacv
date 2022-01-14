@@ -77,7 +77,7 @@ class LibraryFragment : Fragment() {
     /**
      * Activity launchers
      */
-    private lateinit var folderPickerLauncher: ActivityResultLauncher<Uri>
+    private lateinit var folderPickerLauncher: ActivityResultLauncher<Uri?>
 
 
     //================================================================================
