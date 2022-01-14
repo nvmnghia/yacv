@@ -72,7 +72,7 @@ class MetadataSearchHandler @Inject constructor(
                     }
 
                     latch.countDown()
-                    if (latch.count == 0 && results2D.size == 0) {
+                    if (latch.count == 0L && results2D.size == 0) {
                         shouldEmit = true
                     }
                 }
