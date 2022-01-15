@@ -4,9 +4,9 @@ yet another comic viewer
 
 ## Screenshots
 
-| Library view                          | Folder view                         | Comic view                        |
-|:-------------------------------------:|:-----------------------------------:|:---------------------------------:|
-| ![library](./screenshots/library.jpg) | ![folder](./screenshots/folder.jpg) | ![comic](./screenshots/comic.jpg) |
+| Library view  | Folder view  | Comic view  |
+|:-------------:|:------------:|:-----------:|
+| ![library][1] | ![folder][2] | ![comic][3] |
 
 ## Goals
 
@@ -15,3 +15,7 @@ yet another comic viewer
 - Material Design
 - Large image/file optimization
 - 80% test coverage
+
+  [1]: ./screenshots/library.jpg
+  [2]: ./screenshots/folder.jpg
+  [3]: ./screenshots/comic.jpg
